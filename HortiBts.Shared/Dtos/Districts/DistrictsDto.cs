@@ -6,8 +6,11 @@ namespace HortiBts.Shared.Dtos.Districts
 {
     public class DistrictsDto
     {
-        public string DistrictId { get; set; } = "";
-        public string DistrictName { get; set; } = "";
-        public string DistrictNameHindi { get; set; } = "";
+        public int DistrictId { get; init; }
+        public int DistrictCensus { get; init; }
+        public string DistrictName { get; init; } = string.Empty;
+        public string DistrictNameHindi { get; init; } = string.Empty;
+        public int? DivId { get; init; }
+        public int? CBankCode { get; init; }
     }
 }

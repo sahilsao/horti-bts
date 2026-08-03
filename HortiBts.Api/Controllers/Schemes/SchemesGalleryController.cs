@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.Schemes
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class SchemesGalleryController(IWebHostEnvironment env, ILogger<SchemesGalleryController> logger) : ControllerBase
+    [Route("api/gallery")]
+    public class SchemesGalleryController(IWebHostEnvironment env, IConfiguration config, ILogger<SchemesGalleryController> logger) : ControllerBase
     {
         private static readonly string[] AllowedExtensions =
         [
@@ -22,6 +22,7 @@ namespace HortiBts.Api.Controllers.Schemes
         {
             try
             {
+                var baseUrl = config["ApiBaseUrl"]?.TrimEnd('/') ?? $"{Request.Scheme}://{Request.Host}";
                 var folder = Path.Combine(env.WebRootPath, "images", "schemes");
 
                 if (!Directory.Exists(folder))
@@ -33,8 +34,10 @@ namespace HortiBts.Api.Controllers.Schemes
                     .OrderBy(Path.GetFileName)
                     .Select(file => new SchemesGalleryDto
                     {
+
+
                         FileName = Path.GetFileName(file),
-                        Url = $"images/schemes/{Path.GetFileName(file)}"
+                        Url = $"{baseUrl}/images/schemes/{Path.GetFileName(file)}"
                     });
 
                 return Ok(images);

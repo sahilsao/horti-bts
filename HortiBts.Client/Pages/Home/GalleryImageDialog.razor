@@ -1,0 +1,17 @@
+﻿<MudDialog>
+    <DialogContent>
+        <div style="max-height:80vh; overflow-y:auto; display:flex; justify-content:center;">
+            <MudImage Src="@ImageUrl" ObjectFit="ObjectFit.Contain" Style="max-width:100%; height:auto;" />
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close">@Lang.Text("Close", "बंद करें")</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public string ImageUrl { get; set; } = string.Empty;
+
+    private void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

@@ -1,6 +1,6 @@
 ﻿using HortiBts.Shared.Dtos.Schemes;
-using HortiBts.Api.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using HortiBts.Api.Repositories.Schemes;
 
 namespace HortiBts.Api.Controllers.Schemes;
 

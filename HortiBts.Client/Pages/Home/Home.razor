@@ -42,25 +42,6 @@
     </MudGrid>
 </MudPaper>
 
-<!-- ============ IMAGE GALLERY ============ -->
-<MudCarousel TData="string" AutoCycle="true"
-             ShowArrows="true"
-             ShowBullets="true"
-             Class="mb-8">
-
-    @foreach (var image in GalleryImages)
-    {
-        <MudCarouselItem>
-            <MudImage Src="@image.Url"
-                      Alt="@image.Title"
-                      Width="100%"
-                      Height="350"
-                      ObjectFit="ObjectFit.Cover"
-                      Style="cursor:pointer"
-                      @onclick="() => OpenGallery(image)" />
-        </MudCarouselItem>
-    }
-</MudCarousel>
 
 <!-- ============ QUICK NAV ============ -->
 <MudStack Row="true" Spacing="2" Class="mb-8 flex-wrap" Justify="Justify.Center">
@@ -157,8 +138,8 @@
     </MudItem>
 
     <!-- ============ USER MANUALS ============ -->
-    <MudItem xs="12" md="5" id="Manual">
-        <MudPaper Outlined="true" Class="pa-4 rounded-lg">
+    <MudItem xs="12" md="5">
+        <MudPaper id="manual" Outlined="true" Class="pa-4 mb-10 rounded-lg">
             <MudText Typo="Typo.h5" Class="mb-4" Color="Color.Primary">
                 <b>@Lang.Text("User Manuals", "यूजर मैनुअल्स")</b>
             </MudText>
@@ -187,11 +168,34 @@
                 </MudList>
             }
         </MudPaper>
+        <!-- ============ IMAGE GALLERY ============ -->
+        <MudPaper id="gallery" Outlined="true" Class="pa-4 mb-10 rounded-lg">
+            <MudText Typo="Typo.h5" Class="mb-4" Color="Color.Primary">
+                <b>@Lang.Text("Gallery", "गैलरी")</b>
+            </MudText>
+
+            @if (GalleryImages.Any())
+            {
+                <MudCarousel Style="height:500px;" TData="SchemesGalleryDto"
+                             AutoCycle="true" ShowArrows="true" ShowBullets="true"
+                             Class="rounded-lg" Style2="background:#f5f5f5;">
+                    @foreach (var image in GalleryImages)
+                    {
+                        <MudCarouselItem Transition="Transition.Slide">
+                            <div style="height:100%; display:flex; align-items:center; justify-content:center; cursor:pointer;"
+                                 @onclick="@(() => OpenGallery(image))">
+                                <MudImage Src="@image.Url" ObjectFit="ObjectFit.Contain" Style="max-height:100%; max-width:100%;" />
+                            </div>
+                        </MudCarouselItem>
+                    }
+                </MudCarousel>
+            }
+        </MudPaper>
     </MudItem>
 </MudGrid>
 
 <style>
-    #aboutus, #guidelines, #vision, #Manual {
+    #aboutus, #guidelines, #vision, #manual, #gallery {
         scroll-margin-top: 96px;
     }
 </style>
@@ -205,10 +209,11 @@
         new("About Us", "हमारे बारे में", "#aboutus"),
         new("Guidelines", "दिशानिर्देश", "#guidelines"),
         new("Objectives", "उद्देश्य", "#vision"),
-        new("User Manuals", "यूजर मैनुअल्स", "#Manual"),
+        new("User Manuals", "यूजर मैनुअल्स", "#manual"),
+        new("Gallery", "गैलरी", "#gallery"),
     };
 
-      
+
     // Converted to your own Dapper-backed API (see SchemesController / ManualsController).
     // nFile (PDF download) hasn't been converted yet -- still goes through the Node proxy
     // until you give me that query too.
@@ -231,9 +236,9 @@
     {
         await Task.WhenAll(
             LoadSchemes(type: 2, list => CentralSchemes = list),   // 2 = centrally sponsored
-            LoadSchemes(type: 1, list => StateSchemes = list)      // 1 = state sponsored
-
-        );
+            LoadSchemes(type: 1, list => StateSchemes = list),      // 1 = state sponsored
+            LoadSchemeGallery()
+    );
     }
 
     private async Task LoadSchemes(int type, Action<List<SchemeDto>> assign)
@@ -265,7 +270,7 @@
             { x => x.OnOpenDocument, EventCallback.Factory.Create<string?>(this, path => GetPdf(path, "scheme")) },
         };
         await DialogService.ShowAsync<SchemeDialog>("", parameters,
-            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseOnEscapeKey = true });
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = false, CloseOnEscapeKey = true, Position = DialogPosition.Center });
     }
 
     private List<VisionPoint> VisionPoints = new()
@@ -319,7 +324,7 @@
         }
     }
 
-    private async Task LoadGallery()
+    private async Task LoadSchemeGallery()
     {
         try
         {
@@ -330,5 +335,15 @@
         {
             Console.WriteLine(ex);
         }
+    }
+
+    private async Task OpenGallery(SchemesGalleryDto image)
+    {
+        var parameters = new DialogParameters<GalleryImageDialog>
+    {
+        { x => x.ImageUrl, image.Url }
+    };
+        await DialogService.ShowAsync<GalleryImageDialog>("", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true, CloseOnEscapeKey = true });
     }
 }

@@ -2,7 +2,7 @@
 using HortiBts.Shared.Dtos.Schemes;
 using HortiBts.Api.Data;
 
-namespace HortiBts.Api.Repositories
+namespace HortiBts.Api.Repositories.Schemes
 {
     public interface ISchemeRepository
     {

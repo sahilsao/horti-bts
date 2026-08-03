@@ -41,18 +41,13 @@
 
                         @if (_loginModel.LoginType == "DST")
                         {
-                            <MudSelect T="string"
-                                       Label="@Lang.Text("District/Office","जिला/कार्यालय")"
-                                       Placeholder="@Lang.Text("--Select District/Office--","--जिला/कार्यालय चुने--")"
-                                       Value="@_loginModel.UserId"
-                                       Variant="Variant.Outlined"
-                                       ValueChanged="OnDistrictChanged"
-                                       FullWidth="true"
-                                       For="@(()=>_loginModel.UserId)">
-                                @foreach (var district in _districts)
+                            <MudSelect T="int?" Label="जिला चुने" Placeholder="--जिला चुने--"
+                                       Value="_selectedDistrictCensus" ValueChanged="OnDistrictChanged"
+                                       Variant="Variant.Outlined" FullWidth="true" Class="mb-3">
+                                @foreach (var d in _districts)
                                 {
-                                    <MudSelectItem Value="@district.DistrictId.ToString()">
-                                        @(Lang.IsHindi ? district.DistrictNameHindi : district.DistrictName)
+                                    <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                                        @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
                                     </MudSelectItem>
                                 }
                             </MudSelect>
@@ -112,10 +107,6 @@
                         </MudButton>
                     </EditForm>
                 </MudCardContent>
-                <MudCardActions>
-                    <MudSpacer />
-                    <MudImage Src="images/logos/nic_logo3-01.png" Height="40" />
-                </MudCardActions>
             </MudCard>
         </MudItem>
     </MudGrid>
@@ -133,6 +124,8 @@
     private bool _isShow = false;
     private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
 
+    private int? _selectedDistrictCensus;
+
     protected override async Task OnInitializedAsync()
     {
         _loginModel.LoginType = "ADM";
@@ -142,6 +135,13 @@
             _districts = result.Value!;
         else
             Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+    }
+
+
+    private void OnDistrictChanged(int? value)
+    {
+        _selectedDistrictCensus = value;
+        _loginModel.UserId = value?.ToString(); // matches Angular's user_id = district_code before submit
     }
 
     private void ToggleVisibility()

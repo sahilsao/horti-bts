@@ -1,4 +1,4 @@
-﻿using HortiBts.Api.Repositories;
+﻿using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Shared.Dtos.Schemes;
 using Microsoft.AspNetCore.Mvc;
 

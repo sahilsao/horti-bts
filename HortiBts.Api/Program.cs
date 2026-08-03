@@ -1,5 +1,6 @@
 using HortiBts.Api.Data;
-using HortiBts.Api.Repositories;
+using HortiBts.Api.Repositories.Schemes;
+using HortiBts.Api.Repository.Districts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IDbConnectionFactory, MySqlConnectionFactory>();
 builder.Services.AddScoped<ISchemeRepository, SchemeRepository>();
 builder.Services.AddScoped<ISchemeDocRepository, SchemeDocRepository>();
+builder.Services.AddScoped<IDistrictsRepository, DistrictsRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.
@@ -27,6 +29,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -39,7 +42,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
 app.UseAuthorization();
 
 app.UseCors(ClientCorsPolicy);
