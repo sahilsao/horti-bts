@@ -1,0 +1,228 @@
+﻿@page "/login"
+
+@using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Client.Shared
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Pages.Auth.Models
+@using HortiBts.Client.MultiLanguage
+@inject DistrictsApiService DistrictsService
+@inject AuthApiService AuthService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inherits AppComponentBase
+@layout EmptyLayout
+
+<PageTitle>@Lang.Text("Login", "लॉगिन")</PageTitle>
+<MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="min-height:calc(100vh - 64px);">
+    <MudGrid Justify="Justify.FlexEnd">
+        <MudHidden Breakpoint="Breakpoint.Lg" Invert="true">
+            <MudItem sm="5" Class="ml-15 mt-10">
+                <MudImage Src="images/illustrations/login.svg"
+                          Alt="Background"
+                          Width="400"
+                          Fluid="true" />
+            </MudItem>
+        </MudHidden>
+        <MudSpacer />
+        <MudItem xs="12" sm="5">
+            <MudChip T="string" Color="Color.Primary" Class="mb-2">
+                @Lang.Text("Chhattisgarh Horticulture Beneficiary Tracking System", "छत्तीसगढ़ हॉर्टिकल्चर बेनेफिशियरी ट्रैकिंग सिस्टम")
+            </MudChip>
+            <MudCard>
+                <MudCardContent>
+                    <EditForm Model="@_loginModel" OnValidSubmit="Authenticate" OnInvalidSubmit="FormInvalid">
+                        <DataAnnotationsValidator />
+                        <MudRadioGroup Value="_loginModel.LoginType" Class="mb-4" T="string" ValueChanged="OnLoginTypeChanged">
+                            <MudRadio Value=@("ADM") Color="Color.Primary">@Lang.Text("Admin", "एडमिन")</MudRadio>
+                            <MudRadio Value=@("DST") Color="Color.Primary">@Lang.Text("District/Office", "जिला/कार्यालय")</MudRadio>
+                            <MudRadio Value=@("RHEO") Color="Color.Primary">@Lang.Text("Rural Horticulture Extension Officer / Horticulture Extension Officer / Senior Horticulture Extension Officer", "ग्रामीण उद्यान विस्तार अधिकारी/उद्यान विस्तार अधिकारी/वरिष्ठ उद्यान विस्तार अधिकारी ")</MudRadio>
+                        </MudRadioGroup>
+
+                        @if (_loginModel.LoginType == "DST")
+                        {
+                            <MudSelect T="string"
+                                       Label="@Lang.Text("District/Office","जिला/कार्यालय")"
+                                       Placeholder="@Lang.Text("--Select District/Office--","--जिला/कार्यालय चुने--")"
+                                       Value="@_loginModel.UserId"
+                                       Variant="Variant.Outlined"
+                                       ValueChanged="OnDistrictChanged"
+                                       FullWidth="true"
+                                       For="@(()=>_loginModel.UserId)">
+                                @foreach (var district in _districts)
+                                {
+                                    <MudSelectItem Value="@district.DistrictId.ToString()">
+                                        @(Lang.IsHindi ? district.DistrictNameHindi : district.DistrictName)
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                        }
+
+                        @if (_loginModel.LoginType == "RHEO")
+                        {
+                            <MudTextField Label="@Lang.Text("User Id", "यूजर आईडी")"
+                                          Variant="Variant.Outlined"
+                                          InputType="@_UserIdInput"
+                                          Placeholder=@Lang.Text("Enter User Id", "यूजर आईडी दर्ज करें")
+                                          @bind-Value="_loginModel.UserId"
+                                          Required
+                                          For="@(()=>_loginModel.UserId)"
+                                          Class="mb-3" />
+                        }
+
+                        <MudTextField Label=@Lang.Text("Password", "पासवर्ड")
+                                      @bind-Value="_loginModel.Password"
+                                      For="@(() => _loginModel.Password)"
+                                      InputType="@_passwordInput"
+                                      Variant="Variant.Outlined"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@_passwordInputIcon"
+                                      OnAdornmentClick="ToggleVisibility"
+                                      Placeholder=@Lang.Text("Enter Password", "पासवर्ड दर्ज करें")
+                                      Required />
+
+                        <Captcha @bind-CaptchaText="_captchaWord" Length="6" />
+
+                        <MudTextField Label=@Lang.Text("Captcha", "कैप्चा")
+                                      @bind-Value="_captchaInput"
+                                      FullWidth
+                                      Required
+                                      Error="@_captchaError"
+                                      ErrorText=@Lang.Text("Incorrect Captcha", "गलत कैप्चा।")
+                                      Placeholder=@Lang.Text("Enter Captcha", "कैप्चा दर्ज करें")
+                                      MaxLength="6" Class="mb-4"
+                                      HelperText=@Lang.Text("Case Sensitive: Match capital and small letters accurately", "केस-संवेदनशील: बड़े और छोटे अक्षरों को सटीक रूप से मिलाएं") />
+
+                        <MudButton ButtonType="ButtonType.Submit"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Disabled="@_isLoading">
+                            @if (_isLoading)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                <span>@Lang.Text("Login Processing", "लॉग इन हो रहा है...")</span>
+                            }
+                            else
+                            {
+                                <span>@Lang.Text("Login", "लॉगिन करे")</span>
+                            }
+                        </MudButton>
+                        <MudButton OnClick="Reload" Variant="Variant.Filled" Color="Color.Error">
+                            @Lang.Text("Reset", "रिसेट")
+                        </MudButton>
+                    </EditForm>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudSpacer />
+                    <MudImage Src="images/logos/nic_logo3-01.png" Height="40" />
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudStack>
+
+@code {
+    private LoginModel _loginModel = new();
+    private InputType _UserIdInput = InputType.Text;
+    private InputType _passwordInput = InputType.Password;
+    private List<DistrictsDto> _districts = [];
+    private string _captchaWord = string.Empty;
+    private string _captchaInput = string.Empty;
+    private bool _captchaError = false;
+    private bool _isLoading = false;
+    private bool _isShow = false;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loginModel.LoginType = "ADM";
+
+        var result = await DistrictsService.GetDistrictsAsync();
+        if (result.IsSuccess)
+            _districts = result.Value!;
+        else
+            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+    }
+
+    private void ToggleVisibility()
+    {
+        if (_isShow)
+        {
+            _isShow = false;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInput = InputType.Password;
+        }
+        else
+        {
+            _isShow = true;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInput = InputType.Text;
+        }
+    }
+
+    private void OnLoginTypeChanged(string value)
+    {
+        _loginModel.LoginType = value;
+        _loginModel.UserId = null!;
+        _loginModel.Password = null!;
+    }
+
+    private void OnDistrictChanged(string value)
+    {
+        _loginModel.UserId = value;
+    }
+
+    private void FormInvalid(EditContext context)
+    {
+        Snackbar.Add("Form validation failed", Severity.Warning);
+    }
+
+    private async Task Authenticate()
+    {
+        _captchaError = false;
+
+        if (!_captchaInput.Equals(_captchaWord, StringComparison.Ordinal))
+        {
+            _captchaError = true;
+            Snackbar.Add(Lang.Text("Incorrect Captcha!", "गलत कैप्चा!"), Severity.Info);
+            return;
+        }
+
+        if (_isLoading) return;
+        _isLoading = true;
+
+        try
+        {
+            var result = await AuthService.LoginAsync(_loginModel.UserId!, _loginModel.Password!);
+
+            if (!result.IsSuccess)
+            {
+                Snackbar.Add(Lang.Text("Invalid User ID or Password!", "अमान्य यूजर आईडी या पासवर्ड!"), Severity.Error);
+                return;
+            }
+
+            var role = result.Value!.Role;
+            var url = role switch
+            {
+                "Admin" => "admin/dashboard",
+                "District" => "district/dashboard",
+                _ => "accessdenied"
+            };
+            Nav.NavigateTo(url);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Lang.Text("Login Failed!", "लॉगिन विफल!")} {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void Reload()
+    {
+        _captchaInput = string.Empty;
+        Nav.NavigateTo("login", true);
+    }
+}

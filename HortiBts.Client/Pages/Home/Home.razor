@@ -1,0 +1,334 @@
+﻿@page "/"
+@using System.Net.Http.Json
+@using HortiBts.Shared.Dtos.Schemes
+@inject HttpClient Http
+@inject IDialogService DialogService
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+
+@layout EmptyLayout
+
+<PageTitle>@Lang.Text("Horticulture Beneficiary Tracking System", "हॉर्टिकल्चर बेनेफिशियरी ट्रैकिंग सिस्टम")</PageTitle>
+<!-- ============ HERO ============ -->
+<MudPaper Elevation="0" Class="rounded-lg pa-6 pa-md-10 mt-4 mb-8" Style="background: linear-gradient(135deg, var(--mud-palette-primary-darken) 0%, var(--mud-palette-primary) 100%);">
+    <MudGrid>
+        <MudItem xs="12" md="12">
+            <MudText Typo="Typo.overline" Style="color: var(--mud-palette-secondary); letter-spacing: 2px;">
+                @Lang.Text("GOVERNMENT OF CHHATTISGARH", "छत्तीसगढ़ शासन")
+            </MudText>
+            <MudText Typo="Typo.h3" Class="mt-1 mb-2" Style="color: white; font-weight: 700;">
+                @Lang.Text("Horticulture Beneficiary Tracking System", "हॉर्टिकल्चर बेनेफिशियरी ट्रैकिंग सिस्टम")
+            </MudText>
+            <MudText Typo="Typo.body1" Class="mb-4" Style="color: rgba(255,255,255,0.85); max-width: 640px;">
+                @Lang.Text(
+                    "Easy farmer registration through HBTS — one registration for multiple schemes.",
+                    "हॉर्टिकल्चर बेनेफिसियरी ट्रैकिंग सिस्टम (HBTS) के माध्यम से कृषकों का आसान एवं सुगम पंजीयन।")
+            </MudText>
+            <MudStack Row="true" Spacing="3" Class="flex-wrap mb-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Large"
+                           StartIcon="@Icons.Material.Filled.HowToReg"
+                           Href="https://cghorticulture.gov.in/bts/#/public/application-form" Target="_self">
+                    @Lang.Text("Apply for the year 2026-27", "वर्ष 2026-27 हेतु आवेदन करे")
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Info" Size="Size.Large"
+                           StartIcon="@Icons.Material.Filled.HourglassTop"
+                           Href="https://cghorticulture.gov.in/bts/#/public/application-status" Target="_self">
+                    @Lang.Text("Application Status", "आवेदन की स्थिति")
+                </MudButton>
+            </MudStack>
+            <MudText Typo="Typo.body1" Class="mb-4" Style="color: rgba(255,255,255,0.85); max-width: 640px;">@Lang.Text("Note: Farmer-entrepreneurs can apply directly to avail benefits under horticulture schemes.", "नोट: कृषक-उद्यमी उद्यानिकी योजनाओं मे लाभ प्राप्त करने हेतु सीधे आवेदन कर सकते हैं।")</MudText>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<!-- ============ IMAGE GALLERY ============ -->
+<MudCarousel TData="string" AutoCycle="true"
+             ShowArrows="true"
+             ShowBullets="true"
+             Class="mb-8">
+
+    @foreach (var image in GalleryImages)
+    {
+        <MudCarouselItem>
+            <MudImage Src="@image.Url"
+                      Alt="@image.Title"
+                      Width="100%"
+                      Height="350"
+                      ObjectFit="ObjectFit.Cover"
+                      Style="cursor:pointer"
+                      @onclick="() => OpenGallery(image)" />
+        </MudCarouselItem>
+    }
+</MudCarousel>
+
+<!-- ============ QUICK NAV ============ -->
+<MudStack Row="true" Spacing="2" Class="mb-8 flex-wrap" Justify="Justify.Center">
+    @foreach (var link in QuickNav)
+    {
+        <MudButton Variant="Variant.Text" Color="Color.Primary" Href="@link.Anchor" Size="Size.Small">
+            @Lang.Text(link.LabelEn, link.LabelHi)
+        </MudButton>
+    }
+</MudStack>
+
+<!-- ============ ABOUT ============ -->
+<MudPaper id="aboutus" Elevation="0" Class="pa-4 mb-10">
+    <MudText Typo="Typo.h5" Class="mb-1" Color="Color.Primary"><b>@Lang.Text("About Chhattisgarh Horticulture", "छत्तीसगढ़ उद्यानिकी के बारे में")</b></MudText>
+    <MudText Typo="Typo.body1" Class="mb-6" Align="Align.Justify" Style="max-width: 900px;">
+        @Lang.Text(
+            "Chhattisgarh is known as the 'Rice Bowl' of central India. Alongside paddy, the state grows maize, small millets, pulses and oilseeds — and its climate is equally well suited to fruit, vegetables, spices and flowers, an opportunity the department is actively promoting given horticulture's higher returns over conventional field crops.",
+            "छत्तीसगढ़ को मध्य भारत का \"धान का कटोरा\" कहा जाता है। धान के साथ-साथ यहाँ मक्का, कोदो-कुत्की, दलहन एवं तिलहन फसलें भी उगाई जाती हैं। कृषि फसलों की तुलना में अधिक मूल्य के कारण उद्यानिकी फसलों को बढ़ावा दिया जा रहा है, जिसके लिए राज्य की जलवायु उपयुक्त है।")
+    </MudText>
+</MudPaper>
+
+<MudGrid>
+    <!-- ============ GUIDELINES / SCHEMES ============ -->
+    <MudItem xs="12" md="7">
+        <MudPaper id="guidelines" Elevation="0" Class="pa-4 mb-10">
+            <MudText Typo="Typo.h5" Class="mb-1" Color="Color.Primary"><b>@Lang.Text("Guidelines", "दिशा-निर्देश")</b></MudText>
+            <MudText Typo="Typo.body2" Class="mb-4" Color="Color.Default">
+                @Lang.Text("Scheme information, organized by funding source.", "योजना जानकारी, वित्तपोषण स्रोत अनुसार।")
+            </MudText>
+            <MudExpansionPanels>
+                <MudExpansionPanel Text="@Lang.Text("Centrally Sponsored Schemes", "केन्द्र प्रवर्तित योजनायेँ")"
+                                   Expanded="true">
+                    @if (_schemesLoading)
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="my-2" />
+                    }
+                    else if (!CentralSchemes.Any())
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Default" Class="py-2">@Lang.Text("No schemes available right now.", "अभी कोई योजना उपलब्ध नहीं है।")</MudText>
+                    }
+                    else
+                    {
+                        @foreach (var scheme in CentralSchemes)
+                        {
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="py-2">
+                                <MudText Typo="Typo.body2">@SchemeDisplayName(scheme)</MudText>
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Primary"
+                                               OnClick="@(() => OpenSchemeDialog(scheme, "SCHEME_NEW"))" />
+                            </MudStack>
+                            <MudDivider />
+                        }
+                    }
+                </MudExpansionPanel>
+                <MudExpansionPanel Text="@Lang.Text("State Sponsored Schemes", "राज्य पोषित योजनायेँ")">
+                    @if (_schemesLoading)
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="my-2" />
+                    }
+                    else if (!StateSchemes.Any())
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Default" Class="py-2">@Lang.Text("No schemes available right now.", "अभी कोई योजना उपलब्ध नहीं है।")</MudText>
+                    }
+                    else
+                    {
+                        @foreach (var scheme in StateSchemes)
+                        {
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="py-2">
+                                <MudText Typo="Typo.body2">@SchemeDisplayName(scheme)</MudText>
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Primary"
+                                               OnClick="@(() => OpenSchemeDialog(scheme, "SCHEME"))" />
+                            </MudStack>
+                            <MudDivider />
+                        }
+                    }
+                </MudExpansionPanel>
+            </MudExpansionPanels>
+        </MudPaper>
+
+        <!-- ============ OBJECTIVES ============ -->
+        <MudPaper id="vision" Elevation="0" Class="pa-4 mb-10">
+            <MudText Typo="Typo.h5" Class="mb-4" Color="Color.Primary"><b>@Lang.Text("Objectives", "उद्देश्य")</b></MudText>
+            <MudGrid>
+                @foreach (var point in VisionPoints)
+                {
+                    <MudItem xs="12" sm="6">
+                        <MudStack Row="true" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Class="mt-1" />
+                            <MudText Typo="Typo.body2">@Lang.Text(point.En, point.Hi)</MudText>
+                        </MudStack>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+
+    <!-- ============ USER MANUALS ============ -->
+    <MudItem xs="12" md="5" id="Manual">
+        <MudPaper Outlined="true" Class="pa-4 rounded-lg">
+            <MudText Typo="Typo.h5" Class="mb-4" Color="Color.Primary">
+                <b>@Lang.Text("User Manuals", "यूजर मैनुअल्स")</b>
+            </MudText>
+
+            @if (!Manuals.Any())
+            {
+                <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+                    @Lang.Text("No manuals right now.", "अभी कोई मैनुअल उपलब्ध नहीं है।")
+                </MudAlert>
+            }
+            else
+            {
+                <MudList T="Manual" Dense="true" Class="pa-0">
+                    @foreach (var manual in Manuals)
+                    {
+                        <MudListItem T="Manual"
+                                     Value="@manual"
+                                     OnClick="@(() => GetPdf(manual.File, "manual"))"
+                                     Icon="@Icons.Material.Filled.PictureAsPdf"
+                                     IconColor="Color.Error"
+                                     IconSize="Size.Medium"
+                                     Text="@Lang.Text(manual.TitleEn, manual.TitleHi)"
+                                     Class="rounded-lg mb-1">
+                        </MudListItem>
+                    }
+                </MudList>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<style>
+    #aboutus, #guidelines, #vision, #Manual {
+        scroll-margin-top: 96px;
+    }
+</style>
+
+@code {
+    public record VisionPoint(string En, string Hi);
+    public record QuickNavLink(string LabelEn, string LabelHi, string Anchor);
+
+    private List<QuickNavLink> QuickNav = new()
+    {
+        new("About Us", "हमारे बारे में", "#aboutus"),
+        new("Guidelines", "दिशानिर्देश", "#guidelines"),
+        new("Objectives", "उद्देश्य", "#vision"),
+        new("User Manuals", "यूजर मैनुअल्स", "#Manual"),
+    };
+
+      
+    // Converted to your own Dapper-backed API (see SchemesController / ManualsController).
+    // nFile (PDF download) hasn't been converted yet -- still goes through the Node proxy
+    // until you give me that query too.
+    private const string ApiBase = "";
+
+    private List<SchemeDto> CentralSchemes = new();
+    private List<SchemeDto> StateSchemes = new();
+    private bool _schemesLoading = true;
+
+    private List<Manual> Manuals = new()
+    {
+        new("HOD (Directorate) User Manual", "एचओडी (संचालनालय) यूजर मेनुअल", "HBTS_User_Manual.pdf"),
+        new("ADH/DDH (District) User Manual", "एडीएच/डीडीएच (जिला) यूजर मेनुअल", "HBTS_User Manual_Adh_DDH.pdf"),
+        new("RHEO/HDO (Circle) User Manual", "आरएचईओ/एचडीओ (सर्कल) यूजर मेनुअल", "HBTS_User Manual_RHEO.pdf"),
+        new("Farmer-Entrepreneur User Manual", "कृषक-उद्यमी यूजर मेनुअल", "HBTS_User Manual_For_Former.pdf")
+    };
+    private List<SchemesGalleryDto> GalleryImages = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+            LoadSchemes(type: 2, list => CentralSchemes = list),   // 2 = centrally sponsored
+            LoadSchemes(type: 1, list => StateSchemes = list)      // 1 = state sponsored
+
+        );
+    }
+
+    private async Task LoadSchemes(int type, Action<List<SchemeDto>> assign)
+    {
+        try
+        {
+            var schemes = await Http.GetFromJsonAsync<List<SchemeDto>>($"{ApiBase}api/schemes/{type}");
+            assign(schemes ?? new());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Schemes] failed to load type={type}: {ex}");
+        }
+        finally
+        {
+            _schemesLoading = false;
+        }
+    }
+
+    private string SchemeDisplayName(SchemeDto scheme) =>
+        Lang.Text(!string.IsNullOrWhiteSpace(scheme.SchemeNameEn) ? scheme.SchemeNameEn : scheme.SchemeName, scheme.SchemeName);
+
+    private async Task OpenSchemeDialog(SchemeDto scheme, string docType)
+    {
+        var parameters = new DialogParameters<SchemeDialog>
+        {
+            { x => x.Scheme, scheme },
+            { x => x.DocType, docType },
+            { x => x.OnOpenDocument, EventCallback.Factory.Create<string?>(this, path => GetPdf(path, "scheme")) },
+        };
+        await DialogService.ShowAsync<SchemeDialog>("", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseOnEscapeKey = true });
+    }
+
+    private List<VisionPoint> VisionPoints = new()
+    {
+        new("Easy and convenient registration of farmers/entrepreneurs through the Horticulture Beneficiary Tracking System (HBTS).", "हॉर्टिकल्चर बेनेफिसियरी ट्रैकिंग सिस्टम (HBTS) के माध्यम से कृषकों/उद्यमियों का आसान एवं सुगम पंजीयन। "),
+        new("Ensure accurate and timely data.", "सटीक एवं त्वरित डाटा की प्राप्ति।"),
+        new("Provision of information regarding various schemes implemented by the department.", "विभाग द्वारा संचालित विभिन्न योजनाओं की जानकारी प्रदान करना।"),
+        new("Facilitation of scheme implementation, management, and supervision.", "योजनाओं के क्रियान्वयन, प्रबंधन एवं पर्यवेक्षण में आसानी।"),
+        new("Ensuring benefits reach genuine beneficiaries and preventing duplication of beneficiaries.", "वास्तविक हितग्राही को लाभान्वित करना एवं हितग्राहियों के दोहराव को रोकना।"),
+    };
+
+    private string ManualIcon(string type) => type switch
+    {
+        "GN" => Icons.Material.Filled.Subject,
+        "EV" => Icons.Material.Filled.Event,
+        "AN" => Icons.Material.Filled.WatchLater,
+        "AL" => Icons.Material.Filled.AddAlert,
+        "NW" => Icons.Material.Filled.Message,
+        _ => Icons.Material.Filled.Info
+    };
+
+    private Color ManualColor(string type) => type switch
+    {
+        "AL" => Color.Error,
+        "EV" => Color.Info,
+        "AN" => Color.Warning,
+        "NW" => Color.Primary,
+        _ => Color.Default
+    };
+
+    private async Task GetPdf(string? fileName, string category)
+    {
+        if (string.IsNullOrWhiteSpace(fileName)) return;
+        try
+        {
+            var bytes = await Http.GetByteArrayAsync(
+           $"{ApiBase}api/files/{category}/{Uri.EscapeDataString(fileName)}");
+
+            await using var stream = new MemoryStream(bytes);
+
+            using var streamRef = new DotNetStreamReference(stream);
+
+            await JS.InvokeVoidAsync(
+                "downloadFileFromBytes",
+                fileName,
+                streamRef);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[GetPdf] failed to download {category}/{fileName}: {ex}");
+        }
+    }
+
+    private async Task LoadGallery()
+    {
+        try
+        {
+            GalleryImages = await Http.GetFromJsonAsync<List<SchemesGalleryDto>>(
+                $"{ApiBase}api/gallery") ?? [];
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+}

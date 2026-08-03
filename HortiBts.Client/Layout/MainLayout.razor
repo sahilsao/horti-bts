@@ -1,0 +1,231 @@
+@using HortiBts.Client.MultiLanguage
+@using HortiBts.Client.Services.Common
+@inject LanguageService Lang
+@inject LocalStorageService Storage
+@inject NavigationManager Nav
+@inject IDialogService DialogService
+
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+@if (_isLoaded)
+{
+    <MudLayout Style="min-height:100vh; display:flex; flex-direction:column;">
+        <MudScrollToTop>
+            <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
+        </MudScrollToTop>
+        <MudAppBar Elevation="1">
+            <MudToggleIconButton @bind-Toggled="_drawerOpen" Icon="@Icons.Material.Filled.Menu"
+                                 ToggledIcon="@Icons.Material.Filled.Menu" />
+            <MudAvatar Size="Size.Medium" Class="mr-2">
+                <MudImage Src="images/icons/Coat_of_arms_of_Chhattisgarh.jpg" Alt="Logo" Height="40" />
+            </MudAvatar>
+            <MudAvatar Size="Size.Medium" Class="mr-2">
+                <MudImage Src="images/icons/HortiLogo.jpg" Alt="Logo" Height="40" />
+            </MudAvatar>
+            <MudHidden Breakpoint="Breakpoint.Lg" Invert="true">
+                <MudText Typo="Typo.h6" Class="ml-3">@Lang.Text("Chhattisgarh Horticulture Beneficiary Tracking System", "छत्तीसगढ़ हॉर्टिकल्चर बेनेफिशियरी ट्रैकिंग सिस्टम")</MudText>
+            </MudHidden>
+            <MudSpacer />
+            <MudTooltip Text="@(_isDarkMode ? @Lang.Text("Light Mode", "लाइट मोड") : @Lang.Text("Dark Mode", "डार्क मोड"))">
+                <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode" Color="Color.Primary"
+                                     Icon="@Icons.Material.Filled.ModeNight" ToggledIcon="@Icons.Material.Filled.LightMode" />
+            </MudTooltip>
+            <MudTooltip Text="@Lang.Text("Change to English", "हिन्दी मे बदले")">
+                <MudToggleIconButton Toggled="@_isHindi" ToggledChanged="ToggleLanguage" Color="Color.Primary"
+                                     Icon="@Icons.Material.Filled.Language" ToggledIcon="@Icons.Material.Filled.Translate" />
+            </MudTooltip>
+            <MudTooltip Text="@Lang.Text("Open Settings", "सेटिंग्स खोले")">
+                <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" AriaLabel="Open user menu">
+                    <MudMenuItem Icon="@Icons.Material.Filled.DisplaySettings" IconColor="Color.Primary"
+                                 Href="update-password" Label="@Lang.Text("Update Password", "पासवर्ड अपडेट")" />
+                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Primary"
+                                 OnClick="@(() => Logout())"
+                                 Label="@Lang.Text("Log Out", "लॉग आउट")" />
+                </MudMenu>
+            </MudTooltip>
+        </MudAppBar>
+
+        <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <NavMenu />
+            <MudSpacer />
+            <MudButton Class="mx-6 my-4" Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled"
+                       DropShadow="false"></MudButton>
+            @* @Lang.Text(_currentUser.UsernameEn, _currentUser.UsernameHi) *@
+        </MudDrawer>
+
+        <MudMainContent Class="pt-16 pa-4 mt-4">
+            @Body
+        </MudMainContent>
+        <MudPaper Elevation="2" Class="pa-3 d-flex justify-end">
+            <MudText Typo="Typo.caption" Align="Align.End">
+                @Lang.Text("© 2026 Chhattisgarh Government. All Rights Reserved.", "© 2026 छत्तीसगढ़ शासन। सर्वाधिकार सुरक्षित।")
+            </MudText>
+        </MudPaper>
+    </MudLayout>
+}
+else
+{
+    <div style="visibility:hidden">@Body</div>
+}
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private bool _drawerOpen = true;
+    private bool _isDarkMode = false;
+    private bool _isHindi = true;
+    private MudTheme? _theme = null;
+    private bool _isLoaded = false;
+
+    //private CurrentUserInfo _currentUser = new("", "", "");
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _theme = new()
+        {
+            PaletteLight = _lightPalette,
+            PaletteDark = _darkPalette,
+            LayoutProperties = new LayoutProperties(),
+            Typography = new Typography()
+            {
+                Default = new DefaultTypography()
+                {
+                    FontFamily = new[] { "Outfit", "Noto Sans Devanagari", "Arial", "sans-serif" },
+                }
+            },
+        };
+
+        Lang.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            var darkMode = await Storage.GetAsync<bool>("darkMode");
+            var isHindi = await Storage.GetAsync<bool>("isHindi");
+
+            _isDarkMode = darkMode.Success ? darkMode.Value : false;
+            _isHindi = isHindi.Success ? isHindi.Value : true;
+
+            Lang.SetLanguage(_isHindi);
+            _isLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Storage Error: {ex}");
+            _isLoaded = true;
+        }
+
+        try
+        {
+            //_currentUser = await UserContextService.GetCurrentUserAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Auth Error: {ex}");
+        }
+
+        await InvokeAsync(StateHasChanged);
+
+    }
+
+    private async Task ToggleDarkMode(bool value)
+    {
+        _isDarkMode = value;
+        await Storage.SetAsync("darkMode", value);
+    }
+
+    private async Task ToggleLanguage(bool value)
+    {
+        _isHindi = value;
+        Lang.SetLanguage(value);
+        await Storage.SetAsync("isHindi", value);
+    }
+
+    private void OnLanguageChanged()
+    {
+        _isHindi = Lang.IsHindi;
+        StateHasChanged();
+    }
+
+    private async Task Logout()
+    {
+        bool? result = await DialogService.ShowMessageBoxAsync(
+            Lang.Text("Confirm Logout", "लॉगआउट पुष्टिकरण"),
+            Lang.Text("Are you sure you want to logout?", "क्या आप वाकई लॉगआउट करना चाहते हैं?"),
+            yesText: Lang.Text("Logout", "लॉगआउट"),
+            cancelText: Lang.Text("Cancel", "रद्द करें"));
+
+        if (result == true)
+        {
+            //await AuthService.LogoutAsync();
+            Nav.NavigateTo($"login", forceLoad: true);
+        }
+    }
+
+    private readonly PaletteLight _lightPalette = new()
+    {
+        Primary = "#2D6A4F",
+        PrimaryDarken = "#1B4332",
+        Secondary = "#D98E04",
+        Tertiary = "#457B9D",
+        Success = "#40916C",
+        Info = "#457B9D",
+        Warning = "#E76F51",
+        Error = "#C1121F",
+        Black = "#1B4332",
+        AppbarText = "#1B4332",
+        AppbarBackground = "rgba(251,248,241,0.9)",
+        Background = "#FBF8F1",
+        Surface = "#FFFFFF",
+        DrawerBackground = "#FFFFFF",
+        GrayLight = "#EDE8DC",
+        GrayLighter = "#F7F4EC",
+        TextPrimary = "#1B2E22",
+        TextSecondary = "#4A5A4F",
+    };
+
+    private readonly PaletteDark _darkPalette = new()
+    {
+        Primary = "#52B788",
+        Secondary = "#E9A93B",
+        Tertiary = "#6699B3",
+        Surface = "#1a2420",
+        Background = "#131a16",
+        BackgroundGray = "#0f1512",
+        AppbarText = "#B7C9BE",
+        AppbarBackground = "rgba(19,26,22,0.85)",
+        DrawerBackground = "#1a2420",
+        ActionDefault = "#74718e",
+        ActionDisabled = "#9999994d",
+        ActionDisabledBackground = "#605f6d4d",
+        TextPrimary = "#D4E0D8",
+        TextSecondary = "#9FB3A6",
+        TextDisabled = "#ffffff33",
+        DrawerIcon = "#9FB3A6",
+        DrawerText = "#9FB3A6",
+        GrayLight = "#22302a",
+        GrayLighter = "#1a2420",
+        Info = "#6699B3",
+        Success = "#52B788",
+        Warning = "#E9A93B",
+        Error = "#E5646F",
+        LinesDefault = "#2a382f",
+        TableLines = "#2a382f",
+        Divider = "#22302a",
+        OverlayLight = "#1a242080",
+    };
+}

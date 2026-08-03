@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="HortiBts.Api/HortiBts.Api.csproj" />
+  <Project Path="HortiBts.Client/HortiBts.Client.csproj" />
+  <Project Path="HortiBts.Shared/HortiBts.Shared.csproj" />
+</Solution>
