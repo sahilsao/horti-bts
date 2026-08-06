@@ -10,11 +10,16 @@ namespace HortiBts.Client.Services.Auth
     {
         private readonly TokenAuthenticationStateProvider _authStateProvider = (TokenAuthenticationStateProvider)authStateProvider;
 
-        public async Task<Result<LoginResponseDto>> LoginAsync(string username, string password)
+        public async Task<Result<LoginResponseDto>> LoginAsync(LoginType loginType, string userId, string password)
         {
             try
             {
-                var response = await http.PostAsJsonAsync("api/auth/login", new LoginRequestDto(username, password));
+                var response = await http.PostAsJsonAsync("api/auth/login", new LoginRequestDto
+                {
+                    LoginType = loginType,
+                    UserId = userId,
+                    Password = password
+                });
                 if (!response.IsSuccessStatusCode)
                 {
                     var error = await response.Content.ReadAsStringAsync();
@@ -37,7 +42,11 @@ namespace HortiBts.Client.Services.Auth
         {
             try
             {
-                var response = await http.PostAsJsonAsync("api/auth/refresh", new RefreshTokenRequestDto(refreshToken));
+                var response = await http.PostAsJsonAsync("api/auth/refresh", new RefreshTokenRequestDto
+                {
+                    RefreshToken = refreshToken
+                });
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var error = await response.Content.ReadAsStringAsync();
@@ -90,19 +99,6 @@ namespace HortiBts.Client.Services.Auth
             }
         }
 
-        public async Task<Result<List<AccountDto>>> GetDistrictAccountsAsync()
-        {
-            try
-            {
-                var data = await http.GetFromJsonAsync<List<AccountDto>>("api/auth/district-accounts");
-                return Result<List<AccountDto>>.Success(data ?? []);
-            }
-            catch (Exception ex)
-            {
-                return Result<List<AccountDto>>.Failure($"Failed to load accounts: {ex.Message}");
-            }
-        }
-
         public async Task LogoutAsync(string? refreshToken = null)
         {
             var token = refreshToken ?? await _authStateProvider.GetRefreshTokenAsync();
@@ -110,7 +106,12 @@ namespace HortiBts.Client.Services.Auth
             {
                 try
                 {
-                    await http.PostAsJsonAsync("api/auth/logout", new RefreshTokenRequestDto(token));
+                    await http.PostAsJsonAsync(
+                    "api/auth/logout",
+                    new RefreshTokenRequestDto
+                    {
+                        RefreshToken = token
+                    });
                 }
                 catch { }
             }

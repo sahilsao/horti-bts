@@ -1,4 +1,4 @@
-﻿using HortiBts.Api.Repository.Districts;
+﻿using HortiBts.Api.Repositories.Districts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.Districts
@@ -15,7 +15,7 @@ namespace HortiBts.Api.Controllers.Districts
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Value);
+            return Ok(result.Data);
         }
     }
 }

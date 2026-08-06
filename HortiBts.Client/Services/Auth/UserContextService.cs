@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
+using System.Security.Claims;
 
 namespace HortiBts.Client.Services.Auth
 {
@@ -7,7 +8,11 @@ namespace HortiBts.Client.Services.Auth
         Task<CurrentUserInfo> GetCurrentUserAsync();
     }
 
-    public record CurrentUserInfo(string UserId, string UsernameEn, string UsernameHi);
+    public record CurrentUserInfo(
+        string UserId,
+        string UsernameEn,
+        string UsernameHi,
+        int UserType);
 
     public class UserContextService(AuthenticationStateProvider authStateProvider) : IUserContextService
     {
@@ -20,7 +25,18 @@ namespace HortiBts.Client.Services.Auth
             var usernameEn = user.FindFirst("username_en")?.Value ?? "";
             var usernameHi = user.FindFirst("username_hi")?.Value ?? "";
 
-            return new CurrentUserInfo(userId, usernameEn, usernameHi);
+            var userTypeClaim =
+                user.FindFirst("UserType")?.Value ??
+                user.FindFirst(ClaimTypes.Role)?.Value ??
+                "0";
+
+            int.TryParse(userTypeClaim, out var userType);
+
+            return new CurrentUserInfo(
+                userId,
+                usernameEn,
+                usernameHi,
+                userType);
         }
     }
 }

@@ -3,7 +3,7 @@ using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Districts;
 
-namespace HortiBts.Api.Repository.Districts
+namespace HortiBts.Api.Repositories.Districts
 {
     public interface IDistrictsRepository
     {

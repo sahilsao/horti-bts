@@ -1,5 +1,6 @@
 ﻿@page "/login"
 
+@using HortiBts.Shared.Enums.Auth
 @using HortiBts.Shared.Dtos.Districts
 @using HortiBts.Client.Shared
 @using HortiBts.Client.Services.Districts
@@ -8,8 +9,12 @@
 @using HortiBts.Client.MultiLanguage
 @inject DistrictsApiService DistrictsService
 @inject AuthApiService AuthService
+@inject LoginHistoryApiService LoginHistoryService
 @inject NavigationManager Nav
+
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
 @inherits AppComponentBase
 @layout EmptyLayout
 
@@ -33,13 +38,27 @@
                 <MudCardContent>
                     <EditForm Model="@_loginModel" OnValidSubmit="Authenticate" OnInvalidSubmit="FormInvalid">
                         <DataAnnotationsValidator />
-                        <MudRadioGroup Value="_loginModel.LoginType" Class="mb-4" T="string" ValueChanged="OnLoginTypeChanged">
-                            <MudRadio Value=@("ADM") Color="Color.Primary">@Lang.Text("Admin", "एडमिन")</MudRadio>
-                            <MudRadio Value=@("DST") Color="Color.Primary">@Lang.Text("District/Office", "जिला/कार्यालय")</MudRadio>
-                            <MudRadio Value=@("RHEO") Color="Color.Primary">@Lang.Text("Rural Horticulture Extension Officer / Horticulture Extension Officer / Senior Horticulture Extension Officer", "ग्रामीण उद्यान विस्तार अधिकारी/उद्यान विस्तार अधिकारी/वरिष्ठ उद्यान विस्तार अधिकारी ")</MudRadio>
+                        <MudRadioGroup T="LoginType"
+                                       Value="_loginModel.LoginType" ValueChanged="OnLoginTypeChanged"
+                                       Class="mb-4">
+
+                            <MudRadio Value="@LoginType.Admin" Color="Color.Primary">
+                                @Lang.Text("Admin", "एडमिन")
+                            </MudRadio>
+
+                            <MudRadio Value="@LoginType.District" Color="Color.Primary">
+                                @Lang.Text("District/Office", "जिला/कार्यालय")
+                            </MudRadio>
+
+                            <MudRadio Value="@LoginType.Rheo" Color="Color.Primary">
+                                @Lang.Text(
+                                    "Rural Horticulture Extension Officer / Horticulture Extension Officer / Senior Horticulture Extension Officer",
+                                    "ग्रामीण उद्यान विस्तार अधिकारी/उद्यान विस्तार अधिकारी/वरिष्ठ उद्यान विस्तार अधिकारी")
+                            </MudRadio>
+
                         </MudRadioGroup>
 
-                        @if (_loginModel.LoginType == "DST")
+                        @if (_loginModel.LoginType == LoginType.District)
                         {
                             <MudSelect T="int?" Label="जिला चुने" Placeholder="--जिला चुने--"
                                        Value="_selectedDistrictCensus" ValueChanged="OnDistrictChanged"
@@ -53,7 +72,7 @@
                             </MudSelect>
                         }
 
-                        @if (_loginModel.LoginType == "RHEO")
+                        @if (_loginModel.LoginType == LoginType.Rheo)
                         {
                             <MudTextField Label="@Lang.Text("User Id", "यूजर आईडी")"
                                           Variant="Variant.Outlined"
@@ -128,11 +147,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _loginModel.LoginType = "ADM";
+        _loginModel.LoginType = LoginType.Admin;
 
         var result = await DistrictsService.GetDistrictsAsync();
         if (result.IsSuccess)
-            _districts = result.Value!;
+            _districts = result.Data!;
         else
             Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
     }
@@ -141,7 +160,7 @@
     private void OnDistrictChanged(int? value)
     {
         _selectedDistrictCensus = value;
-        _loginModel.UserId = value?.ToString(); // matches Angular's user_id = district_code before submit
+        _loginModel.UserId = value.ToString(); // matches Angular's user_id = district_code before submit
     }
 
     private void ToggleVisibility()
@@ -160,11 +179,22 @@
         }
     }
 
-    private void OnLoginTypeChanged(string value)
+    private LoginType _previousLoginType = LoginType.Admin;
+
+    private void OnLoginTypeChanged(LoginType value)
     {
+        if (_previousLoginType != value)
+        {
+            _loginModel.UserId = string.Empty;
+            _loginModel.Password = string.Empty;
+            _selectedDistrictCensus = null;
+        }
+
         _loginModel.LoginType = value;
-        _loginModel.UserId = null!;
-        _loginModel.Password = null!;
+
+        _previousLoginType = value;
+
+        StateHasChanged();
     }
 
     private void OnDistrictChanged(string value)
@@ -174,7 +204,10 @@
 
     private void FormInvalid(EditContext context)
     {
-        Snackbar.Add("Form validation failed", Severity.Warning);
+        foreach (var message in context.GetValidationMessages())
+        {
+            Snackbar.Add(message, Severity.Error);
+        }
     }
 
     private async Task Authenticate()
@@ -193,7 +226,62 @@
 
         try
         {
-            var result = await AuthService.LoginAsync(_loginModel.UserId!, _loginModel.Password!);
+            if (_loginModel.LoginType == LoginType.Admin)
+            {
+                _loginModel.UserId = "100";
+            }
+
+            if (_loginModel.LoginType == LoginType.Rheo && string.IsNullOrWhiteSpace(_loginModel.UserId))
+            {
+                Snackbar.Add("User ID is required.", Severity.Error);
+                return;
+            }
+
+            if (_loginModel.LoginType == LoginType.District && string.IsNullOrWhiteSpace(_loginModel.UserId))
+            {
+                Snackbar.Add("Please select a district.", Severity.Error);
+                return;
+            }
+
+            // Check existing login
+            var loginCheck = await LoginHistoryService.IsAlreadyLoggedInAsync(
+                int.Parse(_loginModel.UserId!));
+
+            if (loginCheck.IsSuccess && loginCheck.Data)
+            {
+                bool? confirm = await DialogService.ShowMessageBoxAsync(
+                                 Lang.Text("Already Logged In", "उपयोगकर्ता पहले से लॉगिन है"),
+                                 Lang.Text(
+                                     "This user is already logged in from another device.\n\nDo you want to logout the previous session and continue?",
+                                     "यह उपयोगकर्ता किसी अन्य डिवाइस पर पहले से लॉगिन है।\n\nक्या आप पिछले लॉगिन सत्र को समाप्त करके आगे लॉगिन करना चाहते हैं?"
+                                 ),
+                                 yesText: Lang.Text("Yes", "हाँ"),
+                                 cancelText: Lang.Text("No", "नहीं"));
+
+                if (confirm != true)
+                    return;
+
+                var active = await LoginHistoryService.GetActiveLoginAsync(
+                    int.Parse(_loginModel.UserId),
+                    _loginModel.LoginType switch
+                    {
+                        LoginType.Admin => "13",
+                        LoginType.District => "14",
+                        LoginType.Rheo => "12",
+                        _ => ""
+                    });
+
+                if (active.IsSuccess)
+                {
+                    await LoginHistoryService.LogoutAsync(active.Data!.LoginHistoryId);
+                }
+            }
+
+            //login
+            var result = await AuthService.LoginAsync(
+                _loginModel.LoginType,
+                _loginModel.UserId!,
+                _loginModel.Password!);
 
             if (!result.IsSuccess)
             {
@@ -201,14 +289,30 @@
                 return;
             }
 
-            var role = result.Value!.Role;
-            var url = role switch
+            if (!result.Data!.PasswordFlag)
             {
-                "Admin" => "admin/dashboard",
-                "District" => "district/dashboard",
-                _ => "accessdenied"
-            };
-            Nav.NavigateTo(url);
+                Nav.NavigateTo("change-password");
+                return;
+            }
+
+            switch (result.Data.UserType)
+            {
+                case 13://admin
+                    Nav.NavigateTo("/admin/dashboard");
+                    break;
+
+                case 14://district
+                    Nav.NavigateTo("/district/dashboard");
+                    break;
+
+                case 12:
+                    Nav.NavigateTo("/rheo/dashboard");
+                    break;
+
+                default:
+                    Nav.NavigateTo("/not-found");
+                    break;
+            }
         }
         catch (Exception ex)
         {

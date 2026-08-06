@@ -1,16 +1,35 @@
 using HortiBts.Api.Data;
+using HortiBts.Api.Repositories.Auth;
+using HortiBts.Api.Repositories.Districts;
 using HortiBts.Api.Repositories.Schemes;
-using HortiBts.Api.Repository.Districts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+builder.Services.AddHttpContextAccessor();
+
+// ── Database Factory
 builder.Services.AddScoped<IDbConnectionFactory, MySqlConnectionFactory>();
+
+// ── Services
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<ISchemeRepository, SchemeRepository>();
 builder.Services.AddScoped<ISchemeDocRepository, SchemeDocRepository>();
 builder.Services.AddScoped<IDistrictsRepository, DistrictsRepository>();
+builder.Services.AddScoped<IPasswordPolicyRepository, PasswordPolicyRepository>();
+builder.Services.AddScoped<ILoginHistoryRepository, LoginHistoryRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IJwtTokenRepository, JwtTokenRepository>();
+builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.
@@ -29,9 +48,23 @@ builder.Services.AddCors(options =>
     });
 });
 
+var jwtSection = builder.Configuration.GetSection("Jwt");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidAudience = jwtSection["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]!))
+        };
+    });
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -39,13 +72,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); // default route: /scalar/v1
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseAuthorization();
 
 app.UseCors(ClientCorsPolicy);
-app.MapControllers();
 
+app.UseAuthentication(); // will start doing something once JWT is added
+app.UseAuthorization();
+app.MapControllers();
+app.UseStaticFiles();
 app.Run();

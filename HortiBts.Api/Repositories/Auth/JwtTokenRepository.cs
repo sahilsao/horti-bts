@@ -5,35 +5,49 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace HortiBts.Api.Repository.Auth
+namespace HortiBts.Api.Repositories.Auth
 {
     internal interface IJwtTokenRepository
     {
-        (string Token, DateTime ExpiresAtUtc) GenerateToken(LoginRecord user, string? ipAddress);
+        (string Token, DateTime ExpiresAtUtc, long LoginHistoryId) GenerateToken(LoginRecord user, string? ipAddress);
         (string token, DateTime expires) GenerateRefreshToken();
     }
 
     internal class JwtTokenRepository(IConfiguration config) : IJwtTokenRepository
     {
-        public (string Token, DateTime ExpiresAtUtc) GenerateToken(LoginRecord user, string? ipAddress)
+        public (string Token, DateTime ExpiresAtUtc, long LoginHistoryId) GenerateToken(LoginRecord user, string? ipAddress)
         {
             var jwtSection = config.GetSection("Jwt");
+
             var key = jwtSection["Key"]!;
             var issuer = jwtSection["Issuer"]!;
             var audience = jwtSection["Audience"]!;
             var expiryHours = double.Parse(jwtSection["ExpiryHours"] ?? "8");
 
-            var role = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(user.Role.ToLower());
             var expires = DateTime.UtcNow.AddHours(expiryHours);
+
+            var loginHistoryId = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             var claims = new List<Claim>
             {
                 new(ClaimTypes.Name, user.UserId),
-                new(ClaimTypes.Role, role),
-                new("username_en", user.UsernameEn ?? ""),
-                new("username_hi", user.UsernameHi ?? ""),
+
+                new(ClaimTypes.Role, GetRoleName(user.UserType)),
+
+                new("username_en", user.UsernameEn),
+
+                new("username_hi", user.UsernameHi),
+
+                new("usertype", user.UserType.ToString()),
+
+                new("lh_id", loginHistoryId.ToString()),
+
+                new("district_code", user.DistrictCode ?? ""),
+
+                new("password_flag", user.PasswordFlag ? "1" : "0"),
             };
-            if (!string.IsNullOrEmpty(ipAddress))
+
+            if (!string.IsNullOrWhiteSpace(ipAddress))
                 claims.Add(new Claim("ip", ipAddress));
 
             var credentials = new SigningCredentials(
@@ -41,13 +55,16 @@ namespace HortiBts.Api.Repository.Auth
                 SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
-                claims: claims,
+                issuer,
+                audience,
+                claims,
                 expires: expires,
                 signingCredentials: credentials);
 
-            return (new JwtSecurityTokenHandler().WriteToken(token), expires);
+            return (
+                new JwtSecurityTokenHandler().WriteToken(token),
+                expires,
+                loginHistoryId);
         }
         public (string token, DateTime expires) GenerateRefreshToken()
         {
@@ -56,5 +73,19 @@ namespace HortiBts.Api.Repository.Auth
             var expires = DateTime.UtcNow.AddDays(7);
             return (token, expires);
         }
+
+        private static string GetRoleName(int userType)
+        {
+            return userType switch
+            {
+                13 => "Admin",
+                14 => "District",
+                3 => "RHEO",
+                _ => "User"
+            };
+        }
     }
 }
+
+
+

@@ -32,8 +32,15 @@ namespace HortiBts.Client.Services.Auth
                     }
 
                     var plainClient = httpClientFactory.CreateClient("Api.Refresh");
+                    var dto = new RefreshTokenRequestDto
+                    {
+                        RefreshToken = refreshToken
+                    };
+
                     var refreshResponse = await plainClient.PostAsJsonAsync(
-                        "api/auth/refresh", new RefreshTokenRequestDto(refreshToken), cancellationToken);
+                        "api/auth/refresh",
+                        dto,
+                        cancellationToken);
 
                     if (!refreshResponse.IsSuccessStatusCode)
                     {

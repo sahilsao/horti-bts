@@ -2,14 +2,17 @@
 {
     public class Result<T>
     {
-        public bool IsSuccess { get; private set; }
-        public T? Value { get; private set; }
-        public string? Error { get; private set; }
+        public bool IsSuccess { get; set; }
+        public T? Data { get; set; }
+        public string? Error { get; set; }
+
+        // Public parameterless constructor — required for System.Text.Json
+        public Result() { }
 
         private Result(bool isSuccess, T? value, string? error)
         {
             IsSuccess = isSuccess;
-            Value = value;
+            Data = value;
             Error = error;
         }
 
@@ -20,9 +23,9 @@
     // Non-generic for void operations
     public class Result
     {
-        public bool IsSuccess { get; private set; }
-        public string? Error { get; private set; }
-
+        public bool IsSuccess { get; set; }
+        public string? Error { get; set; }
+        public Result() { }
         private Result(bool isSuccess, string? error)
         {
             IsSuccess = isSuccess;

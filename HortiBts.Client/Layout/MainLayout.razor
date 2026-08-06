@@ -1,9 +1,12 @@
 @using HortiBts.Client.MultiLanguage
+@using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Common
 @inject LanguageService Lang
+@inject AuthApiService AuthService
 @inject LocalStorageService Storage
 @inject NavigationManager Nav
 @inject IDialogService DialogService
+@inject IUserContextService UserContextService
 
 @inherits LayoutComponentBase
 
@@ -34,9 +37,9 @@
                 <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode" Color="Color.Primary"
                                      Icon="@Icons.Material.Filled.ModeNight" ToggledIcon="@Icons.Material.Filled.LightMode" />
             </MudTooltip>
-            <MudTooltip Text="@Lang.Text("Change to English", "हिन्दी मे बदले")">
+            <MudTooltip Text="@Lang.Text("Change to Hindi", "अंग्रेजी मे बदले")">
                 <MudToggleIconButton Toggled="@_isHindi" ToggledChanged="ToggleLanguage" Color="Color.Primary"
-                                     Icon="@Icons.Material.Filled.Language" ToggledIcon="@Icons.Material.Filled.Translate" />
+                                     Icon="material-symbols-outlined/translate_indic" ToggledIcon="material-symbols-outlined/translate_indic" />
             </MudTooltip>
             <MudTooltip Text="@Lang.Text("Open Settings", "सेटिंग्स खोले")">
                 <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" AriaLabel="Open user menu">
@@ -52,11 +55,13 @@
         <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
             <NavMenu />
             <MudSpacer />
-            <MudButton Class="mx-6 my-4" Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled"
-                       DropShadow="false"></MudButton>
-            @* @Lang.Text(_currentUser.UsernameEn, _currentUser.UsernameHi) *@
+            <MudButton Class="mx-6 my-4" Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled" DropShadow="false">
+                <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.body2">@GetUserRoleText()</MudText>
+                    <MudText Typo="Typo.caption">@GetUserNameText()</MudText>
+                </MudStack>
+            </MudButton>
         </MudDrawer>
-
         <MudMainContent Class="pt-16 pa-4 mt-4">
             @Body
         </MudMainContent>
@@ -84,7 +89,8 @@ else
     private MudTheme? _theme = null;
     private bool _isLoaded = false;
 
-    //private CurrentUserInfo _currentUser = new("", "", "");
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private string _displayName = string.Empty;
 
     protected override void OnInitialized()
     {
@@ -131,7 +137,7 @@ else
 
         try
         {
-            //_currentUser = await UserContextService.GetCurrentUserAsync();
+            _currentUser = await UserContextService.GetCurrentUserAsync();
         }
         catch (Exception ex)
         {
@@ -141,6 +147,17 @@ else
         await InvokeAsync(StateHasChanged);
 
     }
+
+    private string GetUserRoleText() => _currentUser.UserType switch
+    {
+        13 => Lang.Text("Director", "संचालक"),
+        14 => Lang.Text("DDH", "उप संचालक उद्यान"),
+        15 => Lang.Text($"SHDO - {_currentUser.UserId}", $"एसएचडीओ - {_currentUser.UserId}"),
+        12 => Lang.Text($"RHEO - {_currentUser.UserId}", $"आरएचईओ - {_currentUser.UserId}"),
+        _ => string.Empty
+    };
+
+    private string GetUserNameText() => Lang.Text(_currentUser.UsernameEn, _currentUser.UsernameHi);
 
     private async Task ToggleDarkMode(bool value)
     {
@@ -171,7 +188,7 @@ else
 
         if (result == true)
         {
-            //await AuthService.LogoutAsync();
+            await AuthService.LogoutAsync();
             Nav.NavigateTo($"login", forceLoad: true);
         }
     }

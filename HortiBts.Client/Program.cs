@@ -13,7 +13,6 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddMudServices();
-
 // ── Auth
 
 builder.Services.AddScoped<TokenAuthenticationStateProvider>();
@@ -21,7 +20,7 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredServ
 builder.Services.AddAuthorizationCore();
 builder.Services.AddTransient<AuthorizationMessageHandler>();
 builder.Services.AddTransient<RefreshTokenDelegatingHandler>();
-
+builder.Services.AddScoped<AuthApiService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<LocalStorageService>();
 
@@ -35,10 +34,10 @@ builder.Services.AddHttpClient("Api", client =>
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api"));
 
-builder.Services.AddScoped<AuthApiService>();
+builder.Services.AddScoped<LanguageService>();
 
 // ── Feature Services (Master Data) — API-backed implementations
 
 builder.Services.AddScoped<DistrictsApiService>();
-builder.Services.AddScoped<LanguageService>();
+builder.Services.AddScoped<LoginHistoryApiService>();
 await builder.Build().RunAsync();

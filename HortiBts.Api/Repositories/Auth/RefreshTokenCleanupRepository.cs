@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using HortiBts.Api.Data;
 
-namespace HortiBts.Api.Repository.Auth
+namespace HortiBts.Api.Repositories.Auth
 {
     public class RefreshTokenCleanupRepository(IServiceProvider services, ILogger<RefreshTokenCleanupRepository> logger) : BackgroundService
     {

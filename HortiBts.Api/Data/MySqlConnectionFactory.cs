@@ -10,7 +10,7 @@ public enum HortiDb
 
 public interface IDbConnectionFactory
 {
-    IDbConnection CreateConnection(HortiDb db = HortiDb.Bts);
+    MySqlConnection CreateConnection(HortiDb db = HortiDb.Bts);
 }
 
 public class MySqlConnectionFactory(IConfiguration configuration) : IDbConnectionFactory
@@ -20,7 +20,7 @@ public class MySqlConnectionFactory(IConfiguration configuration) : IDbConnectio
         [HortiDb.Bts] = "HortiDbConn",
     };
 
-    public IDbConnection CreateConnection(HortiDb db = HortiDb.Bts)
+    public MySqlConnection CreateConnection(HortiDb db = HortiDb.Bts)
     {
         var name = ConnectionNames[db];
         var connStr = configuration.GetConnectionString(name)

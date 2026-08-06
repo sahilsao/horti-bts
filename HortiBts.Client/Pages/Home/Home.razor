@@ -176,9 +176,9 @@
 
             @if (GalleryImages.Any())
             {
-                <MudCarousel Style="height:500px;" TData="SchemesGalleryDto"
+                <MudCarousel Style="height:500px; background:#f5f5f5;" TData="SchemesGalleryDto"
                              AutoCycle="true" ShowArrows="true" ShowBullets="true"
-                             Class="rounded-lg" Style2="background:#f5f5f5;">
+                             Class="rounded-lg">
                     @foreach (var image in GalleryImages)
                     {
                         <MudCarouselItem Transition="Transition.Slide">

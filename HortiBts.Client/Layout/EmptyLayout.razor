@@ -28,6 +28,7 @@
             <MudSpacer />
             <MudButton Variant="Variant.Outlined"
                        Color="Color.Primary"
+                       Class="mr-2"
                        StartIcon="@(IsLoginPage ? Icons.Material.Filled.Home : Icons.Material.Filled.Login)"
                        Href="@(IsLoginPage ? "/" : "/login")">
                 @Lang.Text(
@@ -38,9 +39,9 @@
                 <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode" Color="Color.Primary"
                                      Icon="@Icons.Material.Filled.ModeNight" ToggledIcon="@Icons.Material.Filled.LightMode" />
             </MudTooltip>
-            <MudTooltip Text="@Lang.Text("Change to English", "हिन्दी मे बदले")">
+            <MudTooltip Text="@Lang.Text("Change to Hindi", "अंग्रेजी मे बदले")">
                 <MudToggleIconButton Toggled="@_isHindi" ToggledChanged="ToggleLanguage" Color="Color.Primary"
-                                     Icon="@Icons.Material.Filled.Language" ToggledIcon="@Icons.Material.Filled.Translate" />
+                                     Icon="material-symbols-outlined/translate_indic" ToggledIcon="material-symbols-outlined/translate_indic" />
             </MudTooltip>
         </MudAppBar>
         <MudMainContent>
