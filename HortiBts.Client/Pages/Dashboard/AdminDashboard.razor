@@ -3,7 +3,24 @@
 
 <PageTitle>@Lang.Text("Admin Dashboard", "एडमिन डैशबोर्ड")</PageTitle>
 
-<MudText Typo="Typo.h5" Class="mb-4">@Lang.Text("Admin Dashboard", "एडमिन डैशबोर्ड")</MudText>
+<MudText Typo="Typo.h5" Class="mb-4">@Lang.Text("Admin - Horticulture Farmer Dashboard", "एडमिन - उद्यानिकी कृषक डैशबोर्ड")</MudText>
 
+<MudStack>
+    <MudGrid>
+        <MudItem>कुल RHEO - @totRHEO</MudItem>
+        <MudItem>कुल पंजीकृत कृषक - @totRegFarmers</MudItem>
+        <MudItem>कुल पंजीकृत बैकलॉग कृषक - @totRegBacklogFarmers</MudItem>
+    </MudGrid>
+</MudStack>
 @code {
+
+    private string totRHEO = string.Empty;
+    private string totRegFarmers = string.Empty;
+    private string totRegBacklogFarmers = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        totRHEO = await GetTotRheo();
+    }
 }
+
