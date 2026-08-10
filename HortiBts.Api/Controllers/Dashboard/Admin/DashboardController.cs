@@ -1,25 +1,46 @@
-﻿using HortiBts.Api.Models.Auth;
-using HortiBts.Api.Repositories.Dashboard.Admin;
-using HortiBts.Shared.Common;
-using HortiBts.Shared.Dtos.Dashboard.Admin;
-using Microsoft.AspNetCore.Http;
+﻿using HortiBts.Api.Repositories.Dashboard.Admin;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.Dashboard.Admin
 {
     [Route("api/dashboard/admin")]
     [ApiController]
-    public class DashboardController(IDashboardRepository DashboardRepository) : ControllerBase
+    public class DashboardController(IDashboardRepository dashboardRepository) : ControllerBase
     {
         [HttpGet("get-tot-rheo-count")]
-        public async Task<IActionResult> GetTotRHEOCount()
+        public async Task<IActionResult> GetTotRheoCount()
         {
-            var data = await DashboardRepository.GetTotRHEOCount();
+            var result = await dashboardRepository.GetTotRHEOCount();
 
-            if (data is null)
-                return Ok(Result<DashboardDto>.Failure("No active login found."));
+            if (!result.IsSuccess)
+                return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(Result<DashboardDto>.Success(data));
+            return Ok(result.Data);
+        }
+
+        [HttpGet("get-tot-reg-farmers-count")]
+        public async Task<IActionResult> GetTotRegFarmersCount()
+        {
+            var result = await dashboardRepository.GetTotRegFarmersCount();
+
+            if (!result.IsSuccess)
+                return Problem(detail: result.Error, statusCode: 500);
+
+            return Ok(result.Data);
+        }
+
+        [HttpGet("get-tot-reg-backlog-farmers-count")]
+        public async Task<IActionResult> GetTotRegBacklogFarmersCount([FromQuery] string finYear)
+        {
+            if (string.IsNullOrWhiteSpace(finYear))
+                return Problem(detail: "finYear query parameter is required.", statusCode: 400);
+
+            var result = await dashboardRepository.GetTotRegBacklogFarmersCount(finYear);
+
+            if (!result.IsSuccess)
+                return Problem(detail: result.Error, statusCode: 500);
+
+            return Ok(result.Data);
         }
     }
 }

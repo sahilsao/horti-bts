@@ -1,26 +1,92 @@
 ﻿@page "/admin/dashboard"
 @attribute [Authorize(Roles = "Admin")]
+@using HortiBts.Client.Services.Dashboard
+@using HortiBts.Client.Utils
+@inject DashboardApiService DashboardService
 
 <PageTitle>@Lang.Text("Admin Dashboard", "एडमिन डैशबोर्ड")</PageTitle>
 
-<MudText Typo="Typo.h5" Class="mb-4">@Lang.Text("Admin - Horticulture Farmer Dashboard", "एडमिन - उद्यानिकी कृषक डैशबोर्ड")</MudText>
+<MudText Typo="Typo.h5" Class="mb-6">
+    @Lang.Text("Admin - Horticulture Farmer Dashboard", "एडमिन - उद्यानिकी कृषक डैशबोर्ड")
+</MudText>
 
-<MudStack>
-    <MudGrid>
-        <MudItem>कुल RHEO - @totRHEO</MudItem>
-        <MudItem>कुल पंजीकृत कृषक - @totRegFarmers</MudItem>
-        <MudItem>कुल पंजीकृत बैकलॉग कृषक - @totRegBacklogFarmers</MudItem>
-    </MudGrid>
-</MudStack>
+<MudGrid Spacing="3">
+
+    <!-- Total RHEO -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle2">@Lang.Text("Total RHEO", "कुल RHEO")</MudText>
+                <MudText Typo="Typo.h4" Class="mt-2">@_totRheo</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- Registered Farmers -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle2">@Lang.Text("Registered Farmers", "कुल पंजीकृत कृषक")</MudText>
+                <MudText Typo="Typo.h4" Class="mt-2">@_totRegFarmers</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <!-- Backlog Farmers -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.subtitle2">@Lang.Text("Registered Backlog Farmers", "कुल पंजीकृत बैकलॉग कृषक")</MudText>
+                <MudText Typo="Typo.h4" Class="mt-2">@_totRegBacklogFarmers</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
 @code {
+    private int _totRheo;
+    private int _totRegFarmers;
+    private int _totRegBacklogFarmers;
 
-    private string totRHEO = string.Empty;
-    private string totRegFarmers = string.Empty;
-    private string totRegBacklogFarmers = string.Empty;
+    private readonly string _currentFinYear = FinancialYearHelper.GetCurrentFinancialYear();
+    private readonly string _lastFinYear = FinancialYearHelper.GetLastFinancialYear();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync() => await LoadDashboardAsync();
+
+    private async Task LoadDashboardAsync()
     {
-        totRHEO = await GetTotRheo();
+        var rheoTask =
+            DashboardService.GetTotRheoAsync();
+
+        var farmersTask =
+            DashboardService.GetTotRegFarmersCountAsync();
+
+        var backlogTask =
+            DashboardService.GetTotRegBacklogFarmersCountAsync(
+                _currentFinYear);
+
+        await Task.WhenAll(
+            rheoTask,
+            farmersTask,
+            backlogTask);
+
+        var rheoResult = await rheoTask;
+        var farmersResult = await farmersTask;
+        var backlogResult = await backlogTask;
+
+        if (rheoResult.IsSuccess && rheoResult.Data is not null)
+        {
+            _totRheo = rheoResult.Data.Count;
+        }
+
+        if (farmersResult.IsSuccess && farmersResult.Data is not null)
+        {
+            _totRegFarmers = farmersResult.Data.Count;
+        }
+
+        if (backlogResult.IsSuccess && backlogResult.Data is not null)
+        {
+            _totRegBacklogFarmers = backlogResult.Data.Count;
+        }
     }
 }
-

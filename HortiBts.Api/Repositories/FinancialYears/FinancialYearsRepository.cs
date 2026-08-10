@@ -2,18 +2,19 @@
 using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Dashboard;
+using HortiBts.Shared.Dtos.FinancialYear;
 
 namespace HortiBts.Api.Repositories.FinancialYears
 {
     public interface IFinancialYearsRepository
     {
         /// <summary>Ported from commonservice.js getFYearForReport.</summary>
-        Task<Result<FinancialYearDto>>> GetFYearForReportAsync();
+        Task<Result<List<FinancialYearDto>>> GetFYearForReportAsync();
     }
 
     public class FinancialYearsRepository(IDbConnectionFactory dbFactory) : IFinancialYearsRepository
     {
-        public async Task<Result<FinancialYearDto>>> GetFYearForReportAsync()
+        public async Task<Result<List<FinancialYearDto>>> GetFYearForReportAsync()
         {
             try
             {
@@ -25,11 +26,11 @@ namespace HortiBts.Api.Repositories.FinancialYears
                     order by id desc
                     """;
                 var result = await connection.QueryAsync<FinancialYearDto>(sql);
-                return Result<FinancialYearDto>>.Success(result.ToList());
+                return Result<List<FinancialYearDto>>.Success(result.ToList());
             }
             catch (Exception ex)
             {
-                return Result<FinancialYearDto>>.Failure($"Failed to fetch financial years: {ex.Message}");
+                return Result<List<FinancialYearDto>>.Failure($"Failed to fetch financial years: {ex.Message}");
             }
         }
     }

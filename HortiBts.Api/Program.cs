@@ -1,5 +1,6 @@
 using HortiBts.Api.Data;
 using HortiBts.Api.Repositories.Auth;
+using HortiBts.Api.Repositories.Dashboard.Admin;
 using HortiBts.Api.Repositories.Districts;
 using HortiBts.Api.Repositories.Schemes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,6 +31,7 @@ builder.Services.AddScoped<ILoginHistoryRepository, LoginHistoryRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IJwtTokenRepository, JwtTokenRepository>();
 builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.

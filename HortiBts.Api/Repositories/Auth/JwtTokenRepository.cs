@@ -28,7 +28,7 @@ namespace HortiBts.Api.Repositories.Auth
 
             var loginHistoryId = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-            var claims = new Claim>
+            var claims = new List<Claim>
             {
                 new(ClaimTypes.Name, user.UserId),
 

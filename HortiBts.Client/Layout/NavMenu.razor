@@ -1,0 +1,10 @@
+@using Microsoft.AspNetCore.Components.Authorization
+<MudNavMenu>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">
+                @Lang.Text("Dashboard", "डैशबोर्ड")
+            </MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+</MudNavMenu>

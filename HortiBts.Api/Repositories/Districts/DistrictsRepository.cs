@@ -8,12 +8,12 @@ namespace HortiBts.Api.Repositories.Districts
     public interface IDistrictsRepository
     {
         /// <summary>Returns all districts</summary>
-        Task<Result<DistrictsDto>>> GetDistrictsAsync();
+        Task<Result<List<DistrictsDto>>> GetDistrictsAsync();
     }
 
     public class DistrictsRepository(IDbConnectionFactory dbFactory) : IDistrictsRepository
     {
-        public async Task<Result<DistrictsDto>>> GetDistrictsAsync()
+        public async Task<Result<List<DistrictsDto>>> GetDistrictsAsync()
         {
             try
             {
@@ -29,11 +29,11 @@ namespace HortiBts.Api.Repositories.Districts
                 order by DistrictName
                 """;
                 var result = await connection.QueryAsync<DistrictsDto>(sql);
-                return Result<DistrictsDto>>.Success(result.ToList());
+                return Result<List<DistrictsDto>>.Success(result.ToList());
             }
             catch (Exception ex)
             {
-                return Result<DistrictsDto>>.Failure($"Failed to fetch districts: {ex.Message}");
+                return Result<List<DistrictsDto>>.Failure($"Failed to fetch districts: {ex.Message}");
             }
         }
     }

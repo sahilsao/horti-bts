@@ -1,4 +1,4 @@
-﻿namespace HortiBts.Api.Helpers
+﻿namespace HortiBts.Client.Utils
 {
     public class FinancialYearHelper
     {

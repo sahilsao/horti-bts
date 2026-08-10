@@ -2,6 +2,7 @@ using HortiBts.Client;
 using HortiBts.Client.MultiLanguage;
 using HortiBts.Client.Services.Auth;
 using HortiBts.Client.Services.Common;
+using HortiBts.Client.Services.Dashboard;
 using HortiBts.Client.Services.Districts;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -40,4 +41,5 @@ builder.Services.AddScoped<LanguageService>();
 
 builder.Services.AddScoped<DistrictsApiService>();
 builder.Services.AddScoped<LoginHistoryApiService>();
+builder.Services.AddScoped<DashboardApiService>();
 await builder.Build().RunAsync();
