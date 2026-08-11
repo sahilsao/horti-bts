@@ -15,7 +15,7 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpGet("get-tot-reg-farmers-count")]
@@ -26,7 +26,7 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpGet("get-tot-reg-backlog-farmers-count")]
@@ -40,7 +40,30 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
+        }
+
+        [HttpGet("get-application-dashboard")]
+        public async Task<IActionResult> GetApplicationDashboard([FromQuery] string finYear)
+        {
+            if (string.IsNullOrWhiteSpace(finYear))
+            {
+                return Problem(
+                    detail: "finYear query parameter is required.",
+                    statusCode: 400);
+            }
+
+            var result =
+                await dashboardRepository.GetApplicationDashboard(finYear);
+
+            if (!result.IsSuccess)
+            {
+                return Problem(
+                    detail: result.Error,
+                    statusCode: 500);
+            }
+
+            return Ok(result);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace HortiBts.Api.Controllers.FinancialYears
     [ApiController]
     public class FinancialYearsController(IFinancialYearsRepository repository) : ControllerBase
     {
-        [HttpGet("for-report")]
+        [HttpGet("fyears-for-report")]
         public async Task<IActionResult> GetForReport()
         {
             var result = await repository.GetFYearForReportAsync();

@@ -1,5 +1,6 @@
 ﻿using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Dashboard.Admin;
+using System.Data;
 using System.Net.Http.Json;
 
 namespace HortiBts.Client.Services.Dashboard;
@@ -48,4 +49,25 @@ public class DashboardApiService(HttpClient http)
             return Result<DashboardCountDto>.Failure($"Failed to fetch backlog farmers count: {ex.Message}");
         }
     }
+
+    public async Task<Result<ApplicationDashboardDto>> GetApplicationDashboardAsync(string finYear)
+    {
+        try
+        {
+            var result =
+                await http.GetFromJsonAsync<Result<ApplicationDashboardDto>>(
+                    $"api/dashboard/admin/get-application-dashboard" +
+                    $"?finYear={Uri.EscapeDataString(finYear)}");
+
+            return result ??
+                Result<ApplicationDashboardDto>.Failure(
+                    "Empty response from server.");
+        }
+        catch (Exception ex)
+        {
+            return Result<ApplicationDashboardDto>.Failure(
+                $"Failed to fetch application dashboard: {ex.Message}");
+        }
+    }
 }
+
