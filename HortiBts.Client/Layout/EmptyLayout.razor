@@ -141,18 +141,16 @@ else
 
     public void Dispose() => Lang.OnLanguageChanged -= OnLanguageChanged;
 
-    // Horticulture identity: deep leaf green (primary), turmeric/saffron (secondary — nods to
-    // the state's spice crops), warm off-white surface instead of stark white.
     private readonly PaletteLight _lightPalette = new()
     {
-        Primary = "#2D6A4F",
+        Primary = "#2D6A4F",           // Forest canopy — core brand, primary actions
         PrimaryDarken = "#1B4332",
-        Secondary = "#D98E04",
-        Tertiary = "#457B9D",
-        Success = "#40916C",
-        Info = "#457B9D",
-        Warning = "#E76F51",
-        Error = "#C1121F",
+        Secondary = "#B5651D",         // Terracotta soil — was amber, now clearly distinct from Warning
+        Tertiary = "#3A6EA5",          // Irrigation blue — deeper than old tertiary, reads distinct from Info
+        Success = "#40916C",           // Ripe/approved — sits close to Primary on purpose (same family = "good outcome")
+        Info = "#5B8FB9",              // Lighter sky blue — visibly lighter than Tertiary now
+        Warning = "#D98E04",           // Harvest amber — moved old Secondary here, it's a much better semantic fit for "pending/attention"
+        Error = "#C1121F",             // Unchanged — already distinct once Warning moved off red
         Black = "#1B4332",
         AppbarText = "#1B4332",
         AppbarBackground = "rgba(251,248,241,0.9)",
@@ -168,15 +166,15 @@ else
     private readonly PaletteDark _darkPalette = new()
     {
         Primary = "#52B788",
-        Secondary = "#E9A93B",
-        Tertiary = "#6699B3",
+        Secondary = "#C97C3D",         // Terracotta lightened for dark bg
+        Tertiary = "#5B8FC7",
         Surface = "#1a2420",
         Background = "#131a16",
         BackgroundGray = "#0f1512",
         AppbarText = "#B7C9BE",
         AppbarBackground = "rgba(19,26,22,0.85)",
         DrawerBackground = "#1a2420",
-        ActionDefault = "#74718e",
+        ActionDefault = "#6B8577",     // Muted sage — replaces the off-brand purple-grey
         ActionDisabled = "#9999994d",
         ActionDisabledBackground = "#605f6d4d",
         TextPrimary = "#D4E0D8",
@@ -186,7 +184,7 @@ else
         DrawerText = "#9FB3A6",
         GrayLight = "#22302a",
         GrayLighter = "#1a2420",
-        Info = "#6699B3",
+        Info = "#7BA7CC",              // Lighter than Tertiary, mirrors light-mode split
         Success = "#52B788",
         Warning = "#E9A93B",
         Error = "#E5646F",

@@ -1,16 +1,18 @@
 ﻿using HortiBts.Shared.Dtos.Schemes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.Schemes
 {
     [ApiController]
     [Route("api/gallery")]
-    public class SchemesGalleryController(IWebHostEnvironment env, IConfiguration config, ILogger<SchemesGalleryController> logger) : ControllerBase
+    public class SchemesGalleryController(
+        IWebHostEnvironment env,
+        IConfiguration config,
+        ILogger<SchemesGalleryController> logger) : ControllerBase
     {
         private static readonly string[] AllowedExtensions =
         [
-           ".jpg",
+            ".jpg",
             ".jpeg",
             ".png",
             ".webp",
@@ -18,24 +20,32 @@ namespace HortiBts.Api.Controllers.Schemes
         ];
 
         [HttpGet]
+        [EndpointSummary("Get scheme gallery images")]
+        [EndpointDescription("Retrieves the list of available scheme gallery images along with their file names and URLs.")]
         public ActionResult<IEnumerable<SchemesGalleryDto>> GetImages()
         {
             try
             {
-                var baseUrl = config["ApiBaseUrl"]?.TrimEnd('/') ?? $"{Request.Scheme}://{Request.Host}";
-                var folder = Path.Combine(env.WebRootPath, "images", "schemes");
+                var baseUrl =
+                    config["ApiBaseUrl"]?.TrimEnd('/')
+                    ?? $"{Request.Scheme}://{Request.Host}";
+
+                var folder = Path.Combine(
+                    env.WebRootPath,
+                    "images",
+                    "schemes");
 
                 if (!Directory.Exists(folder))
                     return Ok(Enumerable.Empty<SchemesGalleryDto>());
 
                 var images = Directory
                     .EnumerateFiles(folder)
-                    .Where(f => AllowedExtensions.Contains(Path.GetExtension(f), StringComparer.OrdinalIgnoreCase))
+                    .Where(f => AllowedExtensions.Contains(
+                        Path.GetExtension(f),
+                        StringComparer.OrdinalIgnoreCase))
                     .OrderBy(Path.GetFileName)
                     .Select(file => new SchemesGalleryDto
                     {
-
-
                         FileName = Path.GetFileName(file),
                         Url = $"{baseUrl}/images/schemes/{Path.GetFileName(file)}"
                     });
@@ -45,7 +55,10 @@ namespace HortiBts.Api.Controllers.Schemes
             catch (Exception ex)
             {
                 logger.LogError(ex, "Failed to load gallery images.");
-                return Problem("Failed to load gallery images.", statusCode: 500);
+
+                return Problem(
+                    "Failed to load gallery images.",
+                    statusCode: 500);
             }
         }
     }

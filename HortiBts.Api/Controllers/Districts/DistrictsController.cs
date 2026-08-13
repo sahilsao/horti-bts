@@ -8,6 +8,8 @@ namespace HortiBts.Api.Controllers.Districts
     public class DistrictsController(IDistrictsRepository districtRepository) : ControllerBase
     {
         [HttpGet]
+        [EndpointSummary("Get all districts")]
+        [EndpointDescription("Retrieves the list of all districts available in the system.")]
         public async Task<IActionResult> GetDistricts()
         {
             var result = await districtRepository.GetDistrictsAsync();

@@ -2,7 +2,9 @@ using HortiBts.Api.Data;
 using HortiBts.Api.Repositories.Auth;
 using HortiBts.Api.Repositories.Dashboard.Admin;
 using HortiBts.Api.Repositories.Districts;
+using HortiBts.Api.Repositories.Farmers;
 using HortiBts.Api.Repositories.FinancialYears;
+using HortiBts.Api.Repositories.Girdawari;
 using HortiBts.Api.Repositories.Schemes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -34,6 +36,11 @@ builder.Services.AddScoped<IJwtTokenRepository, JwtTokenRepository>();
 builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IFinancialYearsRepository, FinancialYearsRepository>();
+builder.Services.AddScoped<IFarmersDetailsRepository, FarmersDetailsRepository>();
+builder.Services.AddHttpClient<ICropDetailRepository, CropDetailRepository>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+}); //girdawari details
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.
