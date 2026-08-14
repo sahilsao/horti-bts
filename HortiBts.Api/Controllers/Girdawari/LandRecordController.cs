@@ -10,8 +10,12 @@ namespace HortiBts.Api.Controllers;
 public sealed class LandRecordController(ICropDetailRepository cropDetailRepository) : ControllerBase
 {
 
-    // POST api/landrecord/getgirdawaridetails
-    [HttpPost("getgirdawaridetails")]
+    // POST api/landrecord/get-girdawari-details
+    [HttpPost("get-girdawari-details")]
+    [EndpointSummary("Get Girdawari crop details")]
+    [EndpointDescription(
+    "Retrieves crop and Girdawari details from the land-record service " +
+    "for the supplied village census codes and Khasra numbers.")]
     [ProducesResponseType(typeof(Result<List<CropDetailRecord[]>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Result<List<CropDetailRecord[]>>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Result<List<CropDetailRecord[]>>), StatusCodes.Status502BadGateway)]

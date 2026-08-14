@@ -1,0 +1,112 @@
+﻿@using HortiBts.Client.Services.Girdawari
+@using HortiBts.Client.Pages.FarmerDetails.Models
+
+@inject GirdawariApiService GirdawariApiService
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-0">
+    <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-4"><b>गिरदावरी विवरण</b></MudText>
+
+    @if (Tabs.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Dense="true">कोई विवरण उपलब्ध नहीं है।</MudAlert>
+    }
+    else
+    {
+        <MudTabs Elevation="1" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
+            @foreach (var tab in Tabs)
+            {
+                <MudTabPanel Text="@tab.YearText">
+                    <MudTable Items="@tab.Items" Hover="true" Dense="true" Bordered="true" Striped="true">
+                        <HeaderContent>
+                            <MudTh>क्रमांक</MudTh>
+                            <MudTh>सीज़न</MudTh>
+                            <MudTh>फसल</MudTh>
+                            <MudTh>खसरा क्रमांक</MudTh>
+                            <MudTh>रकबा</MudTh>
+                            <MudTh>ग्राम</MudTh>
+                            <MudTh>वर्ष</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="row">
+                            <MudTd DataLabel="क्रमांक">@(tab.Items.IndexOf(row) + 1)</MudTd>
+                            <MudTd DataLabel="सीज़न">@row.CropSeasonLabel</MudTd>
+                            <MudTd DataLabel="फसल">@row.SubCropName</MudTd>
+                            <MudTd DataLabel="खसरा क्रमांक">@row.KhasraNo</MudTd>
+                            <MudTd DataLabel="रकबा">@row.SubCropArea</MudTd>
+                            <MudTd DataLabel="ग्राम">@row.VillageName</MudTd>
+                            <MudTd DataLabel="वर्ष">@row.CropYear</MudTd>
+                        </RowTemplate>
+                        <FooterContent>
+                            <MudTd></MudTd>
+                            <MudTd></MudTd>
+                            <MudTd></MudTd>
+                            <MudTd>योग</MudTd>
+                            <MudTd>@tab.Items.Sum(x => x.SubCropArea)</MudTd>
+                            <MudTd></MudTd>
+                            <MudTd></MudTd>
+                        </FooterContent>
+                        <PagerContent>
+                            <MudTablePager PageSizeOptions="new[] { 5, 10, 25, 50 }" />
+                        </PagerContent>
+                    </MudTable>
+                </MudTabPanel>
+            }
+        </MudTabs>
+    }
+</MudContainer>
+
+@code {
+    private List<GirdawariYearTab> Tabs { get; } = new();
+
+    /// <summary>
+    /// Equivalent of the Angular getCurrentGirdawariData(girdawariSearchParam):
+    /// calls the API for one financial year's set of search params and, on
+    /// success, adds a tab to the table. The caller decides yearId/yearText
+    /// (e.g. from its own financial-year list) instead of this component
+    /// re-deriving them, which keeps that lookup logic in one place.
+    /// </summary>
+    public async Task AddYearAsync(
+        int yearId,
+        string yearText,
+        IReadOnlyList<SearchParam> searchParams,
+        CancellationToken cancellationToken = default)
+    {
+        if (searchParams.Count == 0)
+        {
+            return;
+        }
+
+        var result = await GirdawariApiService.GetGirdawariDetailsAsync(searchParams, cancellationToken);
+
+        if (!result.IsSuccess || result.Data is null)
+        {
+            Snackbar.Add(result.Error ?? "गिरदावरी विवरण लोड करने में त्रुटि हुई।", Severity.Error);
+            return;
+        }
+
+        // Original flattened each inner array with a nested forEach into a
+        // single MatTableDataSource — SelectMany does the same here.
+        var items = result.Data.SelectMany(record => record).ToList();
+
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        Tabs.Add(new GirdawariYearTab
+        {
+            YearId = yearId,
+            YearText = yearText,
+            Items = items
+        });
+
+        StateHasChanged();
+    }
+
+    /// <summary>Clears all loaded tabs — e.g. when the selected farmer changes.</summary>
+    public void Clear()
+    {
+        Tabs.Clear();
+        StateHasChanged();
+    }
+}

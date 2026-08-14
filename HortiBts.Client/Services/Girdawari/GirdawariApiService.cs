@@ -22,7 +22,7 @@ namespace HortiBts.Client.Services.Girdawari
             try
             {
                 using var response = await _httpClient.PostAsJsonAsync(
-                    "api/landrecord/getgirdawaridetails", searchParams, cancellationToken);
+                    "api/landrecord/get-girdawari-details", searchParams, cancellationToken);
 
                 // The API returns a Result<T> body even on 400/502 — read it either way.
                 var result = await response.Content.ReadFromJsonAsync<Result<List<List<GirdawariRecord>>>>(

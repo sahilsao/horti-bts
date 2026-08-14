@@ -20,7 +20,7 @@ namespace HortiBts.Api.Repositories.Girdawari
 
     }
 
-    public sealed class CropDetailRepository : ICropDetailRepository
+    public sealed class CropDetailRepository(HttpClient httpClient, ILogger<CropDetailRepository> logger) : ICropDetailRepository
     {
         // Confirmed against https://bhuiyan.cg.nic.in/GetSoilDetails.asmx?op=GetCropDetailWSJSon
         private const string WsdlEndpoint = "https://bhuiyan.cg.nic.in/GetSoilDetails.asmx";
@@ -30,15 +30,6 @@ namespace HortiBts.Api.Repositories.Girdawari
 
         private static readonly XNamespace Soap = "http://schemas.xmlsoap.org/soap/envelope/";
         private static readonly XNamespace Tns = "http://cg.nic.in/bhuiyan/";
-
-        private readonly HttpClient _httpClient;
-        private readonly ILogger<CropDetailRepository> _logger;
-
-        public CropDetailRepository(HttpClient httpClient, ILogger<CropDetailRepository> logger)
-        {
-            _httpClient = httpClient;
-            _logger = logger;
-        }
 
         public async Task<Result<List<CropDetailRecord[]>>> GetCropDetailsAsync(
             IReadOnlyList<SearchParam> searchParams,
@@ -62,7 +53,7 @@ namespace HortiBts.Api.Repositories.Girdawari
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex,
+                    logger.LogError(ex,
                         "GetCropDetailWSJSon failed for village {VillageCode}, khasra {KhasraNo}",
                         param.VillageCode, param.KhasraNo);
 
@@ -99,7 +90,7 @@ namespace HortiBts.Api.Repositories.Girdawari
             using var content = new StringContent(envelope.ToString(SaveOptions.DisableFormatting), Encoding.UTF8, "text/xml");
             content.Headers.Add("SOAPAction", SoapAction);
 
-            using var response = await _httpClient.PostAsync(WsdlEndpoint, content, cancellationToken);
+            using var response = await httpClient.PostAsync(WsdlEndpoint, content, cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
 
             if (!response.IsSuccessStatusCode)
