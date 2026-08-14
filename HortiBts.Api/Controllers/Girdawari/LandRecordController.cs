@@ -35,7 +35,7 @@ public sealed class LandRecordController(ICropDetailRepository cropDetailReposit
         // Logging of the underlying exception already happens inside the
         // repository, right where the stack trace is available.
         return result.IsSuccess
-            ? Ok(result)
+            ? Ok(result.Data)
             : StatusCode(StatusCodes.Status502BadGateway, result);
     }
 }

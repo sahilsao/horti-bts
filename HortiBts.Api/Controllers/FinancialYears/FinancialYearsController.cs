@@ -18,7 +18,7 @@ namespace HortiBts.Api.Controllers.FinancialYears
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+            return Ok(result.Data);
         }
     }
 

@@ -21,7 +21,7 @@ public class AuthController(IAuthRepository authRepository) : ControllerBase
             request.Password);
 
         return result.IsSuccess
-            ? Ok(result)
+            ? Ok(result.Data)
             : Unauthorized(result.Error);
     }
 
@@ -34,7 +34,7 @@ public class AuthController(IAuthRepository authRepository) : ControllerBase
         var result = await authRepository.RefreshTokenAsync(dto.RefreshToken);
 
         return result.IsSuccess
-            ? Ok(result)
+            ? Ok(result.Data)
             : Unauthorized(result.Error);
     }
 
@@ -60,7 +60,7 @@ public class AuthController(IAuthRepository authRepository) : ControllerBase
             request.NewPassword);
 
         return result.IsSuccess
-            ? Ok(result)
+            ? Ok(result.Data)
             : Problem(detail: result.Error, statusCode: 500);
     }
 
@@ -75,7 +75,7 @@ public class AuthController(IAuthRepository authRepository) : ControllerBase
             request.NewPassword);
 
         return result.IsSuccess
-            ? Ok(result)
+            ? Ok(result.Data)
             : Problem(detail: result.Error, statusCode: 500);
     }
 }

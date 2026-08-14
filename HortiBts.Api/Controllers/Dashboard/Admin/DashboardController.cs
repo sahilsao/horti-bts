@@ -17,7 +17,7 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+            return Ok(result.Data);
         }
 
         [HttpGet("get-tot-reg-farmers-count")]
@@ -30,7 +30,7 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+            return Ok(result.Data);
         }
 
         [HttpGet("get-tot-reg-backlog-farmers-count")]
@@ -50,7 +50,7 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+            return Ok(result.Data);
         }
 
         [HttpGet("get-application-dashboard")]
@@ -76,7 +76,7 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
                     statusCode: 500);
             }
 
-            return Ok(result);
+            return Ok(result.Data);
         }
     }
 }
