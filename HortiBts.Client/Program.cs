@@ -7,6 +7,8 @@ using HortiBts.Client.Services.Districts;
 using HortiBts.Client.Services.Farmers;
 using HortiBts.Client.Services.FinancialYears;
 using HortiBts.Client.Services.Girdawari;
+using HortiBts.Client.Services.SubDistricts;
+using HortiBts.Client.Services.Villages;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -43,6 +45,8 @@ builder.Services.AddScoped<LanguageService>();
 // ── Feature Services (Master Data) — API-backed implementations
 
 builder.Services.AddScoped<DistrictsApiService>();
+builder.Services.AddScoped<SubdistrictsApiService>();
+builder.Services.AddScoped<VillagesApiService>();
 builder.Services.AddScoped<LoginHistoryApiService>();
 builder.Services.AddScoped<DashboardApiService>();
 builder.Services.AddScoped<FinancialYearsApiService>();
