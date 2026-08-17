@@ -300,31 +300,31 @@
         // RHEO
         if (rheoResult.IsSuccess && rheoResult.Data is not null)
         {
-            _totRheo = rheoResult.Data.Count;
+            _totRheo = rheoResult.Data.FirstOrDefault()?.Count ?? 0;
         }
 
         // Registered Farmers
         if (farmersResult.IsSuccess && farmersResult.Data is not null)
         {
-            _totRegFarmers = farmersResult.Data.Count;
+            _totRegFarmers = farmersResult.Data.FirstOrDefault()?.Count ?? 0;
         }
 
         // Backlog Farmers
         if (backlogResult.IsSuccess && backlogResult.Data is not null)
         {
-            _totRegBacklogFarmers = backlogResult.Data.Count;
+            _totRegBacklogFarmers = backlogResult.Data.FirstOrDefault()?.Count ?? 0;
         }
 
         // Current Financial Year
         if (applicationResult.IsSuccess && applicationResult.Data is not null)
         {
-            _currentYearDashboard = applicationResult.Data;
+            _currentYearDashboard = applicationResult.Data.FirstOrDefault() ?? new ApplicationDashboardDto(); ;
         }
 
         // Previous Financial Year
         if (applicationResult2.IsSuccess && applicationResult2.Data is not null)
         {
-            _previousYearDashboard = applicationResult2.Data;
+            _previousYearDashboard = applicationResult2.Data.FirstOrDefault() ?? new ApplicationDashboardDto(); ;
         }
     }
 }

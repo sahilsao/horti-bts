@@ -1,0 +1,468 @@
+﻿@page "/admin/farmer-details"
+@using HortiBts.Shared.Dtos.Farmers
+@using HortiBts.Shared.Dtos.FinancialYear
+@using HortiBts.Client.Services.Farmers
+@using HortiBts.Client.Services.FinancialYears
+@using Microsoft.AspNetCore.Components.Web
+
+@inject FarmersDetailsApiService FarmersDetailsApiService
+@inject FinancialYearsApiService FinancialYearApiService
+
+@inject ISnackbar Snackbar
+
+
+<PageTitle>@Lang.Text("Farmer Details", "कृषक विवरण")</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="@Icons.Material.Filled.Person" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Farmer Details", "कृषक विवरण")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("View farmer details by entering the UFID.", "यु.एफ.आईडी दर्ज कर कृषक का विवरण देखें")
+</MudText>
+@* ---------- Search bar ---------- *@
+<MudGrid>
+    <MudItem xs="12" sm="4">
+        <MudPaper Class="pa-3 mb-6 d-flex align-center gap-3" Elevation="0"
+                  Style="border:1px solid var(--mud-palette-lines-default); border-radius:12px;">
+            <MudTextField @bind-Value="_searchUfId"
+                          Placeholder="@Lang.Text("Enter the UFID", "यु.एफ.आईडी दर्ज करें")"
+                          Variant="Variant.Text"
+                          Immediate="true"
+                          OnKeyDown="OnSearchBoxKeyDown"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Disabled="_isLoading"
+                          Margin="Margin.Dense" />
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="SearchAsync"
+                       Disabled="_isLoading || string.IsNullOrWhiteSpace(_searchUfId)">
+                @Lang.Text("Search", "खोजें")
+            </MudButton>
+
+            @if (_hasSearched)
+            {
+                <MudTooltip Text="@Lang.Text("Reset", "रीसेट")">
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Size="Size.Small"
+                                   OnClick="Reset"
+                                   Disabled="_isLoading" />
+                </MudTooltip>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+@* ---------- Loading ---------- *@
+@if (_isLoading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-6" Rounded="true" />
+}
+
+@* ---------- Empty state ---------- *@
+@if (_hasSearched && !_isLoading && !_farmerBasicDetails.Any())
+{
+    <MudPaper Class="pa-8 d-flex flex-column align-center" Elevation="0"
+              Style="border:1px dashed var(--mud-palette-lines-default); border-radius:12px;">
+        <MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" Class="mud-text-secondary mb-2" />
+        <MudText Typo="Typo.body1" Class="mud-text-secondary">
+            @Lang.Text("No details found for the entered UFID.", "दर्ज किए गए यु.एफ.आईडी के लिए कोई विवरण नहीं मिला")
+        </MudText>
+    </MudPaper>
+}
+
+@* ---------- Basic Details Result ---------- *@
+@if (_farmerBasicDetails.Any())
+{
+    <MudPaper Class="pa-0 overflow-hidden" Elevation="1" Style="border-radius:12px;">
+        <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Basic Details", "आधारभूत जानकारी")</strong></MudText>
+        <MudDivider />
+        <MudTable Items="_farmerBasicDetails" Hover="true" Dense="true" Class="pa-2" Elevation="0">
+            <HeaderContent>
+                <MudTh>@Lang.Text("UFID", "यु.एफ.आईडी")</MudTh>
+                <MudTh>@Lang.Text("Name (English)", "नाम (अंग्रेजी)")</MudTh>
+                <MudTh>@Lang.Text("Name (Hindi)", "नाम (हिंदी)")</MudTh>
+                <MudTh>@Lang.Text("Father/Mother/Spouse", "पिता/माता/पति")</MudTh>
+                <MudTh>@Lang.Text("Gender", "लिंग")</MudTh>
+                <MudTh>@Lang.Text("Mobile Number 1", "मोबाइल नंबर 1")</MudTh>
+                <MudTh>@Lang.Text("Mobile Number 2", "मोबाइल नंबर 2")</MudTh>
+                <MudTh>@Lang.Text("Date of Birth", "जन्म तिथि")</MudTh>
+                <MudTh>@Lang.Text("Caste", "वर्ग")</MudTh>
+                <MudTh>@Lang.Text("Subcaste", "विशेष जनजाति")</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="b">
+                <MudTd DataLabel="@Lang.Text("UFID", "यु.एफ.आईडी")">@b.UfId</MudTd>
+                <MudTd DataLabel="@Lang.Text("Name (English)", "नाम (अंग्रेजी)")">@b.FarmerNameEng</MudTd>
+                <MudTd DataLabel="@Lang.Text("Name (Hindi)", "नाम (हिंदी)")">@b.FarmerNameHi</MudTd>
+                <MudTd DataLabel="@Lang.Text("Father/Mother/Spouse", "पिता/माता/पति")">@Or(b.FatherName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Gender", "लिंग")">@GenderLabel(b.Gender)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Mobile Number 1", "मोबाइल नंबर 1")">@Or(b.MobileNo)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Mobile Number 2", "मोबाइल नंबर 2")">@Or(b.MobileNo1)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Date of Birth", "जन्म तिथि")">@Or(b.Dob?.ToString("dd/MM/yyyy"))</MudTd>
+                <MudTd DataLabel="@Lang.Text("Caste", "वर्ग")">@Or(b.CasteName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Subcaste", "विशेष जनजाति")">@Or(b.SubcasteName)</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+
+
+@* ---------- Basic Address Result ---------- *@
+
+@if (_farmerAddressDetails.Any())
+{
+    <MudPaper Class="pa-0 overflow-hidden mt-6" Elevation="1" Style="border-radius:12px;">
+        <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Address Details", "पता विवरण")</strong></MudText>
+        <MudDivider />
+        <MudTable Items="_farmerAddressDetails" Hover="true" Dense="true" Class="pa-2" Elevation="0">
+            <HeaderContent>
+                <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+                <MudTh>@Lang.Text("Address", "पता")</MudTh>
+                <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
+                <MudTh>@Lang.Text("Block", "विकासखण्ड")</MudTh>
+                <MudTh>@Lang.Text("District", "जिला")</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="a">
+                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerAddressDetails.IndexOf(a) + 1)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Address", "पता")">@FormatAddress(a)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(a.VillageName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(a.SubdistrictName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(a.DistrictName)</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+
+@* ---------- Bank Details Result ---------- *@
+@if (_farmerBankDetails.Any())
+{
+    <MudPaper Class="pa-0 overflow-hidden mt-6" Elevation="1" Style="border-radius:12px;">
+        <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Bank Details", "बैंक विवरण")</strong></MudText>
+        <MudDivider />
+        <MudTable Items="_farmerBankDetails" Hover="true" Dense="true" Class="pa-2" Elevation="0">
+            <HeaderContent>
+                <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+                <MudTh>@Lang.Text("Account No.", "खाता क्रमांक")</MudTh>
+                <MudTh>@Lang.Text("IFSC Code", "आई.एफ.एस.सी. कोड")</MudTh>
+                <MudTh>@Lang.Text("Branch", "शाखा")</MudTh>
+                <MudTh>@Lang.Text("Bank", "बैंक")</MudTh>
+                <MudTh>@Lang.Text("District", "जिला")</MudTh>
+                <MudTh>@Lang.Text("State", "राज्य")</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="bnk">
+                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerBankDetails.IndexOf(bnk) + 1)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Account No.", "खाता क्रमांक")">@Or(bnk.AccountNo)</MudTd>
+                <MudTd DataLabel="@Lang.Text("IFSC Code", "आई.एफ.एस.सी. कोड")">@Or(bnk.IfscCode)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Branch", "शाखा")">@Or(bnk.BranchName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Bank", "बैंक")">@Or(bnk.BankName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(bnk.DistrictName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("State", "राज्य")">@StateLabel(bnk.BankStateName)</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+
+@* ---------- Land Details Result (Tabbed by Financial Year) ---------- *@
+@if (_finYears.Any())
+{
+    @* ---------- Land Details Result ---------- *@
+    <MudPaper Class="pa-0 overflow-hidden mt-6" Elevation="1" Style="border-radius:12px;">
+        <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Land Details", "भूमि विवरण")</strong></MudText>
+        <MudDivider />
+        <MudTabs Elevation="0" Rounded="true" Class="pa-2" ApplyEffectsToContainer="true">
+            @foreach (var fy in _finYears)
+            {
+                <MudTabPanel Text="@fy.FinancialYear">
+                    @{
+                        var yearRows = _farmerLandDetails.Where(l => l.FinancialYear == fy.Id).ToList();
+                    }
+
+                    @if (yearRows.Any())
+                    {
+                        <MudTable Items="yearRows" Hover="true" Breakpoint="Breakpoint.None" Class="mt-2" Dense="true" Elevation="0">
+                            <HeaderContent>
+                                <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+                                <MudTh>@Lang.Text("Khasra No.", "खसरा क्रमांक")</MudTh>
+                                <MudTh>@Lang.Text("Owner", "स्वामी")</MudTh>
+                                <MudTh>@Lang.Text("Owner Type", "स्वामी प्रकार")</MudTh>
+                                <MudTh>@Lang.Text("Area", "रकबा")</MudTh>
+                                <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
+                                <MudTh>@Lang.Text("Block", "विकासखण्ड")</MudTh>
+                                <MudTh>@Lang.Text("District", "जिला")</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(yearRows.IndexOf(context) + 1)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(context.KhasraNo)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Owner", "स्वामी")">@Or(context.OwnerName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Owner Type", "स्वामी प्रकार")">@Or(context.Ownertype)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.Area</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(context.SubdistrictName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(context.DistrictName)</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Info" Class="ma-2">
+                            @Lang.Text("No land records found for this financial year.", "इस वित्तीय वर्ष के लिए कोई भूमि विवरण नहीं मिला।")
+                        </MudAlert>
+                    }
+                </MudTabPanel>
+            }
+        </MudTabs>
+    </MudPaper>
+
+    @* ---------- Scheme Details Result ---------- *@
+    <MudPaper Class="pa-0 overflow-hidden mt-6" Elevation="1" Style="border-radius:12px;">
+        <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Scheme Details", "योजना विवरण")</strong></MudText>
+        <MudDivider />
+        <MudTabs Elevation="0" Rounded="true" Class="pa-2" ApplyEffectsToContainer="true">
+            @foreach (var fy in _finYears)
+            {
+                <MudTabPanel Text="@fy.FinancialYear">
+                    @{
+                        var yearRows = _farmerSchemeDetails.Where(l => l.FinancialYear == fy.Id).ToList();
+                    }
+
+                    @if (yearRows.Any())
+                    {
+                        <MudTable Items="yearRows" Hover="true" Breakpoint="Breakpoint.None" Class="mt-2" Dense="true" Elevation="0">
+                            <HeaderContent>
+                                <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+                                <MudTh>@Lang.Text("District", "जिला")</MudTh>
+                                <MudTh>@Lang.Text("Block", "विकासखण्ड")</MudTh>
+                                <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
+                                <MudTh>@Lang.Text("Scheme Name", "योजना का नाम")</MudTh>
+                                <MudTh>@Lang.Text("Benefit", "लाभ")</MudTh>
+                                <MudTh>@Lang.Text("Grant Amount", "अनुदान राशि")</MudTh>
+                                <MudTh>@Lang.Text("Khasra No.", "खसरा क्रमांक")</MudTh>
+                                <MudTh>@Lang.Text("Area", "रकबा")</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(yearRows.IndexOf(context) + 1)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(context.DistrictName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(context.SubdistrictName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Scheme Name", "योजना का नाम")">@Or(context.SchemeName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Benefit", "लाभ")">@FormatBenefit(context)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Grant Amount", "अनुदान राशि")">@Or(context.Cash.ToString())</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(context.KhasraNo)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.Area</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Info" Class="ma-2">
+                            @Lang.Text("No scheme records found for this financial year.", "इस वित्तीय वर्ष के लिए कोई योजना विवरण नहीं मिला।")
+                        </MudAlert>
+                    }
+                </MudTabPanel>
+            }
+        </MudTabs>
+    </MudPaper>
+
+    @* ---------- Crop Details Result ---------- *@
+    <MudPaper Class="pa-0 overflow-hidden mt-6" Elevation="1" Style="border-radius:12px;">
+        <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Crop Details", "फसल विवरण")</strong></MudText>
+        <MudDivider />
+        <MudTabs Elevation="0" Rounded="true" Class="pa-2" ApplyEffectsToContainer="true">
+            @foreach (var fy in _finYears)
+            {
+                <MudTabPanel Text="@fy.FinancialYear">
+                    @{
+                        var yearRows = _farmerCropDetails.Where(l => l.FinancialYear == fy.Id).ToList();
+                    }
+
+                    @if (yearRows.Any())
+                    {
+                        <MudTable Items="yearRows" Hover="true" Breakpoint="Breakpoint.None" Class="mt-2" Dense="true" Elevation="0">
+                            <HeaderContent>
+                                <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+                                <MudTh>@Lang.Text("District", "जिला")</MudTh>
+                                <MudTh>@Lang.Text("Block", "विकासखण्ड")</MudTh>
+                                <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
+                                <MudTh>@Lang.Text("Crop Type", "फसल का प्रकार")</MudTh>
+                                <MudTh>@Lang.Text("Crop Name", "फसल का नाम")</MudTh>
+                                <MudTh>@Lang.Text("Variety", "किस्म")</MudTh>
+                                <MudTh>@Lang.Text("Season", "सीजन")</MudTh>
+                                <MudTh>@Lang.Text("Khasra No.", "खसरा क्रमांक")</MudTh>
+                                <MudTh>@Lang.Text("Area", "रकबा")</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(yearRows.IndexOf(context) + 1)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(context.DistrictName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(context.SubdistrictName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Crop Type", "फसल का प्रकार")">@Or(context.CropCategoryName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Crop Name", "फसल का नाम")">@Or(context.CropName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(context.CropVariety)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Season", "सीजन")">@Or(context.CropSeasonName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(context.KhasraNo)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.CropArea</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Info" Class="ma-2">
+                            @Lang.Text("No scheme records found for this financial year.", "इस वित्तीय वर्ष के लिए कोई योजना विवरण नहीं मिला।")
+                        </MudAlert>
+                    }
+                </MudTabPanel>
+            }
+        </MudTabs>
+    </MudPaper>
+}
+
+@code {
+    private string _searchUfId = string.Empty;
+    private List<FarmerBasicDetailsDto> _farmerBasicDetails = new();
+    private List<FarmerAddressDetailsDto> _farmerAddressDetails = new();
+    private List<FarmerBankDetailsDto> _farmerBankDetails = new();
+
+    private List<FinancialYearDto> _finYears = new();
+    private List<FarmerLandDetailsDto> _farmerLandDetails = new();
+    private List<FarmerSchemeDetailsDto> _farmerSchemeDetails = new();
+    private List<FarmerCropDetailsDto> _farmerCropDetails = new();
+    private bool _isLoading;
+    private bool _hasSearched;
+
+    private async Task SearchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_searchUfId))
+            return;
+
+        _isLoading = true;
+        _hasSearched = true;
+        _farmerBasicDetails = new();
+        _farmerAddressDetails = new();
+        _farmerBankDetails = new();
+        _finYears = new();
+        _farmerLandDetails = new();
+        _farmerSchemeDetails = new();
+        _farmerCropDetails = new();
+
+        try
+        {
+            var resultBasicDetails = await FarmersDetailsApiService.GetFarmersBasicDetailsAsync(_searchUfId.Trim());
+            var resultAddressDetails = await FarmersDetailsApiService.GetFarmersAddressDetailsAsync(_searchUfId.Trim());
+            var resultBankDetails = await FarmersDetailsApiService.GetFarmersBankDetailsAsync(_searchUfId.Trim());
+
+            var resultFinYears = await FinancialYearApiService.GetFinancialYearsForReportAsync();
+
+            if (resultBasicDetails.IsSuccess && resultBasicDetails.Data is not null && resultBasicDetails.Data.Any())
+            {
+                _farmerBasicDetails = resultBasicDetails.Data;
+            }
+
+            if (resultAddressDetails.IsSuccess && resultAddressDetails.Data is not null && resultAddressDetails.Data.Any())
+            {
+                _farmerAddressDetails = resultAddressDetails.Data;
+            }
+
+            if (resultBankDetails.IsSuccess && resultBankDetails.Data is not null && resultBankDetails.Data.Any())
+            {
+                _farmerBankDetails = resultBankDetails.Data;
+            }
+
+            if (resultFinYears.IsSuccess && resultFinYears.Data is not null)
+            {
+                // newest year first (id 17 -> 9), matches your sample order already
+                _finYears = resultFinYears.Data.OrderByDescending(fy => fy.Id).ToList();
+
+                // Land Details
+                var tasksLandDetails = _finYears
+                    .Select(fy => FarmersDetailsApiService.GetFarmersLandDetailsAsync(_searchUfId.Trim(), fy.Id.ToString()))
+                    .ToList();
+
+                var resultLandDetails = await Task.WhenAll(tasksLandDetails);
+
+                _farmerLandDetails = resultLandDetails
+                    .Where(r => r.IsSuccess && r.Data is not null)
+                    .SelectMany(r => r.Data!)
+                    .ToList();
+
+                // Scheme Details
+                var tasksSchemeDetails = _finYears
+                .Select(fy => FarmersDetailsApiService.GetFarmersSchemeDetailsAsync(_searchUfId.Trim(), fy.Id.ToString()))
+                .ToList();
+
+                var resultSchemeDetails = await Task.WhenAll(tasksSchemeDetails);
+
+                _farmerSchemeDetails = resultSchemeDetails
+                    .Where(r => r.IsSuccess && r.Data is not null)
+                    .SelectMany(r => r.Data!)
+                    .ToList();
+
+                // Crop Details
+                var tasksCropDetails = _finYears
+                .Select(fy => FarmersDetailsApiService.GetFarmersCropDetailsAsync(_searchUfId.Trim(), fy.Id.ToString()))
+                .ToList();
+
+                var resultCropDetails = await Task.WhenAll(tasksCropDetails);
+
+                _farmerCropDetails = resultCropDetails
+                    .Where(r => r.IsSuccess && r.Data is not null)
+                    .SelectMany(r => r.Data!)
+                    .ToList();
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void Reset()
+    {
+        _searchUfId = string.Empty;
+        _farmerBasicDetails = new();
+        _farmerAddressDetails = new();
+        _farmerBankDetails = new();
+        _finYears = new();
+        _farmerLandDetails = new();
+        _farmerSchemeDetails = new();
+        _farmerCropDetails = new();
+
+        _hasSearched = false;
+    }
+
+    private async Task OnSearchBoxKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await SearchAsync();
+    }
+
+    private string GenderLabel(string? gender) => gender switch
+    {
+        "M" => @Lang.Text("Male", "पुरुष"),
+        "F" => @Lang.Text("Female", "महिला"),
+        "T" => @Lang.Text("Transgender", "ट्रांसजेंडर"),
+        _ => "-"
+    };
+
+    private string Or(string? value)
+    => string.IsNullOrWhiteSpace(value) ? "-" : value;
+
+    private static string FormatAddress(FarmerAddressDetailsDto a)
+    => $"मकान संख्या/गली : {a.HouseNo}, वार्ड संख्या : {a.WardNo}, {a.Address}, पिनकोड: {a.Pincode}";
+
+    private string StateLabel(string? stateName)
+    => string.IsNullOrWhiteSpace(stateName) ? Lang.Text("Chhattisgarh", "छत्तीसगढ़") : stateName;
+
+    private string FormatBenefit(FarmerSchemeDetailsDto s)
+    {
+        var type = string.IsNullOrWhiteSpace(s.BenefitTypeName) ? null : s.BenefitTypeName;
+        var name = string.IsNullOrWhiteSpace(s.BenefitName) ? null : s.BenefitName;
+
+        if (type is null && name is null)
+            return "-";
+
+        return type is null ? name!
+             : name is null ? type
+             : $"{type} - {name}";
+    }
+}

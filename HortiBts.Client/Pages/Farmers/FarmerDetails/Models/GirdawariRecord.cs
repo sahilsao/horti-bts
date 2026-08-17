@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace HortiBts.Client.Pages.FarmerDetails.Models
+namespace HortiBts.Client.Pages.Farmers.FarmerDetails.Models
 {
     /// <summary>Mirrors GirdawariApi.Models.SearchParam sent to the WebAPI.</summary>
     public sealed class SearchParam

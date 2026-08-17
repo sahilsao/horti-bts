@@ -1,23 +1,25 @@
 ﻿using Dapper;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Dashboard.Admin;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace HortiBts.Api.Repositories.Dashboard.Admin;
 
 public interface IDashboardRepository
 {
-    Task<Result<DashboardCountDto>> GetTotRHEOCount();
+    Task<Result<List<DashboardCountDto>>> GetTotRHEOCount();
 
-    Task<Result<DashboardCountDto>> GetTotRegFarmersCount();
+    Task<Result<List<DashboardCountDto>>> GetTotRegFarmersCount();
 
-    Task<Result<DashboardCountDto>> GetTotRegBacklogFarmersCount(string finYear);
+    Task<Result<List<DashboardCountDto>>> GetTotRegBacklogFarmersCount(string finYear);
 
-    Task<Result<ApplicationDashboardDto>> GetApplicationDashboard(string finYear);
+    Task<Result<List<ApplicationDashboardDto>>> GetApplicationDashboard(string finYear);
 }
 public class DashboardRepository(IDbConnectionFactory dbFactory) : IDashboardRepository
 {
-    public async Task<Result<DashboardCountDto>> GetTotRHEOCount()
+    public async Task<Result<List<DashboardCountDto>>> GetTotRHEOCount()
     {
         try
         {
@@ -31,20 +33,23 @@ public class DashboardRepository(IDbConnectionFactory dbFactory) : IDashboardRep
 
             var count = await connection.QuerySingleAsync<int>(sql);
 
-            return Result<DashboardCountDto>.Success(
-                new DashboardCountDto
+            return Result<List<DashboardCountDto>>.Success(
+                new List<DashboardCountDto>
                 {
-                    Count = count
+                    new DashboardCountDto
+                    {
+                        Count = count
+                    }
                 });
         }
         catch (Exception ex)
         {
-            return Result<DashboardCountDto>.Failure(
+            return Result<List<DashboardCountDto>>.Failure(
                 $"Failed to fetch Total RHEO Count: {ex.Message}");
         }
     }
 
-    public async Task<Result<DashboardCountDto>> GetTotRegFarmersCount()
+    public async Task<Result<List<DashboardCountDto>>> GetTotRegFarmersCount()
     {
         try
         {
@@ -63,20 +68,23 @@ public class DashboardRepository(IDbConnectionFactory dbFactory) : IDashboardRep
 
             var count = await connection.QuerySingleAsync<int>(sql);
 
-            return Result<DashboardCountDto>.Success(
-                new DashboardCountDto
+            return Result<List<DashboardCountDto>>.Success(
+                new List<DashboardCountDto>
                 {
-                    Count = count
+                    new DashboardCountDto
+                    {
+                        Count = count
+                    }
                 });
         }
         catch (Exception ex)
         {
-            return Result<DashboardCountDto>.Failure(
+            return Result<List<DashboardCountDto>>.Failure(
                 $"Failed to fetch Total Registered Farmers Count: {ex.Message}");
         }
     }
 
-    public async Task<Result<DashboardCountDto>> GetTotRegBacklogFarmersCount(
+    public async Task<Result<List<DashboardCountDto>>> GetTotRegBacklogFarmersCount(
     string finYear)
     {
         try
@@ -99,20 +107,23 @@ public class DashboardRepository(IDbConnectionFactory dbFactory) : IDashboardRep
                 sql,
                 new { FinYear = finYear });
 
-            return Result<DashboardCountDto>.Success(
-                new DashboardCountDto
+            return Result<List<DashboardCountDto>>.Success(
+                new List<DashboardCountDto>
                 {
-                    Count = count
+                    new DashboardCountDto
+                    {
+                        Count = count
+                    }
                 });
         }
         catch (Exception ex)
         {
-            return Result<DashboardCountDto>.Failure(
+            return Result<List<DashboardCountDto>>.Failure(
                 $"Failed to fetch Total Registered Backlog Farmers Count: {ex.Message}");
         }
     }
 
-    public async Task<Result<ApplicationDashboardDto>> GetApplicationDashboard(string finYear)
+    public async Task<Result<List<ApplicationDashboardDto>>> GetApplicationDashboard(string finYear)
     {
         try
         {
@@ -159,11 +170,11 @@ public class DashboardRepository(IDbConnectionFactory dbFactory) : IDashboardRep
                     sql,
                     new { FinYear = finYear });
 
-            return Result<ApplicationDashboardDto>.Success(result);
+            return Result<List<ApplicationDashboardDto>>.Success(new List<ApplicationDashboardDto> { result });
         }
         catch (Exception ex)
         {
-            return Result<ApplicationDashboardDto>.Failure(
+            return Result<List<ApplicationDashboardDto>>.Failure(
                 $"Failed to fetch application dashboard: {ex.Message}");
         }
     }

@@ -10,10 +10,10 @@
         public string KhasraNo { get; set; } // khasra_no
         public int CropCode { get; set; } // crop_code
         public int CropCategory { get; set; } // crop_category
-        public string CcropVariety { get; set; } // ccrop_veriety
+        public string CropVariety { get; set; } // ccrop_veriety
         public SByte CropSeason { get; set; } // crop_season
         public string CropSeasonName { get; set; } // 
-        public decimal CcropArea { get; set; } // ccrop_area
+        public decimal CropArea { get; set; } // ccrop_area
         public string Type { get; set; } // type
         public string CropStatus { get; set; } // crop_status
         public string CropName { get; set; } // crop_name
