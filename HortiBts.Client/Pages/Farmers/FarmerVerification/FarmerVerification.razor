@@ -1,13 +1,20 @@
 ﻿@page "/admin/farmer-verification" 
 @using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.Farmers
 @using HortiBts.Client.Services.SubDistricts
 @using HortiBts.Client.Services.Villages
 @using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Shared.Dtos.Farmers
 @using HortiBts.Shared.Dtos.SubDistricts
 @using HortiBts.Shared.Dtos.Villages
 @inject DistrictsApiService DistrictsApiService
 @inject SubdistrictsApiService SubdistrictsApiService
 @inject VillagesApiService VillagesApiService
+@inject FarmersVerificationForUFPApiService FarmersVerificationForUFPApiService
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 @* todo: change to /farmer-verification when ready for public *@
 
@@ -58,6 +65,7 @@
                          Variant="Variant.Outlined"
                          Value="_selectedVillage"
                          ValueChanged="OnVillageSelected"
+                         Clearable="true"
                          SearchFunc="SearchVillages"
                          ToStringFunc="@(v => v is null ? string.Empty : Lang.Text(v.VillageName, v.VillageNameHi))"
                          Disabled="_selectedSubdistrictId is null || _isLoadingVillages"
@@ -82,6 +90,74 @@
     </MudButton>
 </MudStack>
 
+@if (_isLoading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" Rounded="true" />
+}
+
+@if (_hasSearched && !_isLoading && !_villageFarmers.Any())
+{
+    <MudAlert Severity="Severity.Info" Class="mb-4">
+        @Lang.Text("No farmers found for the selected village.", "चयनित ग्राम के लिए कोई कृषक नहीं मिला।")
+    </MudAlert>
+}
+
+@if (_villageFarmers.Any())
+{
+    <MudText Typo="Typo.subtitle1" Class="mb-2">
+        @Lang.Text("Farmers found:", "कृषक पाए गए:") @_villageFarmers.Count
+    </MudText>
+
+    <MudDataGrid Items="_villageFarmers" Hover="true" Dense="true" Elevation="1"
+                 SortMode="SortMode.Single" AllowUnsorted="false" Filterable="false" QuickFilter="_quickFilter"
+                 Class="mt-2">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">@Lang.Text("Farmers", "कृषक सूची")</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search by UFID & Farmer Name", "यु.एफ.आई.डी और किसान के नाम से खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Immediate="true" Class="mt-0" />
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.UfId" Title="@Lang.Text("UFID", "यूएफ आईडी")" />
+            <PropertyColumn Property="x => x.FarmerNameHi" Title="@Lang.Text("Name", "नाम")" />
+            <PropertyColumn Property="x => x.FatherName" Title="@Lang.Text("Father/Husband Name", "पिता/पति का नाम")" />
+            <PropertyColumn Property="x => x.MaskMobileNo" Title="@Lang.Text("Mobile No.", "मोबाइल नंबर")" />
+            <PropertyColumn Property="x => x.MaskAadharNumber" Title="@Lang.Text("Aadhar No.", "आधार नंबर")" />
+            <PropertyColumn Property="x => x.IfscCode" Title="@Lang.Text("IFSC Code", "आईएफएससी कोड")" />
+            <PropertyColumn Property="x => x.MaskAccountNo" Title="@Lang.Text("Account No.", "खाता संख्या")" />
+            <PropertyColumn Property="x => x.TotalCropArea" Title="@Lang.Text("Crop Area (Ha.)", "फसल क्षेत्र (हेक्ट. में)")" Format="N2" />
+
+            <TemplateColumn Title="@Lang.Text("View", "देखें")" Sortable="false">
+                <CellTemplate>
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   OnClick="@(() => ViewDetails(context.Item))" />
+                </CellTemplate>
+            </TemplateColumn>
+
+            <TemplateColumn Title="@Lang.Text("Actions", "विकल्प")" Sortable="false">
+                <CellTemplate>
+                    <MudStack Row="true" Spacing="1">
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" Size="Size.Small"
+                                   OnClick="@(() => Approve(context.Item))">
+                            @Lang.Text("Approve", "स्वीकृत")
+                        </MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                                   OnClick="@(() => Reject(context.Item))">
+                            @Lang.Text("Reject", "अस्वीकृत")
+                        </MudButton>
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="FarmersListByVillageForUFPVerificationDto" />
+        </PagerContent>
+    </MudDataGrid>
+
+}
 @code {
     private List<DistrictsDto> _districts = new();
     private List<SubDistrictsDto> _subdistricts = new();
@@ -91,24 +167,26 @@
     private int? _selectedSubdistrictId;
     private int? _selectedVillageId;
 
-    private bool _isLoadingDistricts;
-    private bool _isLoadingSubdistricts;
     private bool _isLoadingVillages;
     private bool _isLoading;
     private bool _hasSearched;
 
+    private List<FarmersListByVillageForUFPVerificationDto> _villageFarmers = new();
+    private string _searchString = string.Empty;
+
+
     protected override async Task OnInitializedAsync()
     {
-        _isLoadingDistricts = true;
+
         try
         {
             var result = await DistrictsApiService.GetDistrictsAsync();
             if (result.IsSuccess && result.Data is not null)
                 _districts = result.Data;
         }
-        finally
+        catch
         {
-            _isLoadingDistricts = false;
+            Snackbar.Add(Lang.Text("Failed to load districts.", "जिलों को लोड करने में विफल।"), Severity.Error);
         }
     }
 
@@ -116,25 +194,26 @@
     {
         _selectedDistrictCensus = districtId;
 
-        // reset everything downstream
         _selectedSubdistrictId = null;
         _selectedVillageId = null;
+        _selectedVillage = null;
         _subdistricts = new();
         _villages = new();
+        _villageFarmers = new();      // ADDED
+        _hasSearched = false;         // ADDED
 
         if (districtId is null)
             return;
-
-        _isLoadingSubdistricts = true;
+      
         try
         {
             var result = await SubdistrictsApiService.GetSubdistrictsAsync(districtId.Value);
             if (result.IsSuccess && result.Data is not null)
                 _subdistricts = result.Data;
         }
-        finally
+        catch
         {
-            _isLoadingSubdistricts = false;
+            Snackbar.Add(Lang.Text("Failed to load subdistricts.", "उपजिलों को लोड करने में विफल।"), Severity.Error);
         }
     }
 
@@ -142,9 +221,11 @@
     {
         _selectedSubdistrictId = subdistrictId;
 
-        // reset village downstream
         _selectedVillageId = null;
+        _selectedVillage = null;
         _villages = new();
+        _villageFarmers = new();      // ADDED
+        _hasSearched = false;         // ADDED
 
         if (subdistrictId is null)
             return;
@@ -160,6 +241,15 @@
         {
             _isLoadingVillages = false;
         }
+    }
+
+    private void OnVillageSelected(VillagesDto? village)
+    {
+        _selectedVillage = village;
+        _selectedVillageId = village?.VillageCode;
+
+        _villageFarmers = new();
+        _hasSearched = false;         // ADDED — clears any stale "no results" message too
     }
 
     private VillagesDto? _selectedVillage;
@@ -178,12 +268,6 @@
         return Task.FromResult(filtered.AsEnumerable());
     }
 
-    private void OnVillageSelected(VillagesDto? village)
-    {
-        _selectedVillage = village;
-        _selectedVillageId = village?.VillageCode;
-    }
-
     private async Task SearchByLocationAsync()
     {
         if (_selectedVillageId is null)
@@ -194,8 +278,9 @@
 
         try
         {
-            // call whichever farmer/list-by-village API applies here, e.g.:
-            // var result = await FarmersDetailsApiService.GetFarmersByVillageAsync(_selectedVillageId.Value);
+            // call farmer-verification/get-farmers-list-by-village-from-ufp API applies here, e.g.:
+            var result = await FarmersVerificationForUFPApiService.GetFarmersListFromVillageForUFPAsync(_selectedVillageId.Value.ToString().Trim());
+            _villageFarmers = result.IsSuccess && result.Data is not null ? result.Data : new();
         }
         finally
         {
@@ -212,5 +297,34 @@
         _subdistricts = new();
         _villages = new();
         _hasSearched = false;
+
+        _villageFarmers = new();
+    }
+
+    private Func<FarmersListByVillageForUFPVerificationDto, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        return (x.FarmerNameEng?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (x.FarmerNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            || x.UfId.ToString().Contains(_searchString);
+    };
+
+    private void ViewDetails(FarmersListByVillageForUFPVerificationDto farmer)
+    {
+        NavigationManager.NavigateTo($"/admin/farmers-details?ufid={farmer.UfId}");
+    }
+
+    private async Task Approve(FarmersListByVillageForUFPVerificationDto farmer)
+    {
+        // call your approval API here
+        Snackbar.Add(Lang.Text($"Approved {farmer.FarmerNameEng}", $"{farmer.FarmerNameHi} स्वीकृत किया गया"), Severity.Success);
+    }
+
+    private async Task Reject(FarmersListByVillageForUFPVerificationDto farmer)
+    {
+        // call your rejection API here
+        Snackbar.Add(Lang.Text($"Rejected {farmer.FarmerNameEng}", $"{farmer.FarmerNameHi} अस्वीकृत किया गया"), Severity.Error);
     }
 }

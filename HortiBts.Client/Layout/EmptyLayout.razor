@@ -1,66 +1,98 @@
 ﻿@using HortiBts.Client.MultiLanguage
 @using HortiBts.Client.Services.Common
+
 @inherits LayoutComponentBase
+
 @inject LanguageService Lang
 @inject LocalStorageService Storage
 @inject NavigationManager Navigation
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
+
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-@if (_isLoaded)
-{
-    <MudLayout>
-        <MudScrollToTop>
-            <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
-        </MudScrollToTop>
-        <MudAppBar Color="Color.Default" Elevation="0" Gutters="true">
-            <MudAvatar Size="Size.Medium" Class="mr-2">
-                <MudImage Src="images/icons/Coat_of_arms_of_Chhattisgarh.jpg" Alt="Logo" Height="40" />
-            </MudAvatar>
-            <MudAvatar Size="Size.Medium" Class="mr-2">
-                <MudImage Src="images/icons/HortiLogo.jpg" Alt="Logo" Height="40" />
-            </MudAvatar>
-            <MudText Typo="Typo.h5" Class="d-none d-sm-flex" Color="Color.Primary">
-                <b>@Lang.Text("Horticulture Farmer's Portal, Chhattisgarh", "उद्यानिकी किसान पोर्टल, छत्तीसगढ़")</b>
-            </MudText>
-            <MudSpacer />
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Primary"
-                       Class="mr-2"
-                       StartIcon="@(IsLoginPage ? Icons.Material.Filled.Home : Icons.Material.Filled.Login)"
-                       Href="@(IsLoginPage ? "/" : "/login")">
+
+<MudLayout>
+
+    <MudScrollToTop>
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
+    </MudScrollToTop>
+
+    <MudAppBar Color="Color.Default" Elevation="0" Gutters="true">
+
+        <MudAvatar Size="Size.Medium" Class="mr-2">
+            <MudImage Src="images/icons/Coat_of_arms_of_Chhattisgarh.jpg" Alt="Logo" Height="40" />
+        </MudAvatar>
+
+        <MudAvatar Size="Size.Medium" Class="mr-2">
+            <MudImage Src="images/icons/HortiLogo.jpg" Alt="Logo" Height="40" />
+        </MudAvatar>
+
+        <MudText Typo="Typo.h5" Class="d-none d-sm-flex" Color="Color.Primary">
+            <b>
                 @Lang.Text(
-                    IsLoginPage ? "Home" : "Login",
-                    IsLoginPage ? "होम" : "लॉग इन")
-            </MudButton>
-            <MudTooltip Text="@(_isDarkMode ? @Lang.Text("Light Mode", "लाइट मोड") : @Lang.Text("Dark Mode", "डार्क मोड"))">
-                <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode" Color="Color.Primary"
-                                     Icon="@Icons.Material.Filled.ModeNight" ToggledIcon="@Icons.Material.Filled.LightMode" />
-            </MudTooltip>
-            <MudTooltip Text="@Lang.Text("Change to Hindi", "अंग्रेजी मे बदले")">
-                <MudToggleIconButton Toggled="@_isHindi" ToggledChanged="ToggleLanguage" Color="Color.Primary"
-                                     Icon="material-symbols-outlined/translate_indic" ToggledIcon="material-symbols-outlined/translate_indic" />
-            </MudTooltip>
-        </MudAppBar>
-        <MudMainContent>
-            <MudContainer MaxWidth="MaxWidth.Large" Class="pb-8">
-                @Body
-            </MudContainer>
-        </MudMainContent>
-        <MudPaper Elevation="0" Square="true" Class="pa-3 d-flex justify-center" Style="background: var(--mud-palette-primary);">
-            <MudText Typo="Typo.caption" Align="Align.Center" Style="color: var(--mud-palette-primary-text);">
-                @Lang.Text("© 2026 Chhattisgarh Government. All Rights Reserved. | Designed, Developed & Hosted by NIC Chhattisgarh.",
-                           "© 2026 छत्तीसगढ़ शासन। सर्वाधिकार सुरक्षित। | डिज़ाइन एवं विकास: एनआईसी छत्तीसगढ़।")
-            </MudText>
-        </MudPaper>
-    </MudLayout>
-}
-else
-{
-    <div style="visibility:hidden">@Body</div>
-}
+                    "Horticulture Farmer's Portal, Chhattisgarh",
+                    "उद्यानिकी किसान पोर्टल, छत्तीसगढ़")
+            </b>
+        </MudText>
+
+        <MudSpacer />
+
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   Class="mr-2"
+                   StartIcon="@(IsLoginPage ? Icons.Material.Filled.Home : Icons.Material.Filled.Login)"
+                   Href="@(IsLoginPage ? "/" : "/login")">
+            @Lang.Text(
+                IsLoginPage ? "Home" : "Login",
+                IsLoginPage ? "होम" : "लॉग इन")
+        </MudButton>
+
+        <!-- Dark Mode -->
+        <MudTooltip Text="@(_isDarkMode
+                                            ? Lang.Text("Light Mode", "लाइट मोड")
+                                        : Lang.Text("Dark Mode", "डार्क मोड"))">
+            <MudToggleIconButton Toggled="@_isDarkMode"
+                                 ToggledChanged="ToggleDarkMode"
+                                 Color="Color.Primary"
+                                 Icon="@Icons.Material.Filled.ModeNight"
+                                 ToggledIcon="@Icons.Material.Filled.LightMode" />
+        </MudTooltip>
+
+        <!-- Language -->
+        <MudTooltip Text="@Lang.Text("Change to Hindi", "अंग्रेजी मे बदले")">
+            <MudToggleIconButton Toggled="@_isHindi"
+                                 ToggledChanged="ToggleLanguage"
+                                 Color="Color.Primary"
+                                 Icon="material-symbols-outlined/translate_indic"
+                                 ToggledIcon="material-symbols-outlined/translate_indic" />
+        </MudTooltip>
+
+    </MudAppBar>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pb-8">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+
+    <!-- Footer -->
+    <MudPaper Elevation="0"
+              Square="true"
+              Class="pa-3 d-flex justify-center"
+              Style="background: var(--mud-palette-primary);">
+        <MudText Typo="Typo.caption"
+                 Align="Align.Center"
+                 Style="color: var(--mud-palette-primary-text);">
+            @Lang.Text(
+                "© 2026 Chhattisgarh Government. All Rights Reserved. | Designed, Developed & Hosted by NIC Chhattisgarh.",
+                "© 2026 छत्तीसगढ़ शासन। सर्वाधिकार सुरक्षित। | डिज़ाइन एवं विकास: एनआईसी छत्तीसगढ़।")
+        </MudText>
+    </MudPaper>
+
+</MudLayout>
+
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
@@ -68,56 +100,54 @@ else
 </div>
 
 @code {
+
     private bool _isDarkMode = false;
-    private MudTheme? _theme = null;
     private bool _isHindi = true;
-    private bool _isLoaded = false;
+    private MudTheme _theme = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        CreateTheme();
 
-        _theme = new()
+        Lang.OnLanguageChanged += OnLanguageChanged;
+
+        try
+        {
+            var darkMode = await Storage.GetAsync<bool>("darkMode");
+            var isHindi = await Storage.GetAsync<bool>("isHindi");
+
+            _isDarkMode = darkMode.Success ? darkMode.Value : false;
+            _isHindi = isHindi.Success ? isHindi.Value : true;
+
+            Lang.SetLanguage(_isHindi);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"EmptyLayout initialization error: {ex}");
+        }
+    }
+
+    private void CreateTheme()
+    {
+        _theme = new MudTheme
         {
             PaletteLight = _lightPalette,
             PaletteDark = _darkPalette,
             LayoutProperties = new LayoutProperties(),
-            Typography = new Typography()
+            Typography = new Typography
             {
-                Default = new DefaultTypography()
+                Default = new DefaultTypography
                 {
-                    FontFamily = new[] { "Outfit", "Noto Sans Devanagari", "Arial", "sans-serif" },
+                    FontFamily =
+                    [
+                        "Outfit",
+                        "Noto Sans Devanagari",
+                        "Arial",
+                        "sans-serif"
+                    ]
                 }
-            },
+            }
         };
-
-        Lang.OnLanguageChanged += OnLanguageChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            try
-            {
-                var darkMode = await Storage.GetAsync<bool>("darkMode");
-                var isHindi = await Storage.GetAsync<bool>("isHindi");
-
-                _isDarkMode = darkMode.Success ? darkMode.Value : false;
-                _isHindi = isHindi.Success ? isHindi.Value : true;
-
-                Lang.SetLanguage(_isHindi);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-            finally
-            {
-                _isLoaded = true;
-                await InvokeAsync(StateHasChanged);
-            }
-        }
     }
 
     private async Task ToggleDarkMode(bool value)
@@ -136,21 +166,32 @@ else
     private void OnLanguageChanged()
     {
         _isHindi = Lang.IsHindi;
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
-    public void Dispose() => Lang.OnLanguageChanged -= OnLanguageChanged;
+    public void Dispose()
+    {
+        Lang.OnLanguageChanged -= OnLanguageChanged;
+    }
+
+    private bool IsLoginPage =>
+        Navigation.ToBaseRelativePath(Navigation.Uri)
+            .Equals("login", StringComparison.OrdinalIgnoreCase);
+
+    // ---------------------------------------------------------
+    // Light Palette
+    // ---------------------------------------------------------
 
     private readonly PaletteLight _lightPalette = new()
     {
-        Primary = "#2D6A4F",           // Forest canopy — core brand, primary actions
+        Primary = "#2D6A4F",
         PrimaryDarken = "#1B4332",
-        Secondary = "#B5651D",         // Terracotta soil — was amber, now clearly distinct from Warning
-        Tertiary = "#3A6EA5",          // Irrigation blue — deeper than old tertiary, reads distinct from Info
-        Success = "#40916C",           // Ripe/approved — sits close to Primary on purpose (same family = "good outcome")
-        Info = "#5B8FB9",              // Lighter sky blue — visibly lighter than Tertiary now
-        Warning = "#D98E04",           // Harvest amber — moved old Secondary here, it's a much better semantic fit for "pending/attention"
-        Error = "#C1121F",             // Unchanged — already distinct once Warning moved off red
+        Secondary = "#B5651D",
+        Tertiary = "#3A6EA5",
+        Success = "#40916C",
+        Info = "#5B8FB9",
+        Warning = "#D98E04",
+        Error = "#C1121F",
         Black = "#1B4332",
         AppbarText = "#1B4332",
         AppbarBackground = "rgba(251,248,241,0.9)",
@@ -163,10 +204,14 @@ else
         TextSecondary = "#4A5A4F",
     };
 
+    // ---------------------------------------------------------
+    // Dark Palette
+    // ---------------------------------------------------------
+
     private readonly PaletteDark _darkPalette = new()
     {
         Primary = "#52B788",
-        Secondary = "#C97C3D",         // Terracotta lightened for dark bg
+        Secondary = "#C97C3D",
         Tertiary = "#5B8FC7",
         Surface = "#1a2420",
         Background = "#131a16",
@@ -174,7 +219,7 @@ else
         AppbarText = "#B7C9BE",
         AppbarBackground = "rgba(19,26,22,0.85)",
         DrawerBackground = "#1a2420",
-        ActionDefault = "#6B8577",     // Muted sage — replaces the off-brand purple-grey
+        ActionDefault = "#6B8577",
         ActionDisabled = "#9999994d",
         ActionDisabledBackground = "#605f6d4d",
         TextPrimary = "#D4E0D8",
@@ -184,7 +229,7 @@ else
         DrawerText = "#9FB3A6",
         GrayLight = "#22302a",
         GrayLighter = "#1a2420",
-        Info = "#7BA7CC",              // Lighter than Tertiary, mirrors light-mode split
+        Info = "#7BA7CC",
         Success = "#52B788",
         Warning = "#E9A93B",
         Error = "#E5646F",
@@ -193,8 +238,4 @@ else
         Divider = "#22302a",
         OverlayLight = "#1a242080",
     };
-
-    private bool IsLoginPage =>
-    Navigation.ToBaseRelativePath(Navigation.Uri)
-        .Equals("login", StringComparison.OrdinalIgnoreCase);
 }

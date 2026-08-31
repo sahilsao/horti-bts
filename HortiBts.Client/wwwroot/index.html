@@ -42,7 +42,13 @@
     </div>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script src="js/filedownload.js"></script>
-    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>   
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+    <script>
+        //scrollAndFocus function to scroll to the element and focus on it
+        window.scrollAndFocus = (element) => {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+        };
+    </script>
 </body>
 
 </html>

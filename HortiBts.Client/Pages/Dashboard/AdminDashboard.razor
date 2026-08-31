@@ -8,6 +8,8 @@
 @inject FinancialYearsApiService FinancialYearApiService
 @inject ISnackbar Snackbar
 
+
+
 <PageTitle>@Lang.Text("Admin Dashboard", "एडमिन डैशबोर्ड")</PageTitle>
 <MudText Typo="Typo.h5" Class="mb-6 d-flex align-center gap-2">
     <MudIcon Icon="@Icons.Material.Filled.Agriculture" Color="Color.Primary" Size="Size.Large" />
@@ -222,20 +224,17 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+        Console.WriteLine("🔥 AdminDashboard OnInitializedAsync START");
+
         await LoadFinancialYearsAsync();
 
         if (_finyears.Count < 2)
-        {
-            Snackbar.Add(
-                Lang.Text(
-                    "At least two financial years are required.",
-                    "कम से कम दो वित्तीय वर्ष आवश्यक हैं।"),
-                Severity.Warning);
-
             return;
-        }
 
         await LoadDashboardAsync();
+
+        Console.WriteLine("🔥 AdminDashboard OnInitializedAsync END");
     }
 
     private async Task LoadFinancialYearsAsync()

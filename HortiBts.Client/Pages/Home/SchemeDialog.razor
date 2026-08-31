@@ -13,7 +13,7 @@
             <tbody>
                 <tr>
                     <td style="width: 40%;"><b>@Lang.Text("Scheme Id", "योजना आईडी")</b></td>
-                    <td>@Scheme.SId</td>
+                    <td>@Scheme.SchemeId</td>
                 </tr>
                 <tr>
                     <td><b>@Lang.Text("Scheme Name Hindi", "योजना नाम हिंदी")</b></td>
@@ -37,11 +37,11 @@
                 </tr>
                 <tr>
                     <td><b>@Lang.Text("Description Hindi", "विवरण हिंदी")</b></td>
-                    <td>@Scheme.DescriptionHi</td>
+                    <td>@Scheme.SchemeDescriptionHi</td>
                 </tr>
                 <tr>
                     <td><b>@Lang.Text("Description English", "विवरण अंग्रेज़ी")</b></td>
-                    <td>@Scheme.DescriptionEn</td>
+                    <td>@Scheme.SchemeDescriptionEn</td>
                 </tr>
                 <tr>
                     <td><b>@Lang.Text("Is Beneficiary", "हितग्राहीमूलक")</b></td>
@@ -73,7 +73,7 @@
             <MudList T="string">
                 @foreach (var doc in Documents)
                 {
-                    <MudListItem T="string" Icon="@Icons.Material.Filled.PictureAsPdf" OnClick="@(() => OnOpenDocument.InvokeAsync(doc.Path))">
+                    <MudListItem T="string" IconColor="Color.Error" Icon="@Icons.Material.Filled.PictureAsPdf" OnClick="@(() => OnOpenDocument.InvokeAsync(doc.Path))">
                         @(!string.IsNullOrWhiteSpace(doc.FileName) ? doc.FileName : Lang.Text("Document", "दस्तावेज़"))
                     </MudListItem>
                 }
@@ -105,13 +105,13 @@
     {
         try
         {
-            var docs = await Http.GetFromJsonAsync<List<SchemeDocDto>>($"{ApiBase}api/schemes/{Scheme.SId}/documents?docType={DocType}");
+            var docs = await Http.GetFromJsonAsync<List<SchemeDocDto>>($"{ApiBase}api/schemes/{Scheme.SchemeId}/documents?docType={DocType}");
             Documents = docs ?? new();
         }
         catch (Exception ex)
         {
             _loadError = ex.Message;
-            Console.WriteLine($"[SchemeDialog] failed to load documents for s_id={Scheme.SId}, doc_type={DocType}: {ex}");
+            Console.WriteLine($"[SchemeDialog] failed to load documents for s_id={Scheme.SchemeId}, doc_type={DocType}: {ex}");
         }
         finally
         {

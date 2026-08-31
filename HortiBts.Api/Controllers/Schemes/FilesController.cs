@@ -37,15 +37,72 @@ public class FilesController(
     public IActionResult GetManualFile(string fileName)
         => ServeFile("manual_files", fileName);
 
+    //private IActionResult ServeFile(string subfolder, string fileName)
+    //{
+    //    // Guard against path traversal (e.g. "../../appsettings.json") since fileName comes
+    //    // straight from the URL/DB.
+    //    var safeFileName = Path.GetFileName(fileName);
+
+    //    if (string.IsNullOrWhiteSpace(safeFileName) || safeFileName != fileName)
+    //    {
+    //        return BadRequest("Invalid file name.");
+    //    }
+
+    //    var fullPath = Path.Combine(
+    //        env.WebRootPath,
+    //        "docs",
+    //        subfolder,
+    //        safeFileName);
+
+    //    if (!System.IO.File.Exists(fullPath))
+    //    {
+    //        logger.LogWarning("File not found: {FullPath}", fullPath);
+    //        return NotFound();
+    //    }
+
+    //    if (!ContentTypeProvider.TryGetContentType(fullPath, out var contentType))
+    //    {
+    //        contentType = "application/octet-stream";
+    //    }
+
+    //    var bytes = System.IO.File.ReadAllBytes(fullPath);
+
+    //    return File(bytes, contentType, safeFileName);
+    //}
+
     private IActionResult ServeFile(string subfolder, string fileName)
     {
-        // Guard against path traversal (e.g. "../../appsettings.json") since fileName comes
-        // straight from the URL/DB.
-        var safeFileName = Path.GetFileName(fileName);
+        if (string.IsNullOrWhiteSpace(fileName))
+            return BadRequest("File name is required.");
 
-        if (string.IsNullOrWhiteSpace(safeFileName) || safeFileName != fileName)
+        // Normalize Windows path separator to URL/path separator.
+        var normalizedPath = fileName.Replace('\\', '/');
+
+        // Remove the expected folder if the DB stores it.
+        var expectedPrefix = $"{subfolder}/";
+
+        if (normalizedPath.StartsWith(
+            expectedPrefix,
+            StringComparison.OrdinalIgnoreCase))
+        {
+            normalizedPath = normalizedPath[expectedPrefix.Length..];
+        }
+
+        // Only allow a file name after removing the expected folder.
+        var safeFileName = Path.GetFileName(normalizedPath);
+
+        if (string.IsNullOrWhiteSpace(safeFileName) ||
+            !string.Equals(
+                safeFileName,
+                normalizedPath,
+                StringComparison.Ordinal))
         {
             return BadRequest("Invalid file name.");
+        }
+
+        if (!safeFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest("Only PDF files are allowed.");
         }
 
         var fullPath = Path.Combine(
@@ -60,7 +117,9 @@ public class FilesController(
             return NotFound();
         }
 
-        if (!ContentTypeProvider.TryGetContentType(fullPath, out var contentType))
+        if (!ContentTypeProvider.TryGetContentType(
+                fullPath,
+                out var contentType))
         {
             contentType = "application/octet-stream";
         }

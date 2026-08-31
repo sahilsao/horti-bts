@@ -1,0 +1,584 @@
+﻿@page "/admin/add-scheme"
+@attribute [Authorize(Roles = "Admin")]
+@using System.Text.RegularExpressions
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Schemes
+@using HortiBts.Shared.Dtos.Schemes
+@using HortiBts.Client.Pages.Home
+@using Microsoft.AspNetCore.Components.Forms;
+@inject HttpClient Http
+@inject SchemesApiService SchemesApiService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+
+<PageTitle>@Lang.Text("Add Scheme", "योजना जोड़ें")</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="@Icons.Material.Filled.AddBusiness" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Add Scheme", "योजना जोड़ें")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("Fill in the field below and save it to add a new option to the schemes.", "योजनाओ में नया विकल्प जोड़ने हेतु निचे दिए गये फील्ड को भरकर सुरक्षित करें।")
+</MudText>
+
+<MudForm @ref="Form" Model="@this">
+    <div @ref="_formTopRef">
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="12" sm="4">
+                <MudSelect T="int?"
+                           @bind-Value="_selectedSchemeTypeId"
+                           Label="@Lang.Text("Scheme Type", "योजना का प्रकार")"
+                           Variant="Variant.Outlined"
+                           Required="true">
+
+                    @foreach (var st in _schemesTypes)
+                    {
+                        <MudSelectItem T="int?" Value="@st.SchemeId">
+                            @(Lang.IsHindi
+                                ? st.SchemeTypeName
+                                : st.SchemeTypeNameEn)
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="SchemeNameEn" @ref="_schemeNameEnField"
+                              Label="@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              Validation="@(new Func<string, string?>(ValidateEnglishNameOnly))"
+                              Immediate="true" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="SchemeNameHi"
+                              Label="@Lang.Text("Scheme Name (Hindi)", "योजना का नाम (हिंदी)")"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              Validation="@(new Func<string, string?>(ValidateHindiNameOnly))"
+                              Immediate="true" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="SchemeDescriptionEn"
+                              Label="@Lang.Text("Scheme Description (English)", "योजना का विवरण (अंग्रेज़ी)")"
+                              Variant="Variant.Outlined"
+                              Lines="3"
+                              Required="true"
+                              Validation="@(new Func<string, string?>(ValidateEnglishDescriptionOnly))"
+                              Immediate="true" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="SchemeDescriptionHi"
+                              Label="@Lang.Text("Scheme Description (Hindi)", "योजना का विवरण (हिंदी)")"
+                              Variant="Variant.Outlined"
+                              Lines="3"
+                              Required="true"
+                              Validation="@(new Func<string, string?>(ValidateHindiDescriptionOnly))"
+                              Immediate="true" />
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2" Class="mb-2">
+                    @Lang.Text("Upload PDF", "पीडीएफ अपलोड करें")
+                    <MudText Typo="Typo.caption" Color="Color.Error" Class="d-inline">*</MudText>
+                </MudText>
+
+                <MudFileUpload @ref="_fileUploadPDF"
+                               T="IBrowserFile"
+                               Accept=".pdf"
+                               Required="true"
+                               Validation="@(new Func<IBrowserFile, string?>(ValidatePDF))"
+                               @bind-Files="_filesPDF">
+                    <CustomContent Context="uploader">
+                        <MudPaper Outlined="true"
+                                  Class="pa-6 d-flex flex-column align-center justify-center gap-2 rounded-lg"
+                                  Style="border-style:dashed; border-width:2px; cursor:pointer; min-height:140px;"
+                                  @onclick="@uploader.OpenFilePickerAsync">
+                            <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large" Color="Color.Primary" />
+                            <MudText Typo="Typo.body2" Align="Align.Center">
+                                @Lang.Text("Click or drag a PDF here to upload", "अपलोड हेतु यहाँ पीडीएफ खींचें या क्लिक करें")
+                            </MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @Lang.Text("PDF only · Max 2MB", "केवल पीडीएफ · अधिकतम 2MB")
+                            </MudText>
+                        </MudPaper>
+                    </CustomContent>
+                    <SelectedTemplate Context="selectedFile">
+                        @if (selectedFile is not null)
+                        {
+                            <MudPaper Outlined="true" Class="pa-3 mt-2 d-flex align-center gap-3 rounded-lg">
+                                <MudIcon Icon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Error" Size="Size.Large" />
+                                <MudStack Spacing="0" Class="flex-grow-1" Style="min-width:0;">
+                                    <MudText Typo="Typo.body2" Class="text-truncate">@selectedFile.Name</MudText>
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@FormatFileSize(selectedFile.Size)</MudText>
+                                </MudStack>
+                                <MudTooltip Text="@Lang.Text("Remove file", "फ़ाइल हटाएं")">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                                   Size="Size.Small"
+                                                   Color="Color.Error"
+                                                   OnClick="@RemovePdf" />
+                                </MudTooltip>
+                            </MudPaper>
+                        }
+                    </SelectedTemplate>
+                </MudFileUpload>
+
+                @{
+                    var pdfError = _filesPDF is not null ? ValidatePDF(_filesPDF) : null;
+                }
+                @if (pdfError is not null)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Error" Class="mt-1 d-flex align-center gap-1">
+                        <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Size="Size.Small" />
+                        @pdfError
+                    </MudText>
+                }
+            </MudItem>
+        </MudGrid>
+    </div>
+
+    <MudStack Row="true" Spacing="1">
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveScheme" Disabled="_isLoading">
+            @if (_isLoading)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                <span>@Lang.Text("Saving...", "सुरक्षित हो रहा है...")</span>
+            }
+            else if (_selectedSchemeId is null)
+            {
+                <span>@Lang.Text("Save", "सुरक्षित करे")</span>
+            }
+            else
+            {
+                <span>@Lang.Text("Update", "अपडेट करे")</span>
+            }
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+            @Lang.Text("Reset", "रीसेट")
+        </MudButton>
+    </MudStack>
+</MudForm>
+
+@if (_schemes.Any())
+{
+    <MudTable Items="_filteredSchemes"
+              SortLabel="Sort By"
+              Dense="true"
+              Hover="true"
+              Elevation="1"
+              Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">@Lang.Text("Schemes", "योजनाएँ")</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Immediate="true" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.Srno)">@Lang.Text("S.No.", "क्रमाँक")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeTypeEn!)">@Lang.Text("Scheme Type (English)", "योजना का प्रकार (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeTypeHi!)">@Lang.Text("Scheme Type (Hindi)", "योजना का प्रकार (हिंदी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeNameEn!)">@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeName!)">@Lang.Text("Scheme Name (Hindi)", "योजना का नाम (हिंदी)")</MudTableSortLabel></MudTh>
+            <MudTh>@Lang.Text("Beneficiary Status", "बेनेफिशियर स्टेटस")</MudTh>
+            <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@context.Srno</MudTd>
+            <MudTd DataLabel="@Lang.Text("Scheme Type (English)", "योजना का प्रकार (अंग्रेज़ी)")">@context.SchemeTypeEn</MudTd>
+            <MudTd DataLabel="@Lang.Text("Scheme Type (Hindi)", "योजना का प्रकार (हिंदी)")">@context.SchemeTypeHi</MudTd>
+            <MudTd DataLabel="@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")">@context.SchemeNameEn</MudTd>
+            <MudTd DataLabel="@Lang.Text("Scheme Name (Hindi)", "योजना का नाम (हिंदी)")">@context.SchemeName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Beneficiary Status", "बेनेफिशियर स्टेटस")">
+                <MudSwitch T="bool"
+                           Value="@(context.IsBeneficiary == "Y")"
+                           ValueChanged="@(value => ToggleBeneficiaryFlag(context, value))"
+                           Color="Color.Success"
+                           Disabled="@_togglingBeneficiaryIds.Contains(context.SchemeId!.Value)" />
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Edit", "संपादित करें")">
+                <MudStack Row="true" Spacing="1">
+
+                    <MudTooltip Text="@Lang.Text("View", "देखें")">
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                       Color="Color.Info"
+                                       Size="Size.Small"
+                                       OnClick="@(() => OpenSchemeDialog(context))" />
+                    </MudTooltip>
+
+                    <MudTooltip Text="@Lang.Text("Edit", "संपादित करें")">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       OnClick="@(() => LoadForEdit(context))" />
+                    </MudTooltip>
+
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
+@* ---------- Benefits Type List Result ---------- *@
+
+@code {
+    private List<SchemeTypeDto> _schemesTypes = new();
+    private List<SchemeDto> _schemes = new();
+    private string _searchString = string.Empty;
+
+    private int? _selectedSchemeId;
+    private int? _selectedSchemeTypeId;
+
+    public string? SchemeNameEn { get; set; }
+    public string? SchemeNameHi { get; set; }
+    public string? SchemeDescriptionEn { get; set; }
+    public string? SchemeDescriptionHi { get; set; }
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+    private HashSet<int?> _togglingBeneficiaryIds = new();
+    private HashSet<int?> _togglingActiveIds = new();
+
+    private ElementReference _formTopRef;
+    private MudTextField<string> _schemeNameEnField = default!;
+
+    private IBrowserFile? _filesPDF;
+    private MudFileUpload<IBrowserFile> _fileUploadPDF = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var schemeTypesTask = SchemesApiService.GetSchemesTypesAsync();
+        var schemesTask = SchemesApiService.GetSchemesListAsync();
+
+        await Task.WhenAll(schemeTypesTask, schemesTask);
+
+        var resultSchemeTypes = schemeTypesTask.Result;
+        if (resultSchemeTypes.IsSuccess && resultSchemeTypes.Data is not null)
+            _schemesTypes = resultSchemeTypes.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load scheme types.", "योजना प्रकार लोड करने में विफल।"), Severity.Error);
+
+        var resultSchemes = schemesTask.Result;
+        if (resultSchemes.IsSuccess && resultSchemes.Data is not null)
+            _schemes = resultSchemes.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load schemes list.", "योजना सूची लोड करने में विफल।"), Severity.Error);
+    }
+
+    private async Task LoadSchemes()
+    {
+        var result = await SchemesApiService.GetSchemesListAsync();
+        if (result.IsSuccess && result.Data is not null)
+            _schemes = result.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load schemes list.", "योजना सूची लोड करने में विफल।"), Severity.Error);
+    }
+
+    private IEnumerable<SchemeDto> _filteredSchemes =>
+    _schemes.Where(s =>
+        string.IsNullOrWhiteSpace(_searchString)
+        || (s.SchemeNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (s.SchemeName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (s.SchemeDescriptionEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (s.SchemeDescriptionHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private async Task SaveScheme()
+    {
+        await Form!.ValidateAsync();
+
+        if (!Form.IsValid)
+            return;
+
+        if (_filesPDF is null)
+        {
+            Snackbar.Add(
+                Lang.Text("PDF file is required.", "PDF फ़ाइल आवश्यक है।"),
+                Severity.Error);
+
+            return;
+        }
+
+        _isLoading = true;
+
+        try
+        {
+            var dto = new AddSchemeDto
+            {
+                SchemeId = _selectedSchemeId,
+                SchemeTypeId = _selectedSchemeTypeId,
+                SchemeNameEn = SchemeNameEn!,
+                SchemeName = SchemeNameHi!,
+                SchemeDescriptionHi = SchemeDescriptionHi!,
+                SchemeDescriptionEn = SchemeDescriptionEn!
+            };
+
+            var result = _selectedSchemeId is null
+                ? await SchemesApiService.SaveSchemeAsync(dto, _filesPDF)
+                : await SchemesApiService.UpdateSchemeAsync(dto, _filesPDF);
+
+            if (result.IsSuccess)
+            {
+                Snackbar.Add(
+                    Lang.Text(
+                        "Scheme saved successfully.",
+                        "योजना सफलतापूर्वक सुरक्षित की गई।"),
+                    Severity.Success);
+
+                Reset();
+                await LoadSchemes();
+            }
+            else
+            {
+                Snackbar.Add(
+                    result.Error ??
+                    Lang.Text(
+                        "Failed to save scheme.",
+                        "योजना सुरक्षित करने में विफल।"),
+                    Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            Snackbar.Add(
+                Lang.Text(
+                    "Failed to save scheme.",
+                    "योजना सुरक्षित करने में विफल।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async void Reset()
+    {
+        _selectedSchemeId = null;
+        _selectedSchemeTypeId = null;
+        SchemeNameEn = null;
+        SchemeNameHi = null;
+        SchemeDescriptionEn = null;
+        SchemeDescriptionHi = null;
+        Form?.ResetValidationAsync();
+        await RemovePdf();
+    }
+
+    private async Task RemovePdf()
+    {
+        _filesPDF = null;
+        if (_fileUploadPDF is not null)
+            await _fileUploadPDF.ClearAsync();
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+
+        return $"{len:0.##} {sizes[order]}";
+    }
+
+    
+    private string? ValidateEnglishNameOnly(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Lang.Text("English name is required.", "अंग्रेज़ी नाम आवश्यक है।");
+
+        return Regex.IsMatch(value, @"^[a-zA-Z\s\-'\d]+$")
+            ? null
+            : Lang.Text("Only English letters are allowed.", "केवल अंग्रेज़ी अक्षर मान्य हैं।");
+    }
+
+    private string? ValidateHindiNameOnly(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Lang.Text("Hindi name is required.", "हिंदी नाम आवश्यक है।");
+
+        return Regex.IsMatch(value, @"^[\u0900-\u097F\s\-\d]+$")
+            ? null
+            : Lang.Text("Only Hindi characters are allowed.", "केवल हिंदी अक्षर मान्य हैं।");
+    }
+
+    private string? ValidateEnglishDescriptionOnly(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Lang.Text("English description is required.", "अंग्रेज़ी विवरण आवश्यक है।");
+
+        return Regex.IsMatch(value, @"^[a-zA-Z\s\-'\d]+$")
+            ? null
+            : Lang.Text("Only English letters are allowed.", "केवल अंग्रेज़ी अक्षर मान्य हैं।");
+    }
+
+    private string? ValidateHindiDescriptionOnly(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Lang.Text("Hindi description is required.", "हिंदी विवरण आवश्यक है।");
+
+        return Regex.IsMatch(value, @"^[\u0900-\u097F\s\-\d]+$")
+            ? null
+            : Lang.Text("Only Hindi characters are allowed.", "केवल हिंदी अक्षर मान्य हैं।");
+    }
+
+    private string? ValidatePDF(IBrowserFile file)
+    {
+        if (file is null)
+            return Lang.Text("PDF file is required.", "PDF फ़ाइल आवश्यक है।");
+
+        return file.Size > 2 * 1024 * 1024
+            ? Lang.Text("File size exceeds 2MB limit.", "फ़ाइल का आकार 2MB सीमा से अधिक है।")
+            : null;
+    }
+
+    private async Task ToggleBeneficiaryFlag(SchemeDto scheme, bool newValue)
+    {
+        _togglingBeneficiaryIds.Add(scheme.SchemeId);
+        var previousValue = scheme.IsBeneficiary;
+        scheme.IsBeneficiary = newValue.ToString(); // optimistic UI update
+
+        try
+        {
+            var result = await SchemesApiService.UpdateSchemeBeneficiaryFlagAsync(scheme.SchemeId!.Value, newValue);
+
+            if (!result.IsSuccess)
+            {
+                scheme.IsBeneficiary = previousValue; // revert on failure
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add(
+                    newValue
+                        ? Lang.Text("Scheme activated.", "योजना सक्रिय की गई।")
+                        : Lang.Text("Scheme deactivated.", "योजना निष्क्रिय की गई।"),
+                    Severity.Success);
+            }
+        }
+        catch
+        {
+            scheme.Flag = previousValue;
+            Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+        }
+        finally
+        {
+            _togglingBeneficiaryIds.Remove(scheme.SchemeId);
+        }
+    }
+
+    private async Task ToggleActiveFlag(SchemeDto scheme, bool newValue)
+    {
+        _togglingActiveIds.Add(scheme.SchemeId);
+        var previousValue = scheme.Flag;
+        scheme.Flag = newValue.ToString(); // optimistic UI update
+
+        try
+        {
+            var result = await SchemesApiService.UpdateSchemeActiveFlagAsync(scheme.SchemeId!.Value, newValue);
+
+            if (!result.IsSuccess)
+            {
+                scheme.Flag = previousValue; // revert on failure
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add(
+                    newValue
+                        ? Lang.Text("Scheme activated.", "योजना सक्रिय की गई।")
+                        : Lang.Text("Scheme deactivated.", "योजना निष्क्रिय की गई।"),
+                    Severity.Success);
+            }
+        }
+        catch
+        {
+            scheme.Flag = previousValue;
+            Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+        }
+        finally
+        {
+            _togglingActiveIds.Remove(scheme.SchemeId);
+        }
+    }
+
+    private async Task LoadForEdit(SchemeDto scheme)
+    {
+        _selectedSchemeId = scheme.SchemeId;
+        _selectedSchemeTypeId = scheme.SchemeTypeId; // requires SchemeTypeId on SchemesListDto — add if missing
+        SchemeNameEn = scheme.SchemeNameEn;
+        SchemeNameHi = scheme.SchemeName;
+        SchemeDescriptionEn = scheme.SchemeDescriptionEn;
+        SchemeDescriptionHi = scheme.SchemeDescriptionHi;
+
+        Form?.ResetValidationAsync();
+
+        // scroll the form into view, then focus the first field
+        await JS.InvokeVoidAsync("scrollAndFocus", _formTopRef);
+        await _schemeNameEnField.FocusAsync();
+    }
+
+    private async Task OpenSchemeDialog(SchemeDto scheme)
+    {
+        var parameters = new DialogParameters<SchemeDialog>
+    {
+        { x => x.Scheme, scheme },
+        { x => x.DocType, "SCHEME" },
+        {
+            x => x.OnOpenDocument,
+            EventCallback.Factory.Create<string?>(
+                this,
+                path => GetPdf(path, "scheme"))
+        }
+    };
+
+        await DialogService.ShowAsync<SchemeDialog>(
+            "",
+            parameters,
+            new DialogOptions
+            {
+                MaxWidth = MaxWidth.Medium,
+                FullWidth = true,
+                CloseOnEscapeKey = true
+            });
+    }
+
+    private async Task GetPdf(string? fileName, string category)
+    {
+        string ApiBase = "";
+        if (string.IsNullOrWhiteSpace(fileName)) return;
+        try
+        {
+
+            var bytes = await Http.GetByteArrayAsync(
+            $"{ApiBase}api/files/{category}/{Uri.EscapeDataString(fileName)}");
+
+            await using var stream = new MemoryStream(bytes);
+
+            using var streamRef = new DotNetStreamReference(stream);
+
+            await JS.InvokeVoidAsync(
+                "downloadFileFromBytes",
+                fileName,
+                streamRef);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[GetPdf] failed to download {category}/{fileName}: {ex}");
+        }
+    }
+}

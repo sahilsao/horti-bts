@@ -11,6 +11,14 @@
             <MudNavLink Href="/admin/farmer-verification" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.DomainVerification">
                 @Lang.Text("Farmer Verification", "कृषक भौतिक सत्यापन")
             </MudNavLink>
+            <MudNavGroup Title="@Lang.Text("Master Entry", "मास्टर एंट्री")" Icon="@Icons.Material.Filled.Edit">
+                <MudNavLink Href="/admin/add-benefit" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AddAlarm">
+                    @Lang.Text("Add Benefit", "लाभ जोड़ें")
+                </MudNavLink>
+                <MudNavLink Href="/admin/add-scheme" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AddBusiness">
+                    @Lang.Text("Add Scheme", "योजना जोड़ें")
+                </MudNavLink>
+            </MudNavGroup>
         </Authorized>
     </AuthorizeView>
 </MudNavMenu>

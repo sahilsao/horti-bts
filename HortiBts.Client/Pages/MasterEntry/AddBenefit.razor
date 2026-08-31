@@ -1,0 +1,309 @@
+﻿@page "/admin/add-benefit"
+@attribute [Authorize(Roles = "Admin")]
+@using System.Text.RegularExpressions
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Benefits
+@using HortiBts.Shared.Dtos.Benefits
+
+@inject BenefitsApiService BenefitsApiService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+
+<PageTitle>@Lang.Text("Add Benefit", "लाभ जोड़ें")</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="@Icons.Material.Filled.AddAlarm" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Add Benefit", "लाभ जोड़ें")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("Fill in the field below and save it to add a new option to the benefits provided under the schemes.", "योजनाओ में दिए जाने वाले लाभ में नया विकल्प जोड़ने हेतु निचे दिए गये फील्ड को भरकर सुरक्षित करें।")
+</MudText>
+
+<MudForm @ref="Form" Model="@this">
+    <div @ref="_formTopRef">
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="12" sm="4">
+                <MudSelect T="int?"
+                           @bind-Value="_selectedBenefitTypeId"
+                           Label="@Lang.Text("Benefit Type", "लाभ का प्रकार")"
+                           Variant="Variant.Outlined"
+                           Required="true"
+                           Validation="@(new Func<int?, string?>(ValidateBenefitType))">
+                    @foreach (var bt in _benefitsTypes)
+                    {
+                        <MudSelectItem T="int?" Value="@((int?)bt.BenefitTypeId)">
+                            @(Lang.IsHindi ? bt.BenefitNameHi : bt.BenefitNameEn)
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="BenefitNameEn" @ref="_benefitNameEnField"
+                              Label="@Lang.Text("Benefit Name (English)", "लाभ का नाम (अंग्रेज़ी)")"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              Validation="@(new Func<string, string?>(ValidateEnglishOnly))"
+                              Immediate="true" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="BenefitNameHi"
+                              Label="@Lang.Text("Benefit Name (Hindi)", "लाभ का नाम (हिंदी)")"
+                              Variant="Variant.Outlined"
+                              Required="true"
+                              Validation="@(new Func<string, string?>(ValidateHindiOnly))"
+                              Immediate="true" />
+            </MudItem>
+        </MudGrid>
+    </div>
+    <MudStack Row="true" Spacing="1">
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveBenefit" Disabled="_isLoading">
+            @if (_isLoading)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                <span>@Lang.Text("Saving...", "सुरक्षित हो रहा है...")</span>
+            }
+            else if (_selectedBenefitId is null)
+            {
+                <span>@Lang.Text("Save", "सुरक्षित करे")</span>
+            }
+            else
+            {
+                <span>@Lang.Text("Update", "अपडेट करे")</span>
+            }
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+            @Lang.Text("Reset", "रीसेट")
+        </MudButton>
+    </MudStack>
+</MudForm>
+
+@if (_benefits.Any())
+{
+    <MudTable Items="_filteredBenefits"
+              SortLabel="Sort By"
+              Dense="true"
+              Hover="true"
+              Elevation="1"
+              Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">@Lang.Text("Benefits", "लाभ सूची")</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Immediate="true" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.Srno)">@Lang.Text("S.No.", "क्रमाँक")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.BenefitTypeNameEn!)">@Lang.Text("Benefit Type (English)", "लाभ का प्रकार (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.BenefitTypeNameHi!)">@Lang.Text("Benefit Type (Hindi)", "लाभ का प्रकार (हिंदी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.BenefitNameEn!)">@Lang.Text("Benefit Name (English)", "लाभ का नाम (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.BenefitNameHi!)">@Lang.Text("Benefit Name (Hindi)", "लाभ का नाम (हिंदी)")</MudTableSortLabel></MudTh>
+            <MudTh>@Lang.Text("Active Status", "एक्टिव स्टेटस")</MudTh>
+            <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@context.Srno</MudTd>
+            <MudTd DataLabel="@Lang.Text("Benefit Type (English)", "लाभ का प्रकार (अंग्रेज़ी)")">@context.BenefitTypeNameEn</MudTd>
+            <MudTd DataLabel="@Lang.Text("Benefit Type (Hindi)", "लाभ का प्रकार (हिंदी)")">@context.BenefitTypeNameHi</MudTd>
+            <MudTd DataLabel="@Lang.Text("Benefit Name (English)", "लाभ का नाम (अंग्रेज़ी)")">@context.BenefitNameEn</MudTd>
+            <MudTd DataLabel="@Lang.Text("Benefit Name (Hindi)", "लाभ का नाम (हिंदी)")">@context.BenefitNameHi</MudTd>
+            <MudTd DataLabel="@Lang.Text("Active Status", "एक्टिव स्टेटस")">
+                <MudSwitch T="bool"
+                           Value="@context.BenefitFlag"
+                           ValueChanged="@(newValue => ToggleFlag(context, newValue))"
+                           Color="Color.Success"
+                           Disabled="@_togglingIds.Contains(context.BenefitId)" />
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Edit", "संपादित करें")">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               OnClick="@(() => LoadForEdit(context))" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
+@* ---------- Benefits Type List Result ---------- *@
+
+@code {
+    private List<BenefitsTypeDto> _benefitsTypes = new();
+    private List<BenefitsListDto> _benefits = new();
+    private string _searchString = string.Empty;
+    private int? _selectedBenefitTypeId;
+    public string? BenefitNameEn { get; set; }
+    public string? BenefitNameHi { get; set; }
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+    private HashSet<int> _togglingIds = new();
+    private int? _selectedBenefitId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var benefitTypesTask = BenefitsApiService.GetBenefitsTypesAsync();
+        var benefitsTask = BenefitsApiService.GetBenefitsListAsync();
+
+        await Task.WhenAll(benefitTypesTask, benefitsTask);
+
+        var resultBenefitTypes = benefitTypesTask.Result;
+        if (resultBenefitTypes.IsSuccess && resultBenefitTypes.Data is not null)
+            _benefitsTypes = resultBenefitTypes.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load benefit types.", "लाभ प्रकार लोड करने में विफल।"), Severity.Error);
+
+        var resultBenefits = benefitsTask.Result;
+        if (resultBenefits.IsSuccess && resultBenefits.Data is not null)
+            _benefits = resultBenefits.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load benefits list.", "लाभ सूची लोड करने में विफल।"), Severity.Error);
+    }
+
+    private async Task LoadBenefits()
+    {
+        var result = await BenefitsApiService.GetBenefitsListAsync();
+        if (result.IsSuccess && result.Data is not null)
+            _benefits = result.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load benefits list.", "लाभ सूची लोड करने में विफल।"), Severity.Error);
+    }
+
+    private IEnumerable<BenefitsListDto> _filteredBenefits =>
+    _benefits.Where(b =>
+        string.IsNullOrWhiteSpace(_searchString)
+        || (b.BenefitNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (b.BenefitNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (b.BenefitTypeNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (b.BenefitTypeNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private async Task SaveBenefit()
+    {
+        await Form!.ValidateAsync();
+        if (!Form.IsValid)
+            return;
+
+        _isLoading = true;
+        try
+        {
+            // call your actual save API here, e.g.:
+            var result = await BenefitsApiService.SaveBenefitAsync(new AddBenefitDto
+            {
+                BenefitId = _selectedBenefitId,
+                BenefitTypeId = _selectedBenefitTypeId!.Value,
+                BenefitNameEn = BenefitNameEn!,
+                BenefitNameHi = BenefitNameHi!
+            });
+
+            if (result.IsSuccess)
+            {
+                Snackbar.Add(Lang.Text("Benefit saved successfully.", "लाभ सफलतापूर्वक सुरक्षित किया गया।"), Severity.Success);
+                Reset();
+                await LoadBenefits();
+            }
+            else
+            {
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to save benefit.", "लाभ सुरक्षित करने में विफल।"), Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to save benefit.", "लाभ सुरक्षित करने में विफल।"), Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void Reset()
+    {
+        _selectedBenefitId = null;
+        _selectedBenefitTypeId = null;
+        BenefitNameEn = null;
+        BenefitNameHi = null;
+        Form?.ResetValidationAsync();
+    }
+
+    private string? ValidateBenefitType(int? value)
+    {
+        return value is null
+            ? Lang.Text("Benefit type is required.", "लाभ का प्रकार आवश्यक है।")
+            : null;
+    }
+
+    private string? ValidateEnglishOnly(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Lang.Text("English name is required.", "अंग्रेज़ी नाम आवश्यक है।");
+
+        return Regex.IsMatch(value, @"^[a-zA-Z\s\-'\d]+$")
+            ? null
+            : Lang.Text("Only English letters are allowed.", "केवल अंग्रेज़ी अक्षर मान्य हैं।");
+    }
+
+    private string? ValidateHindiOnly(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Lang.Text("Hindi name is required.", "हिंदी नाम आवश्यक है।");
+
+        return Regex.IsMatch(value, @"^[\u0900-\u097F\s\-\d]+$")
+            ? null
+            : Lang.Text("Only Hindi characters are allowed.", "केवल हिंदी अक्षर मान्य हैं।");
+    }
+
+    private async Task ToggleFlag(BenefitsListDto benefit, bool newValue)
+    {
+        _togglingIds.Add(benefit.BenefitId);
+        var previousValue = benefit.BenefitFlag;
+        benefit.BenefitFlag = newValue; // optimistic UI update
+
+        try
+        {
+            var result = await BenefitsApiService.UpdateBenefitFlagAsync(benefit.BenefitId, newValue);
+
+            if (!result.IsSuccess)
+            {
+                benefit.BenefitFlag = previousValue; // revert on failure
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add(
+                    newValue
+                        ? Lang.Text("Benefit activated.", "लाभ सक्रिय किया गया।")
+                        : Lang.Text("Benefit deactivated.", "लाभ निष्क्रिय किया गया।"),
+                    Severity.Success);
+            }
+        }
+        catch
+        {
+            benefit.BenefitFlag = previousValue;
+            Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+        }
+        finally
+        {
+            _togglingIds.Remove(benefit.BenefitId);
+        }
+    }
+
+    private ElementReference _formTopRef;
+    private MudTextField<string> _benefitNameEnField = default!;
+
+    private async Task LoadForEdit(BenefitsListDto benefit)
+    {
+        _selectedBenefitId = benefit.BenefitId;
+        _selectedBenefitTypeId = benefit.BenefitTypeId; // requires BenefitTypeId on BenefitsListDto — add if missing
+        BenefitNameEn = benefit.BenefitNameEn;
+        BenefitNameHi = benefit.BenefitNameHi;
+
+        Form?.ResetValidationAsync();
+
+        // scroll the form into view, then focus the first field
+        await JS.InvokeVoidAsync("scrollAndFocus", _formTopRef);
+        await _benefitNameEnField.FocusAsync();
+    }
+}

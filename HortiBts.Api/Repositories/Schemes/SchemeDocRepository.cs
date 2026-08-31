@@ -16,7 +16,11 @@ public class SchemeDocRepository(IDbConnectionFactory connectionFactory) : ISche
     // doc_type=SCHEME_NEW, currently falling back to the same mas_scheme_file_path table
     // as doc_type=SCHEME. So both central and state schemes resolve to this one query for now.
     // If that _new table gets wired back up on their end, split this into two queries again.
-    private const string Sql = @"
+
+    public async Task<IEnumerable<SchemeDocDto>> GetBySchemeIdAsync(int schemeId)
+    {
+        using var connection = connectionFactory.CreateConnection((HortiDb.Bts));
+        const string Sql = @"
         SELECT
             ms.id          AS Id,
             ms.scheme_id   AS SchemeId,
@@ -26,9 +30,6 @@ public class SchemeDocRepository(IDbConnectionFactory connectionFactory) : ISche
         WHERE ms.flag = 1
           AND ms.scheme_id = @SchemeId";
 
-    public async Task<IEnumerable<SchemeDocDto>> GetBySchemeIdAsync(int schemeId)
-    {
-        using var connection = connectionFactory.CreateConnection();
         return await connection.QueryAsync<SchemeDocDto>(Sql, new { SchemeId = schemeId });
     }
 }

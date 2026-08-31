@@ -1,10 +1,12 @@
 using HortiBts.Api.Data;
 using HortiBts.Api.Repositories.Auth;
+using HortiBts.Api.Repositories.Benefits;
 using HortiBts.Api.Repositories.Dashboard.Admin;
 using HortiBts.Api.Repositories.Districts;
 using HortiBts.Api.Repositories.Farmers;
 using HortiBts.Api.Repositories.FinancialYears;
 using HortiBts.Api.Repositories.Girdawari;
+using HortiBts.Api.Repositories.Notices;
 using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Api.Repositories.SubDistricts;
 using HortiBts.Api.Repositories.Villages;
@@ -45,10 +47,12 @@ builder.Services.AddHttpClient<ICropDetailRepository, CropDetailRepository>(clie
 {
     client.Timeout = TimeSpan.FromSeconds(30);
 }); //girdawari details
-
+builder.Services.AddScoped<IFarmersVerificationRepository, FarmersVerificationRepository>();
+builder.Services.AddScoped<IBenefitsRepository, BenefitsRepository>();
+builder.Services.AddScoped<INoticeRepository, NoticeRepository>();
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.
-const string ClientCorsPolicy = "HortiPublicClient";
+const string ClientCorsPolicy = "HortiBtsClient";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(ClientCorsPolicy, policy =>
@@ -56,6 +60,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:5032",
                 "https://localhost:7126",           // local Blazor dev server -- confirm your actual port
+                "https://localhost:7188",           // local Blazor public dev server -- confirm your actual port
                 "https://cghorticulture.gov.in",
                 "https://www.cghorticulture.gov.in")     // production client origin, once deployed
               .AllowAnyHeader()

@@ -7,7 +7,7 @@ namespace HortiBts.Api.Repositories.Villages
 {
     public interface IVillagesRepository
     {
-        /// <summary>Returns all districts</summary>
+        /// <summary>Returns all villages from the specified sub-district</summary>
         Task<Result<List<VillagesDto>>> GetVillagesAsync(string SubDistrictCode);
     }
 

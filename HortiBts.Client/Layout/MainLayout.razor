@@ -1,6 +1,9 @@
 @using HortiBts.Client.MultiLanguage
 @using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Common
+@using Microsoft.AspNetCore.Components
+@using MudBlazor
+
 @inject LanguageService Lang
 @inject AuthApiService AuthService
 @inject LocalStorageService Storage
@@ -9,73 +12,124 @@
 @inject IUserContextService UserContextService
 
 @inherits LayoutComponentBase
+@implements IDisposable
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
+
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-@if (_isLoaded)
-{
-    <MudLayout Style="min-height:100vh; display:flex; flex-direction:column;">
-        <MudScrollToTop>
-            <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
-        </MudScrollToTop>
-        <MudAppBar Elevation="1">
-            <MudToggleIconButton @bind-Toggled="_drawerOpen" Icon="@Icons.Material.Filled.Menu"
-                                 ToggledIcon="@Icons.Material.Filled.Menu" />
-            <MudAvatar Size="Size.Medium" Class="mr-2">
-                <MudImage Src="images/icons/Coat_of_arms_of_Chhattisgarh.jpg" Alt="Logo" Height="40" />
-            </MudAvatar>
-            <MudAvatar Size="Size.Medium" Class="mr-2">
-                <MudImage Src="images/icons/HortiLogo.jpg" Alt="Logo" Height="40" />
-            </MudAvatar>
-            <MudHidden Breakpoint="Breakpoint.Lg" Invert="true">
-                <MudText Typo="Typo.h6" Class="ml-3">@Lang.Text("Chhattisgarh Horticulture Beneficiary Tracking System", "छत्तीसगढ़ हॉर्टिकल्चर बेनेफिशियरी ट्रैकिंग सिस्टम")</MudText>
-            </MudHidden>
-            <MudSpacer />
-            <MudTooltip Text="@(_isDarkMode ? @Lang.Text("Light Mode", "लाइट मोड") : @Lang.Text("Dark Mode", "डार्क मोड"))">
-                <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode" Color="Color.Primary"
-                                     Icon="@Icons.Material.Filled.ModeNight" ToggledIcon="@Icons.Material.Filled.LightMode" />
-            </MudTooltip>
-            <MudTooltip Text="@Lang.Text("Change to Hindi", "अंग्रेजी मे बदले")">
-                <MudToggleIconButton Toggled="@_isHindi" ToggledChanged="ToggleLanguage" Color="Color.Primary"
-                                     Icon="material-symbols-outlined/translate_indic" ToggledIcon="material-symbols-outlined/translate_indic" />
-            </MudTooltip>
-            <MudTooltip Text="@Lang.Text("Open Settings", "सेटिंग्स खोले")">
-                <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" AriaLabel="Open user menu">
-                    <MudMenuItem Icon="@Icons.Material.Filled.DisplaySettings" IconColor="Color.Primary"
-                                 Href="update-password" Label="@Lang.Text("Update Password", "पासवर्ड अपडेट")" />
-                    <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Primary"
-                                 OnClick="@(() => Logout())"
-                                 Label="@Lang.Text("Log Out", "लॉग आउट")" />
-                </MudMenu>
-            </MudTooltip>
-        </MudAppBar>
 
-        <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-            <NavMenu />
-            <MudSpacer />
-            <MudButton Class="mx-6 my-4" Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled" DropShadow="false">
-                <MudStack Spacing="0" AlignItems="AlignItems.Center">
-                    <MudText Typo="Typo.body2">@GetUserRoleText()</MudText>
-                    <MudText Typo="Typo.caption">@GetUserNameText()</MudText>
-                </MudStack>
-            </MudButton>
-        </MudDrawer>
-        <MudMainContent Class="pt-16 pa-4 mt-4">
-            @Body
-        </MudMainContent>
-        <MudPaper Elevation="2" Class="pa-3 d-flex justify-end">
-            <MudText Typo="Typo.caption" Align="Align.End">
-                @Lang.Text("© 2026 Chhattisgarh Government. All Rights Reserved.", "© 2026 छत्तीसगढ़ शासन। सर्वाधिकार सुरक्षित।")
+<MudLayout Style="min-height:100vh; display:flex; flex-direction:column;">
+
+    <MudScrollToTop>
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
+    </MudScrollToTop>
+
+    <!-- App Bar -->
+    <MudAppBar Elevation="1">
+
+        <MudToggleIconButton @bind-Toggled="_drawerOpen"
+                             Icon="@Icons.Material.Filled.Menu"
+                             ToggledIcon="@Icons.Material.Filled.Menu" />
+
+        <MudAvatar Size="Size.Medium" Class="mr-2">
+            <MudImage Src="images/icons/Coat_of_arms_of_Chhattisgarh.jpg" Alt="Logo" Height="40" />
+        </MudAvatar>
+
+        <MudAvatar Size="Size.Medium" Class="mr-2">
+            <MudImage Src="images/icons/HortiLogo.jpg" Alt="Logo" Height="40" />
+        </MudAvatar>
+       
+        <MudHidden Breakpoint="Breakpoint.Lg" Invert="true">
+            <MudText Typo="Typo.h6" Class="ml-3">
+                @Lang.Text(
+                    "Chhattisgarh Horticulture Beneficiary Tracking System",
+                    "छत्तीसगढ़ हॉर्टिकल्चर बेनेफिशियरी ट्रैकिंग सिस्टम")
             </MudText>
-        </MudPaper>
-    </MudLayout>
-}
-else
-{
-    <div style="visibility:hidden">@Body</div>
-}
+        </MudHidden>
+
+        <MudSpacer />
+
+        <!-- Dark Mode -->
+        <MudTooltip Text="@(_isDarkMode ? Lang.Text("Light Mode", "लाइट मोड") : Lang.Text("Dark Mode", "डार्क मोड"))">
+            <MudToggleIconButton Toggled="@_isDarkMode"
+                                 ToggledChanged="ToggleDarkMode"
+                                 Color="Color.Primary"
+                                 Icon="@Icons.Material.Filled.ModeNight"
+                                 ToggledIcon="@Icons.Material.Filled.LightMode" />
+        </MudTooltip>
+
+        <!-- Language -->
+        <MudTooltip Text="@Lang.Text("Change to Hindi", "अंग्रेजी मे बदले")">
+            <MudToggleIconButton Toggled="@_isHindi"
+                                 ToggledChanged="ToggleLanguage"
+                                 Color="Color.Primary"
+                                 Icon="material-symbols-outlined/translate_indic"
+                                 ToggledIcon="material-symbols-outlined/translate_indic" />
+        </MudTooltip>
+
+        <!-- Settings -->
+        <MudTooltip Text="@Lang.Text("Open Settings", "सेटिंग्स खोले")">
+            <MudMenu Icon="@Icons.Material.Filled.Settings"
+                     Color="Color.Primary"
+                     AriaLabel="Open user menu">
+
+                <MudMenuItem Icon="@Icons.Material.Filled.DisplaySettings"
+                             IconColor="Color.Primary"
+                             Href="update-password"
+                             Label="@Lang.Text("Update Password", "पासवर्ड अपडेट")" />
+
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout"
+                             IconColor="Color.Primary"
+                             OnClick="Logout"
+                             Label="@Lang.Text("Log Out", "लॉग आउट")" />
+
+            </MudMenu>
+        </MudTooltip>
+
+    </MudAppBar>
+
+    <!-- Drawer -->
+    <MudDrawer id="nav-drawer"
+               @bind-Open="_drawerOpen"
+               ClipMode="DrawerClipMode.Always"
+               Elevation="2">
+
+        <NavMenu />
+
+        <MudSpacer />
+
+        <MudButton Class="mx-6 my-4"
+                   Color="Color.Primary"
+                   Size="Size.Small"
+                   Variant="Variant.Filled"
+                   DropShadow="false">
+            <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.body2">@GetUserRoleText()</MudText>
+                <MudText Typo="Typo.caption">@GetUserNameText()</MudText>
+            </MudStack>
+        </MudButton>
+
+    </MudDrawer>
+
+    <!-- Main Content -->
+    <MudMainContent Class="pt-16 pa-4 mt-4">
+        @Body
+    </MudMainContent>
+
+    <!-- Footer -->
+    <MudPaper Elevation="2" Class="pa-3 d-flex justify-end">
+        <MudText Typo="Typo.caption" Align="Align.End">
+            @Lang.Text(
+                "© 2026 Chhattisgarh Government. All Rights Reserved.",
+                "© 2026 छत्तीसगढ़ शासन। सर्वाधिकार सुरक्षित।")
+        </MudText>
+    </MudPaper>
+
+</MudLayout>
+
+<!-- Blazor Error UI -->
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
@@ -83,87 +137,101 @@ else
 </div>
 
 @code {
+
     private bool _drawerOpen = true;
     private bool _isDarkMode = false;
     private bool _isHindi = true;
-    private MudTheme? _theme = null;
-    private bool _isLoaded = false;
 
+    private MudTheme _theme = new();
     private CurrentUserInfo _currentUser = new("", "", "", 0);
-    private string _displayName = string.Empty;
 
-    protected override void OnInitialized()
+    // ---------------------------------------------------------
+    // Initialization
+    // ---------------------------------------------------------
+
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-
-        _theme = new()
-        {
-            PaletteLight = _lightPalette,
-            PaletteDark = _darkPalette,
-            LayoutProperties = new LayoutProperties(),
-            Typography = new Typography()
-            {
-                Default = new DefaultTypography()
-                {
-                    FontFamily = new[] { "Outfit", "Noto Sans Devanagari", "Arial", "sans-serif" },
-                }
-            },
-        };
+        CreateTheme();
 
         Lang.OnLanguageChanged += OnLanguageChanged;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
 
         try
         {
-            var darkMode = await Storage.GetAsync<bool>("darkMode");
-            var isHindi = await Storage.GetAsync<bool>("isHindi");
-
-            _isDarkMode = darkMode.Success ? darkMode.Value : false;
-            _isHindi = isHindi.Success ? isHindi.Value : true;
-
-            Lang.SetLanguage(_isHindi);
-            _isLoaded = true;
+            await LoadPreferencesAsync();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Storage Error: {ex}");
-            _isLoaded = true;
+            Console.WriteLine($"MainLayout preference error: {ex}");
         }
 
         try
         {
-            _currentUser = await UserContextService.GetCurrentUserAsync();
+            await LoadCurrentUserAsync();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Auth Error: {ex}");
+            Console.WriteLine($"MainLayout user error: {ex}");
         }
-
-        await InvokeAsync(StateHasChanged);
-
     }
 
-    private string GetUserRoleText() => _currentUser.UserType switch
-    {
-        13 => Lang.Text("Director", "संचालक"),
-        14 => Lang.Text("DDH", "उप संचालक उद्यान"),
-        15 => Lang.Text($"SHDO - {_currentUser.UserId}", $"एसएचडीओ - {_currentUser.UserId}"),
-        12 => Lang.Text($"RHEO - {_currentUser.UserId}", $"आरएचईओ - {_currentUser.UserId}"),
-        _ => string.Empty
-    };
+    // ---------------------------------------------------------
+    // Preferences
+    // ---------------------------------------------------------
 
-    private string GetUserNameText() => Lang.Text(_currentUser.UsernameEn, _currentUser.UsernameHi);
+    private async Task LoadPreferencesAsync()
+    {
+        var darkMode = await Storage.GetAsync<bool>("darkMode");
+        var isHindi = await Storage.GetAsync<bool>("isHindi");
+
+        _isDarkMode = darkMode.Success ? darkMode.Value : false;
+        _isHindi = isHindi.Success ? isHindi.Value : true;
+
+        Lang.SetLanguage(_isHindi);
+    }
+
+    // ---------------------------------------------------------
+    // Current User
+    // ---------------------------------------------------------
+
+    private async Task LoadCurrentUserAsync()
+    {
+        _currentUser = await UserContextService.GetCurrentUserAsync();
+    }
+
+    // ---------------------------------------------------------
+    // User Display
+    // ---------------------------------------------------------
+
+    private string GetUserRoleText()
+    {
+        return _currentUser.UserType switch
+        {
+            13 => Lang.Text("Director", "संचालक"),
+            14 => Lang.Text("DDH", "उप संचालक उद्यान"),
+            15 => Lang.Text($"SHDO - {_currentUser.UserId}", $"एसएचडीओ - {_currentUser.UserId}"),
+            12 => Lang.Text($"RHEO - {_currentUser.UserId}", $"आरएचईओ - {_currentUser.UserId}"),
+            _ => string.Empty
+        };
+    }
+
+    private string GetUserNameText()
+    {
+        return Lang.Text(_currentUser.UsernameEn, _currentUser.UsernameHi);
+    }
+
+    // ---------------------------------------------------------
+    // Dark Mode
+    // ---------------------------------------------------------
 
     private async Task ToggleDarkMode(bool value)
     {
         _isDarkMode = value;
         await Storage.SetAsync("darkMode", value);
     }
+
+    // ---------------------------------------------------------
+    // Language
+    // ---------------------------------------------------------
 
     private async Task ToggleLanguage(bool value)
     {
@@ -175,8 +243,12 @@ else
     private void OnLanguageChanged()
     {
         _isHindi = Lang.IsHindi;
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
+
+    // ---------------------------------------------------------
+    // Logout
+    // ---------------------------------------------------------
 
     private async Task Logout()
     {
@@ -189,20 +261,60 @@ else
         if (result == true)
         {
             await AuthService.LogoutAsync();
-            Nav.NavigateTo($"login", forceLoad: true);
+            Nav.NavigateTo("login", forceLoad: true);
         }
     }
 
+    // ---------------------------------------------------------
+    // Theme
+    // ---------------------------------------------------------
+
+    private void CreateTheme()
+    {
+        _theme = new MudTheme
+        {
+            PaletteLight = _lightPalette,
+            PaletteDark = _darkPalette,
+            LayoutProperties = new LayoutProperties(),
+            Typography = new Typography
+            {
+                Default = new DefaultTypography
+                {
+                    FontFamily =
+                    [
+                        "Outfit",
+                        "Noto Sans Devanagari",
+                        "Arial",
+                        "sans-serif"
+                    ]
+                }
+            }
+        };
+    }
+
+    // ---------------------------------------------------------
+    // Dispose
+    // ---------------------------------------------------------
+
+    public void Dispose()
+    {
+        Lang.OnLanguageChanged -= OnLanguageChanged;
+    }
+
+    // ---------------------------------------------------------
+    // Light Palette
+    // ---------------------------------------------------------
+
     private readonly PaletteLight _lightPalette = new()
     {
-        Primary = "#2D6A4F",           // Forest canopy — core brand, primary actions
+        Primary = "#2D6A4F",
         PrimaryDarken = "#1B4332",
-        Secondary = "#B5651D",         // Terracotta soil — was amber, now clearly distinct from Warning
-        Tertiary = "#3A6EA5",          // Irrigation blue — deeper than old tertiary, reads distinct from Info
-        Success = "#40916C",           // Ripe/approved — sits close to Primary on purpose (same family = "good outcome")
-        Info = "#5B8FB9",              // Lighter sky blue — visibly lighter than Tertiary now
-        Warning = "#D98E04",           // Harvest amber — moved old Secondary here, it's a much better semantic fit for "pending/attention"
-        Error = "#C1121F",             // Unchanged — already distinct once Warning moved off red
+        Secondary = "#B5651D",
+        Tertiary = "#3A6EA5",
+        Success = "#40916C",
+        Info = "#5B8FB9",
+        Warning = "#D98E04",
+        Error = "#C1121F",
         Black = "#1B4332",
         AppbarText = "#1B4332",
         AppbarBackground = "rgba(251,248,241,0.9)",
@@ -215,10 +327,14 @@ else
         TextSecondary = "#4A5A4F",
     };
 
+    // ---------------------------------------------------------
+    // Dark Palette
+    // ---------------------------------------------------------
+
     private readonly PaletteDark _darkPalette = new()
     {
         Primary = "#52B788",
-        Secondary = "#C97C3D",         // Terracotta lightened for dark bg
+        Secondary = "#C97C3D",
         Tertiary = "#5B8FC7",
         Surface = "#1a2420",
         Background = "#131a16",
@@ -226,7 +342,7 @@ else
         AppbarText = "#B7C9BE",
         AppbarBackground = "rgba(19,26,22,0.85)",
         DrawerBackground = "#1a2420",
-        ActionDefault = "#6B8577",     // Muted sage — replaces the off-brand purple-grey
+        ActionDefault = "#6B8577",
         ActionDisabled = "#9999994d",
         ActionDisabledBackground = "#605f6d4d",
         TextPrimary = "#D4E0D8",
@@ -236,7 +352,7 @@ else
         DrawerText = "#9FB3A6",
         GrayLight = "#22302a",
         GrayLighter = "#1a2420",
-        Info = "#7BA7CC",              // Lighter than Tertiary, mirrors light-mode split
+        Info = "#7BA7CC",
         Success = "#52B788",
         Warning = "#E9A93B",
         Error = "#E5646F",
