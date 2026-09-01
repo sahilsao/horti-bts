@@ -12,7 +12,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
 {
     // GET api/schemes/2  (2 = centrally sponsored)
     // GET api/schemes/1  (1 = state sponsored)
-    [HttpGet("{stId:int}")]
+    [HttpGet("schemes-by-type/{stId:int}")]
     [EndpointSummary("Get schemes by type")]
     [EndpointDescription("Retrieves the list of schemes based on the specified scheme type. Use 1 for state-sponsored schemes and 2 for centrally sponsored schemes.")]
     public async Task<ActionResult<IEnumerable<SchemeDto>>> GetByType(
@@ -20,7 +20,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
     {
         try
         {
-            var schemes = await repository.GetByTypeAsync(stId);
+            var schemes = await repository.GetSchemesByTypeAsync(stId);
 
             return Ok(schemes);
         }

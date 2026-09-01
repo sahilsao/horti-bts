@@ -20,6 +20,19 @@ namespace HortiBts.Client.Services.Schemes
             }
         }
 
+        public async Task<Result<List<SchemeDto>>> GetSchemesByTypeAsync(int? schemeTypeId)
+        {
+            try
+            {
+                var result = await http.GetFromJsonAsync<List<SchemeDto>>($"api/schemes/schemes-by-type/{schemeTypeId}");
+                return Result<List<SchemeDto>>.Success(result ?? []);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<SchemeDto>>.Failure($"Failed to fetch schemes: {ex.Message}");
+            }
+        }
+
         public async Task<Result<List<SchemeDto>>> GetSchemesListAsync()
         {
             try
@@ -119,12 +132,11 @@ namespace HortiBts.Client.Services.Schemes
 
             if (dto.SchemeId is not null)
                 content.Add(new StringContent(dto.SchemeId.Value.ToString()), nameof(dto.SchemeId));
-
-            content.Add(new StringContent(dto.SchemeTypeId!.ToString()), nameof(dto.SchemeTypeId));
-            content.Add(new StringContent(dto.SchemeName ?? string.Empty), nameof(dto.SchemeName));
-            content.Add(new StringContent(dto.SchemeNameEn ?? string.Empty), nameof(dto.SchemeNameEn));
-            content.Add(new StringContent(dto.SchemeDescriptionHi ?? string.Empty), nameof(dto.SchemeDescriptionHi));
-            content.Add(new StringContent(dto.SchemeDescriptionEn ?? string.Empty), nameof(dto.SchemeDescriptionEn));
+                content.Add(new StringContent(dto.SchemeTypeId?.ToString() ?? string.Empty), nameof(dto.SchemeTypeId));
+                content.Add(new StringContent(dto.SchemeName ?? string.Empty), nameof(dto.SchemeName));
+                content.Add(new StringContent(dto.SchemeNameEn ?? string.Empty), nameof(dto.SchemeNameEn));
+                content.Add(new StringContent(dto.SchemeDescriptionHi ?? string.Empty), nameof(dto.SchemeDescriptionHi));
+                content.Add(new StringContent(dto.SchemeDescriptionEn ?? string.Empty), nameof(dto.SchemeDescriptionEn));
 
             if (file is not null)
             {

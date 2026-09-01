@@ -9,7 +9,7 @@ namespace HortiBts.Api.Repositories.Schemes
 {
     public interface ISchemeRepository
     {
-        Task<IEnumerable<SchemeDto>> GetByTypeAsync(int stId);
+        Task<IEnumerable<SchemeDto>> GetSchemesByTypeAsync(int stId);
         Task<Result<List<SchemeTypeDto>>> GetSchemesTypesAsync();
         Task<Result<List<SchemeDto>>> GetSchemesListAsync();
         Task<Result<int>> SaveSchemeAsync(AddSchemeDto dto, IFormFile? file, string userId, string clientIp);
@@ -21,7 +21,7 @@ namespace HortiBts.Api.Repositories.Schemes
 
     public class SchemeRepository(IDbConnectionFactory dbFactory, IWebHostEnvironment env) : ISchemeRepository
     {
-        public async Task<IEnumerable<SchemeDto>> GetByTypeAsync(int stId)
+        public async Task<IEnumerable<SchemeDto>> GetSchemesByTypeAsync(int stId)
         {
             using var connection = dbFactory.CreateConnection(HortiDb.Bts);
             const string Sql = @"
@@ -38,7 +38,7 @@ namespace HortiBts.Api.Repositories.Schemes
             ms.isbeneficiary   AS IsBeneficiary,
             ms.flag            AS Flag
             FROM mas_scheme_horti ms
-            INNER JOIN mas_scheme_horti st ON st.st_id = ms.st_id
+            INNER JOIN mas_scheme_horti st ON st.s_id = ms.st_id
             WHERE ms.flag = 'Y'
           AND ms.isbeneficiary = 'Y'
           AND ms.st_id = @StId";
@@ -98,8 +98,6 @@ namespace HortiBts.Api.Repositories.Schemes
                 JOIN mas_scheme_horti st ON st.s_id=ms.st_id
                 WHERE ms.flag='Y'
                 AND ms.st_id<>0 
-
-
                 """;
                 var result = await connection.QueryAsync<SchemeDto>(sql);
                 return Result<List<SchemeDto>>.Success(result.ToList());

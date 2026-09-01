@@ -39,7 +39,7 @@
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="BenefitNameEn" @ref="_benefitNameEnField"
+                <MudTextField @bind-Value="_BenefitNameEn" @ref="_benefitNameEnField"
                               Label="@Lang.Text("Benefit Name (English)", "लाभ का नाम (अंग्रेज़ी)")"
                               Variant="Variant.Outlined"
                               Required="true"
@@ -48,7 +48,7 @@
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="BenefitNameHi"
+                <MudTextField @bind-Value="_BenefitNameHi"
                               Label="@Lang.Text("Benefit Name (Hindi)", "लाभ का नाम (हिंदी)")"
                               Variant="Variant.Outlined"
                               Required="true"
@@ -135,8 +135,8 @@
     private List<BenefitsListDto> _benefits = new();
     private string _searchString = string.Empty;
     private int? _selectedBenefitTypeId;
-    public string? BenefitNameEn { get; set; }
-    public string? BenefitNameHi { get; set; }
+    public string? _BenefitNameEn { get; set; }
+    public string? _BenefitNameHi { get; set; }
 
     private CurrentUserInfo _currentUser = new("", "", "", 0);
     private bool _isLoading = false;
@@ -194,8 +194,8 @@
             {
                 BenefitId = _selectedBenefitId,
                 BenefitTypeId = _selectedBenefitTypeId!.Value,
-                BenefitNameEn = BenefitNameEn!,
-                BenefitNameHi = BenefitNameHi!
+                BenefitNameEn = _BenefitNameEn!,
+                BenefitNameHi = _BenefitNameHi!
             });
 
             if (result.IsSuccess)
@@ -223,8 +223,8 @@
     {
         _selectedBenefitId = null;
         _selectedBenefitTypeId = null;
-        BenefitNameEn = null;
-        BenefitNameHi = null;
+        _BenefitNameEn = null;
+        _BenefitNameHi = null;
         Form?.ResetValidationAsync();
     }
 
@@ -297,8 +297,8 @@
     {
         _selectedBenefitId = benefit.BenefitId;
         _selectedBenefitTypeId = benefit.BenefitTypeId; // requires BenefitTypeId on BenefitsListDto — add if missing
-        BenefitNameEn = benefit.BenefitNameEn;
-        BenefitNameHi = benefit.BenefitNameHi;
+        _BenefitNameEn = benefit.BenefitNameEn;
+        _BenefitNameHi = benefit.BenefitNameHi;
 
         Form?.ResetValidationAsync();
 

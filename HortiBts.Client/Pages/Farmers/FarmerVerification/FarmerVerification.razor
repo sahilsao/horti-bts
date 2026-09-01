@@ -67,7 +67,7 @@
                          ValueChanged="OnVillageSelected"
                          Clearable="true"
                          SearchFunc="SearchVillages"
-                         ToStringFunc="@(v => v is null ? string.Empty : Lang.Text(v.VillageName, v.VillageNameHi))"
+                         ToStringFunc="@(v => v is null ? string.Empty : Lang.Text(v.VillageName!, v.VillageNameHi!))"
                          Disabled="_selectedSubdistrictId is null || _isLoadingVillages"
                          ResetValueOnEmptyText="true"
                          CoerceText="true" />

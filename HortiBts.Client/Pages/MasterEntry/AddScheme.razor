@@ -6,6 +6,7 @@
 @using HortiBts.Shared.Dtos.Schemes
 @using HortiBts.Client.Pages.Home
 @using Microsoft.AspNetCore.Components.Forms;
+@using HortiBts.Shared.Validation
 @inject HttpClient Http
 @inject SchemesApiService SchemesApiService
 @inject IDialogService DialogService
@@ -15,7 +16,7 @@
 <PageTitle>@Lang.Text("Add Scheme", "योजना जोड़ें")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Filled.AddBusiness" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Filled.PostAdd" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Add Scheme", "योजना जोड़ें")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -44,40 +45,40 @@
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="SchemeNameEn" @ref="_schemeNameEnField"
+                <MudTextField @bind-Value="_SchemeNameEn" @ref="_schemeNameEnField"
                               Label="@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")"
                               Variant="Variant.Outlined"
                               Required="true"
-                              Validation="@(new Func<string, string?>(ValidateEnglishNameOnly))"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishName(value, Lang.Text)))"
                               Immediate="true" />
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="SchemeNameHi"
+                <MudTextField @bind-Value="_SchemeNameHi"
                               Label="@Lang.Text("Scheme Name (Hindi)", "योजना का नाम (हिंदी)")"
                               Variant="Variant.Outlined"
                               Required="true"
-                              Validation="@(new Func<string, string?>(ValidateHindiNameOnly))"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.HindiName(value, Lang.Text)))"
                               Immediate="true" />
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="SchemeDescriptionEn"
+                <MudTextField @bind-Value="_SchemeDescriptionEn"
                               Label="@Lang.Text("Scheme Description (English)", "योजना का विवरण (अंग्रेज़ी)")"
                               Variant="Variant.Outlined"
                               Lines="3"
                               Required="true"
-                              Validation="@(new Func<string, string?>(ValidateEnglishDescriptionOnly))"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishDescription(value, Lang.Text)))"
                               Immediate="true" />
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="SchemeDescriptionHi"
+                <MudTextField @bind-Value="_SchemeDescriptionHi"
                               Label="@Lang.Text("Scheme Description (Hindi)", "योजना का विवरण (हिंदी)")"
                               Variant="Variant.Outlined"
                               Lines="3"
                               Required="true"
-                              Validation="@(new Func<string, string?>(ValidateHindiDescriptionOnly))"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.HindiDescription(value, Lang.Text)))"
                               Immediate="true" />
             </MudItem>
         </MudGrid>
@@ -237,15 +238,14 @@
     private int? _selectedSchemeId;
     private int? _selectedSchemeTypeId;
 
-    public string? SchemeNameEn { get; set; }
-    public string? SchemeNameHi { get; set; }
-    public string? SchemeDescriptionEn { get; set; }
-    public string? SchemeDescriptionHi { get; set; }
+    public string? _SchemeNameEn { get; set; }
+    public string? _SchemeNameHi { get; set; }
+    public string? _SchemeDescriptionEn { get; set; }
+    public string? _SchemeDescriptionHi { get; set; }
 
     private CurrentUserInfo _currentUser = new("", "", "", 0);
     private bool _isLoading = false;
     private HashSet<int?> _togglingBeneficiaryIds = new();
-    private HashSet<int?> _togglingActiveIds = new();
 
     private ElementReference _formTopRef;
     private MudTextField<string> _schemeNameEnField = default!;
@@ -314,10 +314,10 @@
             {
                 SchemeId = _selectedSchemeId,
                 SchemeTypeId = _selectedSchemeTypeId,
-                SchemeNameEn = SchemeNameEn!,
-                SchemeName = SchemeNameHi!,
-                SchemeDescriptionHi = SchemeDescriptionHi!,
-                SchemeDescriptionEn = SchemeDescriptionEn!
+                SchemeNameEn = _SchemeNameEn!,
+                SchemeName = _SchemeNameHi!,
+                SchemeDescriptionHi = _SchemeDescriptionHi!,
+                SchemeDescriptionEn = _SchemeDescriptionEn!
             };
 
             var result = _selectedSchemeId is null
@@ -365,10 +365,10 @@
     {
         _selectedSchemeId = null;
         _selectedSchemeTypeId = null;
-        SchemeNameEn = null;
-        SchemeNameHi = null;
-        SchemeDescriptionEn = null;
-        SchemeDescriptionHi = null;
+        _SchemeNameEn = null;
+        _SchemeNameHi = null;
+        _SchemeDescriptionEn = null;
+        _SchemeDescriptionHi = null;
         Form?.ResetValidationAsync();
         await RemovePdf();
     }
@@ -393,47 +393,6 @@
         }
 
         return $"{len:0.##} {sizes[order]}";
-    }
-
-    
-    private string? ValidateEnglishNameOnly(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Lang.Text("English name is required.", "अंग्रेज़ी नाम आवश्यक है।");
-
-        return Regex.IsMatch(value, @"^[a-zA-Z\s\-'\d]+$")
-            ? null
-            : Lang.Text("Only English letters are allowed.", "केवल अंग्रेज़ी अक्षर मान्य हैं।");
-    }
-
-    private string? ValidateHindiNameOnly(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Lang.Text("Hindi name is required.", "हिंदी नाम आवश्यक है।");
-
-        return Regex.IsMatch(value, @"^[\u0900-\u097F\s\-\d]+$")
-            ? null
-            : Lang.Text("Only Hindi characters are allowed.", "केवल हिंदी अक्षर मान्य हैं।");
-    }
-
-    private string? ValidateEnglishDescriptionOnly(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Lang.Text("English description is required.", "अंग्रेज़ी विवरण आवश्यक है।");
-
-        return Regex.IsMatch(value, @"^[a-zA-Z\s\-'\d]+$")
-            ? null
-            : Lang.Text("Only English letters are allowed.", "केवल अंग्रेज़ी अक्षर मान्य हैं।");
-    }
-
-    private string? ValidateHindiDescriptionOnly(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return Lang.Text("Hindi description is required.", "हिंदी विवरण आवश्यक है।");
-
-        return Regex.IsMatch(value, @"^[\u0900-\u097F\s\-\d]+$")
-            ? null
-            : Lang.Text("Only Hindi characters are allowed.", "केवल हिंदी अक्षर मान्य हैं।");
     }
 
     private string? ValidatePDF(IBrowserFile file)
@@ -481,51 +440,17 @@
         }
     }
 
-    private async Task ToggleActiveFlag(SchemeDto scheme, bool newValue)
-    {
-        _togglingActiveIds.Add(scheme.SchemeId);
-        var previousValue = scheme.Flag;
-        scheme.Flag = newValue.ToString(); // optimistic UI update
-
-        try
-        {
-            var result = await SchemesApiService.UpdateSchemeActiveFlagAsync(scheme.SchemeId!.Value, newValue);
-
-            if (!result.IsSuccess)
-            {
-                scheme.Flag = previousValue; // revert on failure
-                Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
-            }
-            else
-            {
-                Snackbar.Add(
-                    newValue
-                        ? Lang.Text("Scheme activated.", "योजना सक्रिय की गई।")
-                        : Lang.Text("Scheme deactivated.", "योजना निष्क्रिय की गई।"),
-                    Severity.Success);
-            }
-        }
-        catch
-        {
-            scheme.Flag = previousValue;
-            Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
-        }
-        finally
-        {
-            _togglingActiveIds.Remove(scheme.SchemeId);
-        }
-    }
-
     private async Task LoadForEdit(SchemeDto scheme)
     {
         _selectedSchemeId = scheme.SchemeId;
         _selectedSchemeTypeId = scheme.SchemeTypeId; // requires SchemeTypeId on SchemesListDto — add if missing
-        SchemeNameEn = scheme.SchemeNameEn;
-        SchemeNameHi = scheme.SchemeName;
-        SchemeDescriptionEn = scheme.SchemeDescriptionEn;
-        SchemeDescriptionHi = scheme.SchemeDescriptionHi;
+        _SchemeNameEn = scheme.SchemeNameEn;
+        _SchemeNameHi = scheme.SchemeName;
+        _SchemeDescriptionEn = scheme.SchemeDescriptionEn;
+        _SchemeDescriptionHi = scheme.SchemeDescriptionHi;
 
-        Form?.ResetValidationAsync();
+        if (Form is not null)
+            await Form.ResetValidationAsync();
 
         // scroll the form into view, then focus the first field
         await JS.InvokeVoidAsync("scrollAndFocus", _formTopRef);

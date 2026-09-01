@@ -3,6 +3,7 @@ using HortiBts.Client.MultiLanguage;
 using HortiBts.Client.Services.Auth;
 using HortiBts.Client.Services.Benefits;
 using HortiBts.Client.Services.Common;
+using HortiBts.Client.Services.Components;
 using HortiBts.Client.Services.Dashboard;
 using HortiBts.Client.Services.Districts;
 using HortiBts.Client.Services.Farmers;
@@ -57,4 +58,6 @@ builder.Services.AddScoped<FarmersDetailsApiService>();
 builder.Services.AddScoped<FarmersVerificationForUFPApiService>();
 builder.Services.AddScoped<BenefitsApiService>();
 builder.Services.AddScoped<SchemesApiService>();
+builder.Services.AddScoped<ComponentsApiService>();
+
 await builder.Build().RunAsync();

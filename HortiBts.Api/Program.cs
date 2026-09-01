@@ -1,6 +1,7 @@
 using HortiBts.Api.Data;
 using HortiBts.Api.Repositories.Auth;
 using HortiBts.Api.Repositories.Benefits;
+using HortiBts.Api.Repositories.Components;
 using HortiBts.Api.Repositories.Dashboard.Admin;
 using HortiBts.Api.Repositories.Districts;
 using HortiBts.Api.Repositories.Farmers;
@@ -50,6 +51,7 @@ builder.Services.AddHttpClient<ICropDetailRepository, CropDetailRepository>(clie
 builder.Services.AddScoped<IFarmersVerificationRepository, FarmersVerificationRepository>();
 builder.Services.AddScoped<IBenefitsRepository, BenefitsRepository>();
 builder.Services.AddScoped<INoticeRepository, NoticeRepository>();
+builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.
 const string ClientCorsPolicy = "HortiBtsClient";

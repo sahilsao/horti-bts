@@ -245,7 +245,7 @@
     {
         try
         {
-            var schemes = await Http.GetFromJsonAsync<List<SchemeDto>>($"{ApiBase}api/schemes/{type}");
+            var schemes = await Http.GetFromJsonAsync<List<SchemeDto>>($"{ApiBase}api/schemes/schemes-by-type/{type}");
             assign(schemes ?? new());
         }
         catch (Exception ex)
@@ -259,7 +259,7 @@
     }
 
     private string SchemeDisplayName(SchemeDto scheme) =>
-        Lang.Text(!string.IsNullOrWhiteSpace(scheme.SchemeNameEn) ? scheme.SchemeNameEn : scheme.SchemeName, scheme.SchemeName);
+        Lang.Text(!string.IsNullOrWhiteSpace(scheme.SchemeNameEn!) ? scheme.SchemeNameEn! : scheme.SchemeName!, scheme.SchemeName!);
 
     private async Task OpenSchemeDialog(SchemeDto scheme, string docType)
     {
