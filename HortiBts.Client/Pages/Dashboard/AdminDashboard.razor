@@ -223,18 +223,13 @@
     private ApplicationDashboardDto _previousYearDashboard = new();
 
     protected override async Task OnInitializedAsync()
-    {
-
-        Console.WriteLine("🔥 AdminDashboard OnInitializedAsync START");
-
+    {      
         await LoadFinancialYearsAsync();
 
         if (_finyears.Count < 2)
             return;
 
         await LoadDashboardAsync();
-
-        Console.WriteLine("🔥 AdminDashboard OnInitializedAsync END");
     }
 
     private async Task LoadFinancialYearsAsync()

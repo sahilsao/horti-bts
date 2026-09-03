@@ -25,20 +25,14 @@ namespace HortiBts.Client.Services.Components
         {
             try
             {
-                var response = await http.PostAsJsonAsync("api/components/save-component-data", new
-                {
-                    dto.SchemeId,
-                    dto.ComponentId,    
-                    dto.ComponentNameEn,
-                    dto.ComponentNameHi,
-                    dto.ComponentDescriptionEn,
-                    dto.ComponentDescriptionHi
-                });
+                var response = await http.PostAsJsonAsync("api/components/save-component-data", dto);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorBody = await response.Content.ReadAsStringAsync();
-                    return Result<int>.Failure($"Failed to save component: {response.StatusCode} - {errorBody}");
+
+                    return Result<int>.Failure(
+                        $"Failed to save component: {response.StatusCode} - {errorBody}");
                 }
 
                 var componentId = await response.Content.ReadFromJsonAsync<int>();
@@ -46,9 +40,53 @@ namespace HortiBts.Client.Services.Components
             }
             catch (Exception ex)
             {
-                return Result<int>.Failure($"Failed to save component: {ex.Message}");
+                return Result<int>.Failure(
+                    $"Failed to save component: {ex.Message}");
             }
         }
 
+        public async Task<Result<int>> UpdateComponentAsync(AddComponentDto dto)
+        {
+            try
+            {
+                var response = await http.PostAsJsonAsync("api/components/update-component-data", dto);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    return Result<int>.Failure($"Failed to update component: {response.StatusCode} - {errorBody}");
+                }
+
+                var componentId = await response.Content.ReadFromJsonAsync<int>();
+                return Result<int>.Success(componentId);
+            }
+            catch (Exception ex)
+            {
+                return Result<int>.Failure($"Failed to update component: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<int>> DeactivateComponentAsync(int componentId)
+        {
+            try
+            {
+                var response = await http.PostAsJsonAsync("api/components/deactivate-component-data", componentId);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+
+                    return Result<int>.Failure($"Failed to deactivate component: {response.StatusCode} - {errorBody}");
+                }
+
+                var deactivatedComponentId = await response.Content.ReadFromJsonAsync<int>();
+
+                return Result<int>.Success(deactivatedComponentId);
+            }
+            catch (Exception ex)
+            {
+                return Result<int>.Failure($"Failed to deactivate component: {ex.Message}");
+            }
+        }
     }
 }

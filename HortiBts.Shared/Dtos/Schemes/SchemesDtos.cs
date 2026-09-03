@@ -14,7 +14,6 @@ public class SchemeDocDto
 // GET /api/schemes/{stId} -- stId 2 = centrally sponsored, 1 = state sponsored (per existing contract).
 public class SchemeDto
 {
-    public int Srno { get; set; }
     public int? SchemeId { get; set; }
     public string? SchemeName { get; set; }       // Hindi display name
     public string? SchemeNameEn { get; set; }

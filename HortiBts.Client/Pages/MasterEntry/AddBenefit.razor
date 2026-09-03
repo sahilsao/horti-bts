@@ -95,7 +95,7 @@
                           Immediate="true" />
         </ToolBarContent>
         <HeaderContent>
-            <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.Srno)">@Lang.Text("S.No.", "क्रमाँक")</MudTableSortLabel></MudTh>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.BenefitTypeNameEn!)">@Lang.Text("Benefit Type (English)", "लाभ का प्रकार (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.BenefitTypeNameHi!)">@Lang.Text("Benefit Type (Hindi)", "लाभ का प्रकार (हिंदी)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<BenefitsListDto, object>(x => x.BenefitNameEn!)">@Lang.Text("Benefit Name (English)", "लाभ का नाम (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
@@ -104,7 +104,7 @@
             <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@context.Srno</MudTd>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredBenefits.ToList().IndexOf(context) + 1)</MudTd>
             <MudTd DataLabel="@Lang.Text("Benefit Type (English)", "लाभ का प्रकार (अंग्रेज़ी)")">@context.BenefitTypeNameEn</MudTd>
             <MudTd DataLabel="@Lang.Text("Benefit Type (Hindi)", "लाभ का प्रकार (हिंदी)")">@context.BenefitTypeNameHi</MudTd>
             <MudTd DataLabel="@Lang.Text("Benefit Name (English)", "लाभ का नाम (अंग्रेज़ी)")">@context.BenefitNameEn</MudTd>

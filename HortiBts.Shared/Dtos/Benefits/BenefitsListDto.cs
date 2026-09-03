@@ -6,7 +6,6 @@ namespace HortiBts.Shared.Dtos.Benefits
 {
     public class BenefitsListDto
     {
-        public long Srno { get; set; } //srno 
         public int BenefitId { get; set; } //benefit_id
         public int BenefitTypeId { get; set; }  //benefit_type_id
         public string? BenefitTypeNameEn { get; set; } //benefit_type_name_en

@@ -6,7 +6,6 @@ namespace HortiBts.Shared.Dtos.Components
 {
     public class ComponentDto
     {
-        public int Srno { get; set; }
         public int ComponentId { get; set; } // c_id
         public string? ComponentName { get; set; } // cname
         public string? ComponentNameHi { get; set; } // cname_hi

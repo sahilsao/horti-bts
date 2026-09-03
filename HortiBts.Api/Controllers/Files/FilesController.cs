@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 
-namespace HortiBts.Api.Controllers.SchemesManuals;
+namespace HortiBts.Api.Controllers.Files;
 
 // Serves files straight from wwwroot/docs/{scheme_files|notification_files|manual_files},
 // forcing a download (Content-Disposition: attachment)
@@ -21,6 +21,15 @@ public class FilesController(
     public IActionResult GetSchemeFile(string fileName)
         => ServeFile("scheme_files", fileName);
 
+        // GET api/files/scheme_new/{fileName}
+    // Files at: wwwroot/docs/scheme_files_new/{fileName}
+    [HttpGet("scheme_new/{fileName}")]
+    [EndpointSummary("Download midh scheme file")]
+    [EndpointDescription("Downloads a midh scheme-related file from the scheme new files directory.")]
+    public IActionResult GetSchemeMIDHFile(string fileName)
+        => ServeFile("scheme_files_new", fileName);
+
+
     // GET api/files/notification/{fileName}
     // Files at: wwwroot/docs/notification_files/{fileName}
     [HttpGet("notification/{fileName}")]
@@ -35,41 +44,7 @@ public class FilesController(
     [EndpointSummary("Download manual file")]
     [EndpointDescription("Downloads a manual or user guide file from the manual files directory.")]
     public IActionResult GetManualFile(string fileName)
-        => ServeFile("manual_files", fileName);
-
-    //private IActionResult ServeFile(string subfolder, string fileName)
-    //{
-    //    // Guard against path traversal (e.g. "../../appsettings.json") since fileName comes
-    //    // straight from the URL/DB.
-    //    var safeFileName = Path.GetFileName(fileName);
-
-    //    if (string.IsNullOrWhiteSpace(safeFileName) || safeFileName != fileName)
-    //    {
-    //        return BadRequest("Invalid file name.");
-    //    }
-
-    //    var fullPath = Path.Combine(
-    //        env.WebRootPath,
-    //        "docs",
-    //        subfolder,
-    //        safeFileName);
-
-    //    if (!System.IO.File.Exists(fullPath))
-    //    {
-    //        logger.LogWarning("File not found: {FullPath}", fullPath);
-    //        return NotFound();
-    //    }
-
-    //    if (!ContentTypeProvider.TryGetContentType(fullPath, out var contentType))
-    //    {
-    //        contentType = "application/octet-stream";
-    //    }
-
-    //    var bytes = System.IO.File.ReadAllBytes(fullPath);
-
-    //    return File(bytes, contentType, safeFileName);
-    //}
-
+        => ServeFile("manual_files", fileName);    
     private IActionResult ServeFile(string subfolder, string fileName)
     {
         if (string.IsNullOrWhiteSpace(fileName))

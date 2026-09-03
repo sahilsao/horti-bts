@@ -5,14 +5,17 @@
 @using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Components
 @using HortiBts.Client.Services.Schemes
+@using HortiBts.Client.Services.Units
 @using HortiBts.Shared.Dtos.Components
 @using HortiBts.Shared.Dtos.Schemes
+@using HortiBts.Shared.Dtos.Units
 @using HortiBts.Shared.Validation
 @using Microsoft.AspNetCore.Components.Forms
 
 @inject HttpClient Http
 @inject SchemesApiService SchemesApiService
 @inject ComponentsApiService ComponentsApiService
+@inject UnitsApiService UnitsApiService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
@@ -80,13 +83,18 @@
             </MudItem>
 
             <MudItem xs="12" sm="3">
-                <MudNumericField @bind-Value="_ComponentUnitId"
-                                 Label="@Lang.Text("Component Unit Id", "घटक का यूनिट ID")"
-                                 Variant="Variant.Outlined"
-                                 HelperText="@Lang.Text("Enter between 1 to 9", "1 से 9 के बीच दर्ज करे")"
-                                 Required="true"
-                                 Min="0" Max="9"
-                                 Immediate="true" />
+                <MudSelect T="int?"
+                           @bind-Value="_selectedComponentUnitId"
+                           Label="@Lang.Text("Component Unit Id", "घटक का यूनिट ID")"
+                           Variant="Variant.Outlined"
+                           Required="true">
+                    @foreach (var unit in _units)
+                    {
+                        <MudSelectItem T="int?" Value="@((int?)unit.UnitId)">
+                            @unit.UnitName
+                        </MudSelectItem>
+                    }
+                </MudSelect>
             </MudItem>
 
             <MudItem xs="12" sm="6">
@@ -167,7 +175,7 @@
                           Immediate="true" />
         </ToolBarContent>
         <HeaderContent>
-            <MudTh><MudTableSortLabel SortBy="new Func<ComponentDto, object>(x => x.Srno)">@Lang.Text("S.No.", "क्रमाँक")</MudTableSortLabel></MudTh>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ComponentDto, object>(x => x.ComponentName!)">@Lang.Text("Component Name (English)", "घटक का नाम (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ComponentDto, object>(x => x.ComponentNameHi!)">@Lang.Text("Component Name (Hindi)", "घटक का नाम (हिंदी)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ComponentDto, object>(x => x.ComponentDescriptionEn!)">@Lang.Text("Component Description (English)", "घटक का विवरण (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
@@ -176,7 +184,7 @@
             <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@context.Srno</MudTd>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredComponents.ToList().IndexOf(context) + 1)</MudTd>
             <MudTd DataLabel="@Lang.Text("Component Name (English)", "घटक का नाम (अंग्रेज़ी)")">@context.ComponentName</MudTd>
             <MudTd DataLabel="@Lang.Text("Component Name (Hindi)", "घटक का नाम (हिंदी)")">@context.ComponentNameHi</MudTd>
             <MudTd DataLabel="@Lang.Text("Component Description (English)", "घटक का विवरण (अंग्रेज़ी)")">@context.ComponentDescriptionEn</MudTd>
@@ -198,7 +206,12 @@
                                        Size="Size.Small"
                                        OnClick="@(() => LoadForEdit(context))" />
                     </MudTooltip>
-
+                    <MudTooltip Text="@Lang.Text("Delete", "हटाएं")">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       OnClick="@(() => DeactivateComponent(context))" />
+                    </MudTooltip>
                 </MudStack>
             </MudTd>
         </RowTemplate>
@@ -214,15 +227,16 @@
     private List<SchemeTypeDto> _schemesTypes = new();
     private List<SchemeDto> _schemes = new();
     private List<ComponentDto> _components = new();
+    private List<UnitDto> _units = new();
     private string _searchString = string.Empty;
 
     private int? _selectedSchemeTypeId;
     private int? _selectedComponentId;
     private int? _selectedSchemeId;
+    public int? _selectedComponentUnitId { get; set; }
 
     public string? _ComponentNameEn { get; set; }
     public string? _ComponentNameHi { get; set; }
-    public int? _ComponentUnitId { get; set; }
     public string? _ComponentDescriptionEn { get; set; }
     public string? _ComponentDescriptionHi { get; set; }
 
@@ -249,8 +263,25 @@
         }
 
         await LoadComponents();
+        await LoadUnits();
     }
 
+    private async Task LoadUnits()
+    {
+        var unitsTask = await UnitsApiService.GetUnitsAsync();
+        if (unitsTask.IsSuccess && unitsTask.Data is not null)
+        {
+            _units = unitsTask.Data;
+        }
+        else
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Failed to load units.",
+                    "इकाइयाँ लोड करने में विफल।"),
+                Severity.Error);
+        }
+    }
 
     private async Task OnSchemeTypeChanged(int? schemeTypeId)
     {
@@ -296,7 +327,7 @@
         // Select existing scheme
         _selectedSchemeId = component.SchemeId;
         _selectedComponentId = component.ComponentId;
-        _ComponentUnitId = component.ComponentUnitId;
+        _selectedComponentUnitId = component.ComponentUnitId;
         _ComponentNameEn = component.ComponentName;
         _ComponentNameHi = component.ComponentNameHi;
         _ComponentDescriptionEn = component.ComponentDescriptionEn;
@@ -342,14 +373,16 @@
             {
                 SchemeId = _selectedSchemeId,
                 ComponentId = _selectedComponentId,
-                ComponentUnitId = _ComponentUnitId,
+                ComponentUnitId = _selectedComponentUnitId,
                 ComponentNameEn = _ComponentNameEn!,
                 ComponentNameHi = _ComponentNameHi!,
                 ComponentDescriptionHi = _ComponentDescriptionHi!,
                 ComponentDescriptionEn = _ComponentDescriptionEn!
             };
 
-            var result = await ComponentsApiService.SaveComponentAsync(dto);
+            var result = _selectedComponentId is null
+                ? await ComponentsApiService.SaveComponentAsync(dto)
+                : await ComponentsApiService.UpdateComponentAsync(dto);
 
             if (result.IsSuccess)
             {
@@ -359,7 +392,7 @@
                         "घटक सफलतापूर्वक सुरक्षित किया गया।"),
                     Severity.Success);
 
-                Reset();
+                await Reset();
                 await LoadComponents();
             }
             else
@@ -388,18 +421,84 @@
         }
     }
 
-    private async void Reset()
+    private async Task DeactivateComponent(ComponentDto component)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            Lang.Text("Confirm Deactivate", "निष्क्रिय की पुष्टि करें"),
+           (MarkupString)Lang.Text(
+            $"Are you sure you want to Deactivate the component <span style='color:red'>{component.ComponentName}</span>?",
+            $"क्या आप वाकई घटक <span style='color:red'>{component.ComponentNameHi}</span> को हटाना चाहते हैं?"),
+            yesText: Lang.Text("Deactivate", "निष्क्रिय करें"),
+            cancelText: Lang.Text("Cancel", "रद्द करें"),
+            options: new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            });
+
+        if (confirmed != true)
+            return;
+
+        _isLoading = true;
+
+        try
+        {
+            var result = await ComponentsApiService.DeactivateComponentAsync(component.ComponentId);
+
+            if (result.IsSuccess)
+            {
+                Snackbar.Add(
+                    Lang.Text(
+                        "Component deactivated successfully.",
+                        "घटक सफलतापूर्वक निष्क्रिय किया गया।"),
+                    Severity.Success);
+
+                await LoadComponents();
+            }
+            else
+            {
+                Snackbar.Add(
+                    result.Error ??
+                    Lang.Text(
+                        "Failed to deactivate component.",
+                        "घटक निष्क्रिय करने में विफल।"),
+                    Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            Snackbar.Add(
+                Lang.Text(
+                    "Failed to deactivate component.",
+                    "घटक निष्क्रिय करने में विफल।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+
+    private async Task Reset()
     {
         _selectedSchemeId = null;
         _selectedSchemeTypeId = null;
         _selectedComponentId = null;
+        _selectedComponentUnitId = null;
 
         _schemes.Clear();
+        _units.Clear();
 
         _ComponentNameEn = null;
         _ComponentNameHi = null;
         _ComponentDescriptionEn = null;
         _ComponentDescriptionHi = null;
-        Form?.ResetValidationAsync();
+
+        if (Form is not null)
+            await Form.ResetValidationAsync();
     }
 }

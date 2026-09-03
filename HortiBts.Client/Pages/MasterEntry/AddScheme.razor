@@ -182,7 +182,7 @@
                           Immediate="true" />
         </ToolBarContent>
         <HeaderContent>
-            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.Srno)">@Lang.Text("S.No.", "क्रमाँक")</MudTableSortLabel></MudTh>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeTypeEn!)">@Lang.Text("Scheme Type (English)", "योजना का प्रकार (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeTypeHi!)">@Lang.Text("Scheme Type (Hindi)", "योजना का प्रकार (हिंदी)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeNameEn!)">@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
@@ -191,7 +191,6 @@
             <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@context.Srno</MudTd>
             <MudTd DataLabel="@Lang.Text("Scheme Type (English)", "योजना का प्रकार (अंग्रेज़ी)")">@context.SchemeTypeEn</MudTd>
             <MudTd DataLabel="@Lang.Text("Scheme Type (Hindi)", "योजना का प्रकार (हिंदी)")">@context.SchemeTypeHi</MudTd>
             <MudTd DataLabel="@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")">@context.SchemeNameEn</MudTd>

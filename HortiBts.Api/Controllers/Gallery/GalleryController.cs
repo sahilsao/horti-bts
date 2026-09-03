@@ -1,14 +1,14 @@
 ﻿using HortiBts.Shared.Dtos.Schemes;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HortiBts.Api.Controllers.Schemes
+namespace HortiBts.Api.Controllers.Gallery
 {
     [ApiController]
     [Route("api/gallery")]
-    public class SchemesGalleryController(
+    public class GalleryController(
         IWebHostEnvironment env,
         IConfiguration config,
-        ILogger<SchemesGalleryController> logger) : ControllerBase
+        ILogger<GalleryController> logger) : ControllerBase
     {
         private static readonly string[] AllowedExtensions =
         [

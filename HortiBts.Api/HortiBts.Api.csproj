@@ -22,4 +22,8 @@
 	  <ProjectReference Include="..\HortiBts.Shared\HortiBts.Shared.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Controllers\MIDHSchemes\" />
+	</ItemGroup>
+
 </Project>

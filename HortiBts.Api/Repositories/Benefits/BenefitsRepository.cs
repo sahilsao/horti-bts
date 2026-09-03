@@ -60,9 +60,7 @@ namespace HortiBts.Api.Repositories.Benefits
             {
                 using var connection = dbFactory.CreateConnection(HortiDb.Bts);
                 const string sql = """      
-                SELECT Row_number()
-                         OVER(
-                           ORDER BY mu.benefit_id DESC) AS Srno,
+                SELECT 
                        mu.benefit_id AS BenefitId,
                        mu.benefit_type_id AS BenefitTypeId,
                        mbt.benefit_name_en AS BenefitTypeNameEn,

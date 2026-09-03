@@ -1,0 +1,350 @@
+﻿@page "/admin/add-target"
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Target
+@using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Shared.Dtos.FinancialYear
+@using HortiBts.Shared.Dtos.Target
+@attribute [Authorize(Roles = "Admin")]
+
+@inject DistrictsApiService DistrictsService
+@inject FinancialYearsApiService FinancialYearApiService
+@inject TargetApiService TargetApiService
+
+@inject HttpClient Http
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+
+<PageTitle>@Lang.Text("Add/Update Target", "लक्ष्य जोड़ें/अपडेट करें")</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="material-symbols-outlined/target"
+             Color="Color.Primary"
+             Size="Size.Large" />
+
+    @Lang.Text("Add/Update Target", "लक्ष्य जोड़ें/अपडेट करें")
+</MudText>
+
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text(
+        "Fill in the field below and save it to add and update a new target for the district.",
+        "ज़िले के लिए नया टारगेट जोड़ने/अपडेट के लिए नीचे दिए गए फ़ील्ड को भरें और उसे सेव करें।")
+</MudText>
+
+<MudForm @ref="Form" Model="@this">
+    <div @ref="_formTopRef">
+        <MudGrid Spacing="3" Class="mb-4">
+            <!-- User -->
+            <MudItem xs="12" sm="4">
+                <MudSelect T="int?"
+                           @bind-Value="_selectedUserTypeId"
+                           Label="@Lang.Text("Select User Type", "उपयोगकर्ता प्रकार चुनें")"
+                           Variant="Variant.Outlined" FullWidth="true" Class="mb-3"
+                           Required="true">
+                    @foreach (var user in _userTypes)
+                    {
+                        <MudSelectItem T="int?" Value="@((int?)user.UserId)">
+                            @user.UserName
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudSelect T="int?" Label="@Lang.Text("Select District", "जिला चुने")"
+                           @bind-Value="_selectedDistrictCensus"
+                           Variant="Variant.Outlined" FullWidth="true" Class="mb-3"
+                           Required="true">
+                    @foreach (var d in _districts)
+                    {
+                        <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                            @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudSelect T="int?"
+                           Label="@Lang.Text("Select Financial Year", "वित्त वर्ष चुने")"
+                           @bind-Value="_selectedFinancialYear"
+                           Variant="Variant.Outlined" FullWidth="true" Class="mb-3"
+                           Required="true">
+                    @foreach (var f in _finyears)
+                    {
+                        <MudSelectItem T="int?" Value="@((int?)f.Id)">
+                            @f.FinancialYear
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudNumericField T="int?"
+                                 @bind-Value="_Target"
+                                 @ref="_componentTargetField"
+                                 Label="@Lang.Text("Target (in numbers)", "लक्ष्य(संख्या में)")"
+                                 Variant="Variant.Outlined"
+                                 Min="0"
+                                 Step="1"
+                                 Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudNumericField T="decimal?"
+                                 @bind-Value="_TargetArea"
+                                 Label="@Lang.Text("Target Area (in hectares)", "लक्ष्य क्षेत्र (हेक्टर में)")"
+                                 Variant="Variant.Outlined"
+                                 Format="F2"
+                                 Step="0.01M"
+                                 Min="0"
+                                 Required="true" />
+            </MudItem>
+        </MudGrid>
+        <MudStack Row="true" Spacing="1">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveTarget" Disabled="_isLoading">
+                @if (_isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    <span>@Lang.Text("Saving...", "सुरक्षित हो रहा है...")</span>
+                }
+                else if (_selectedTargetId is null)
+                {
+                    <span>@Lang.Text("Save", "सुरक्षित करे")</span>
+                }
+                else
+                {
+                    <span>@Lang.Text("Update", "अपडेट करे")</span>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+                @Lang.Text("Reset", "रीसेट")
+            </MudButton>
+        </MudStack>
+    </div>
+</MudForm>
+@if (_targets.Any())
+{
+    <MudTable Items="_filteredTargets"
+              SortLabel="Sort By"
+              Dense="true"
+              Hover="true"
+              Elevation="1"
+              Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">@Lang.Text("Targets", "लक्ष्य")</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Immediate="true" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TargetDto, object>(x => x.UserTypeName!)">@Lang.Text("User Type", "यूजर का प्रकार")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TargetDto, object>(x => x.UserNameHi!)">@Lang.Text("User Name (Hindi)", "यूजर का नाम (हिंदी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TargetDto, object>(x => x.UserNameEn!)">@Lang.Text("User Name (English)", "यूजर का नाम (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TargetDto, object>(x => x.TargetCount!)">@Lang.Text("Target Count", "लक्ष्य (संख्या में)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TargetDto, object>(x => x.TargetArea!)">@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<TargetDto, object>(x => x.FinancialYear!)">@Lang.Text("Financial Year", "वित्तीय वर्ष")</MudTableSortLabel></MudTh>
+            <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredTargets.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("User Type", "यूजर का प्रकार")">@context.UserTypeName</MudTd>
+            <MudTd DataLabel="@Lang.Text("User Name (Hindi)", "यूजर का नाम (हिंदी)")">@context.UserNameHi</MudTd>
+            <MudTd DataLabel="@Lang.Text("User Name (English)", "यूजर का नाम (अंग्रेज़ी)")">@context.UserNameEn</MudTd>
+            <MudTd DataLabel="@Lang.Text("Target Count (Numbers)", "लक्ष्य (संख्या में)")">@context.TargetCount</MudTd>
+            <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.TargetArea.ToString("F2")</MudTd>
+            <MudTd DataLabel="@Lang.Text("Financial Year", "वित्तीय वर्ष")">@context.FinancialYear</MudTd>
+            <MudTd DataLabel="@Lang.Text("Edit", "संपादित करें")">
+                <MudStack Row="true" Spacing="1">
+                    <MudTooltip Text="@Lang.Text("Edit", "संपादित करें")">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       OnClick="@(() => LoadForEdit(context))" />
+                    </MudTooltip>
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
+@* ---------- Benefits Type List Result ---------- *@
+
+@code {
+
+    private List<DistrictsDto> _districts = [];
+    private List<FinancialYearDto> _finyears = [];
+    private int? _selectedDistrictCensus;
+    private int? _selectedFinancialYear;
+    private int? _selectedUserTypeId;
+    private string? _selectedUserTypeName;
+    private int? _selectedTargetId;
+
+    private int? _Target;
+    private decimal? _TargetArea;
+    private List<TargetDto> _targets = new();
+
+    private string _searchString = string.Empty;
+
+    private List<UserTypeOption> _userTypes = new()
+    {
+        // new() { UserName = "HOD", UserId = 13 },
+        new() { UserName = "DDH/ADH", UserId = 14 },
+        // new() { UserName = "SHDO", UserId = 15 },
+        // new() { UserName = "RHEO", UserId = 12 },
+    };
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+
+    private ElementReference _formTopRef;
+    private MudNumericField<int?> _componentTargetField = default!;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDistrictsAsync();
+        await LoadFinancialYearsAsync();
+        await LoadUserTargets();
+    }
+
+    private async Task LoadDistrictsAsync()
+    {
+        var result = await DistrictsService.GetDistrictsAsync();
+        if (result.IsSuccess)
+            _districts = result.Data!;
+        else
+            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+    }
+    private async Task LoadFinancialYearsAsync()
+    {
+        var result = await FinancialYearApiService.GetFinancialYearsForReportAsync();
+
+        if (result.IsSuccess && result.Data is not null)
+            _finyears = result.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load financial years.", "वित्त वर्ष लोड करने में विफल।"), Severity.Warning);
+
+    }
+
+    private async Task LoadUserTargets()
+    {
+        var targetsTask = await TargetApiService.GetTargetsListAsync();
+        if (targetsTask.IsSuccess && targetsTask.Data is not null)
+        {
+            _targets = targetsTask.Data;
+        }
+        else
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Failed to load targets.",
+                    "लक्ष्य लोड करने में विफल।"),
+                Severity.Error);
+        }
+    }
+
+    private IEnumerable<TargetDto> _filteredTargets =>
+        _targets.Where(t =>
+            string.IsNullOrWhiteSpace(_searchString)
+            || (t.UserNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (t.UserNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (t.TargetCount.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (t.TargetArea.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private async Task SaveTarget()
+    {
+        await Form!.ValidateAsync();
+
+        if (!Form.IsValid)
+            return;
+
+        _isLoading = true;
+
+        try
+        {
+            var targetDto = new AddTargetDto
+            {
+                UserType = _selectedUserTypeId!.Value,
+                UserTypeName = _selectedUserTypeName,
+                UserId = _selectedDistrictCensus!.Value,
+                FinancialYearId = _selectedFinancialYear!.Value,
+                TargetCount = _Target!.Value,
+                TargetArea = _TargetArea!.Value,
+                TargetId = _selectedTargetId!.Value
+            };
+            var result = await TargetApiService.SaveTargetAsync(targetDto);
+            if (result.IsSuccess)
+            {
+                Snackbar.Add(
+                    Lang.Text(
+                        "Target saved successfully.",
+                        "लक्ष्य सफलतापूर्वक सुरक्षित किया गया।"),
+                    Severity.Success);
+                await LoadUserTargets();
+                await Reset();
+            }
+            else
+            {
+                Snackbar.Add(
+                    Lang.Text(
+                        "Failed to save target.",
+                        "लक्ष्य सुरक्षित करने में विफल।"),
+                    Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            Snackbar.Add(
+                Lang.Text(
+                    "Failed to save target.",
+                    "लक्ष्य सुरक्षित करने में विफल।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
+    }
+
+    private async Task LoadForEdit(TargetDto target)
+    {
+        _selectedTargetId = target.TargetId;
+        _selectedUserTypeId = target.UserType;
+        _selectedUserTypeName = target.UserTypeName;
+        _selectedDistrictCensus = target.UserId;
+        _selectedFinancialYear = target.FinancialYearId;
+        _Target = target.TargetCount;
+        _TargetArea = target.TargetArea;
+
+        if (Form is not null)
+            await Form.ResetValidationAsync();
+
+        await JS.InvokeVoidAsync("scrollAndFocus", _formTopRef);
+        await _componentTargetField.FocusAsync();
+    }
+
+    private async Task Reset()
+    {
+        _selectedFinancialYear = null;
+        _selectedDistrictCensus = null;
+        _selectedUserTypeId = null;
+        _selectedTargetId = null;
+        _Target = null;
+        _TargetArea = null;
+
+        if (Form is not null)
+            await Form.ResetValidationAsync();
+    }
+
+    public class UserTypeOption
+    {
+        public string UserName { get; set; } = string.Empty;
+        public int UserId { get; set; }
+    }
+}

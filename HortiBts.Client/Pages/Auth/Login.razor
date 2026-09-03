@@ -160,7 +160,7 @@
     private void OnDistrictChanged(int? value)
     {
         _selectedDistrictCensus = value;
-        _loginModel.UserId = value.ToString(); // matches Angular's user_id = district_code before submit
+        _loginModel.UserId = value?.ToString() ?? string.Empty; // matches Angular's user_id = district_code before submit
     }
 
     private void ToggleVisibility()
