@@ -1,10 +1,12 @@
 ﻿@page "/"
 @using System.Net.Http.Json
+@using HortiBts.Client.Services.Schemes
 @using HortiBts.Shared.Dtos.Schemes
 @inject HttpClient Http
 @inject IDialogService DialogService
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject SchemesApiService SchemesApiService
 
 
 @layout EmptyLayout
@@ -238,19 +240,29 @@
             LoadSchemes(type: 2, list => CentralSchemes = list),   // 2 = centrally sponsored
             LoadSchemes(type: 1, list => StateSchemes = list),      // 1 = state sponsored
             LoadSchemeGallery()
-    );
+        );
     }
 
     private async Task LoadSchemes(int type, Action<List<SchemeDto>> assign)
     {
         try
         {
-            var schemes = await Http.GetFromJsonAsync<List<SchemeDto>>($"{ApiBase}api/schemes/schemes-by-type/{type}");
-            assign(schemes ?? new());
+            var result = await SchemesApiService.GetSchemesByTypeAsync(type);
+
+            if (result.IsSuccess)
+            {
+                assign(result.Data ?? []);
+            }
+            else
+            {
+                Console.WriteLine(
+                    $"[Schemes] failed to load type={type}: {result.Error}");
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[Schemes] failed to load type={type}: {ex}");
+            Console.WriteLine(
+                $"[Schemes] failed to load type={type}: {ex}");
         }
         finally
         {

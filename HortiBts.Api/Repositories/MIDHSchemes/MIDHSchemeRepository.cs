@@ -13,6 +13,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
         Task<Result<List<SchemeTypeDto>>> GetSchemesTypesAsync();
         Task<IEnumerable<MIDHSchemeDto>> GetMIDHSchemesByTypeAsync(int stId);
         Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesListAsync();
+        Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesBySchemeIDAsync(int schemeId);
         Task<Result<int>> SaveMIDHSchemeAsync(AddMIDHSchemeDto dto, IFormFile? file, string userId, string clientIp);
         Task<Result<int>> UpdateMIDHSchemeAsync(AddMIDHSchemeDto dto, IFormFile? file, string userId, string clientIp);
         Task<Result<bool>> UpdateMIDHActiveFlagAsync(int schemeId, bool flag, string userId);
@@ -93,6 +94,37 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 AND s.scheme_type_id > 0 
                 """;
                 var result = await connection.QueryAsync<MIDHSchemeDto>(sql);
+                return Result<List<MIDHSchemeDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<MIDHSchemeDto>>.Failure($"Failed to fetch MIDH schemes: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesBySchemeIDAsync(int schemeId)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT 
+                    s.scheme_id AS SchemeId,
+                    s.midh_scheme_id AS MidhSchemeId,
+                    s.scheme_type_id AS SchemeTypeId,
+                    st.scheme_type_name_hi AS MidhSchemeTypeNameHi,
+                    st.scheme_type_name_en AS MidhSchemeTypeNameEn,
+                    s.scheme_name_en AS MidhSchemeNameEn,
+                    s.scheme_name_hi AS MidhSchemeNameHi,
+                    s.description_en AS MidhSchemeDescriptionEn,
+                    s.description_hi AS MidhSchemeDescriptionHi
+                FROM mas_scheme_new s
+                INNER
+                JOIN mas_scheme_type st ON st.scheme_type_id = s.scheme_type_id
+                WHERE s.flag = 1
+                AND s.midh_scheme_id = @SchemeId
+                """;
+                var result = await connection.QueryAsync<MIDHSchemeDto>(sql, new { SchemeId = schemeId });
                 return Result<List<MIDHSchemeDto>>.Success(result.ToList());
             }
             catch (Exception ex)

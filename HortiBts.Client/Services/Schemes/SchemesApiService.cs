@@ -24,7 +24,7 @@ namespace HortiBts.Client.Services.Schemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<SchemeDto>>($"api/schemes/schemes-by-type/{schemeTypeId}");
+                var result = await http.GetFromJsonAsync<List<SchemeDto>>($"api/schemes/schemes-by-type?stId={schemeTypeId}");
                 return Result<List<SchemeDto>>.Success(result ?? []);
             }
             catch (Exception ex)

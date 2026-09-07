@@ -6,16 +6,15 @@ namespace HortiBts.Api.Controllers.MIDHSchemes;
 
 [ApiController]
 [Route("api/midh-schemes")]
-public class MIDHSchemeDocsController(IMIDHSchemeDocRepository repository, ILogger<MIDHSchemeDocsController> logger) : ControllerBase
+public class MIDHSchemeDocsController(
+    IMIDHSchemeDocRepository repository,
+    ILogger<MIDHSchemeDocsController> logger) : ControllerBase
 {
-    // GET api/midh-schemes/136/documents?docType=SCHEME_NEW
-    // docType is accepted for parity with the original contract but currently unused.
-    [HttpGet("{schemeId:int}/documents")]
-    [EndpointSummary("Get scheme documents")]
-    [EndpointDescription("Retrieves the documents associated with a specific scheme. An optional document type can be provided to maintain compatibility with the existing API contract.")]
-    public async Task<ActionResult<IEnumerable<SchemeDocDto>>> GetBySchemeId(
-        [FromRoute] int schemeId,
-        [FromQuery] string? docType)
+    // GET api/midh-schemes/documents?schemeId=136&docType=SCHEME_NEW
+    [HttpGet("documents")]
+    [EndpointSummary("Get midh scheme documents")]
+    [EndpointDescription("Retrieves the midh documents associated with a specific scheme.")]
+    public async Task<ActionResult<IEnumerable<SchemeDocDto>>> GetBySchemeId([FromQuery] int schemeId, [FromQuery] string? docType)
     {
         try
         {
@@ -27,12 +26,12 @@ public class MIDHSchemeDocsController(IMIDHSchemeDocRepository repository, ILogg
         {
             logger.LogError(
                 ex,
-                "Failed to load documents for schemeId={SchemeId}, docType={DocType}",
+                "Failed to load midh documents for schemeId={SchemeId}, docType={DocType}",
                 schemeId,
                 docType);
 
             return Problem(
-                "Failed to load scheme documents.",
+                "Failed to load midh scheme documents.",
                 statusCode: 500);
         }
     }

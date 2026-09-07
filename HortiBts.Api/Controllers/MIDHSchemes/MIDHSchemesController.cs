@@ -10,7 +10,7 @@ namespace HortiBts.Api.Controllers.MIDHSchemes;
 [ApiController]
 [Route("api/midh-schemes")]
 public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContextAccessor httpContextAccessor, ILogger<MIDHSchemesController> logger) : ControllerBase
-{       
+{
 
     [HttpGet("midh-schemes-list")]
     [EndpointSummary("Get MIDH schemes list")]
@@ -98,7 +98,7 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
             return Problem("Failed to update midh scheme.", statusCode: 500);
         }
     }
-   
+
     [HttpPatch("{id}/active-flag")]
     [EndpointSummary("Toggle a midh scheme's active flag")]
     [EndpointDescription("Toggles the active flag for a specific midh scheme.")]

@@ -12,11 +12,11 @@ public class SchemeDocsController(
 {
     // GET api/schemes/136/documents?docType=SCHEME_NEW
     // docType is accepted for parity with the original contract but currently unused.
-    [HttpGet("{schemeId:int}/documents")]
+    [HttpGet("documents")]
     [EndpointSummary("Get scheme documents")]
     [EndpointDescription("Retrieves the documents associated with a specific scheme. An optional document type can be provided to maintain compatibility with the existing API contract.")]
     public async Task<ActionResult<IEnumerable<SchemeDocDto>>> GetBySchemeId(
-        [FromRoute] int schemeId,
+        [FromQuery] int schemeId,
         [FromQuery] string? docType)
     {
         try
