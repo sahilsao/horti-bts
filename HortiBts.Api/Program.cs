@@ -63,15 +63,15 @@ builder.Services.AddScoped<IMIDHSchemeDocRepository, MIDHSchemeDocRepository>();
 builder.Services.AddScoped<IMIDHComponentTypeRepository, MIDHComponentTypeRepository>();
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.
-const string ClientCorsPolicy = "HortiBtsClient";
+const string BtsClientCorsPolicy = "HortiBtsClient";
 const string PublicClientCorsPolicy = "HortiPublicClient";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(ClientCorsPolicy, policy =>
+    options.AddPolicy(BtsClientCorsPolicy, policy =>
     {
         policy.WithOrigins(
                 "http://localhost:5032",
-                "https://localhost:7126",             // local Blazor dev server -- confirm your actual port
+                "https://localhost:7126",                // local Blazor dev server -- confirm your actual port
                 "https://cghorticulture.gov.in",
                 "https://www.cghorticulture.gov.in")     // production client origin, once deployed
               .AllowAnyHeader()
@@ -81,7 +81,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(PublicClientCorsPolicy, policy =>
     {
         policy
-            .WithOrigins("https://localhost:7188")
+            .WithOrigins(
+                "https://localhost:7188",               // local Blazor dev server -- confirm your actual port
+                "https://cghorticulture.gov.in",
+                "https://www.cghorticulture.gov.in")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -116,7 +119,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(ClientCorsPolicy);
+app.UseCors(BtsClientCorsPolicy);
 app.UseCors(PublicClientCorsPolicy);
 
 app.UseAuthentication(); // will start doing something once JWT is added
