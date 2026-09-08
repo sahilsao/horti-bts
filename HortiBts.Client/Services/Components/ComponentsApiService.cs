@@ -12,8 +12,8 @@ namespace HortiBts.Client.Services.Components
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<ComponentDto>>("api/components/components-list");
-                return Result<List<ComponentDto>>.Success(result ?? []);
+                var result = await http.GetFromJsonAsync<Result<List<ComponentDto>>>("api/components/components-list");
+                return result ?? Result<List<ComponentDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {

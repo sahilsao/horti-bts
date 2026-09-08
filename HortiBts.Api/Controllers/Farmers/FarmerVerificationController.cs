@@ -17,7 +17,7 @@ namespace HortiBts.Api.Controllers.Farmers
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
     }

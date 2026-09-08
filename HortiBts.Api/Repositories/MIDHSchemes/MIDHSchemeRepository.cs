@@ -13,7 +13,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
         Task<Result<List<SchemeTypeDto>>> GetSchemesTypesAsync();
         Task<IEnumerable<MIDHSchemeDto>> GetMIDHSchemesByTypeAsync(int stId);
         Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesListAsync();
-        Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByMidhSchemeIDAsync(int midhSchemeId);
+        Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByMidhSchemeIDAsync(int schemeId);
         Task<Result<int>> SaveMIDHSchemeAsync(AddMIDHSchemeDto dto, IFormFile? file, string userId, string clientIp);
         Task<Result<int>> UpdateMIDHSchemeAsync(AddMIDHSchemeDto dto, IFormFile? file, string userId, string clientIp);
         Task<Result<bool>> UpdateMIDHActiveFlagAsync(int schemeId, bool flag, string userId, string clientIp);
@@ -104,7 +104,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             }
         }
 
-        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByMidhSchemeIDAsync(int midhSchemeId)
+        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByMidhSchemeIDAsync(int schemeId)
         {
             try
             {
@@ -125,9 +125,9 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 INNER
                 JOIN mas_scheme_type st ON st.scheme_type_id = s.scheme_type_id
                 WHERE s.flag = 1
-                AND s.midh_scheme_id = @MidhSchemeId
+                AND s.scheme_id = @SchemeId
                 """;
-                var result = await connection.QueryAsync<MIDHSchemeDto>(sql, new { MidhSchemeId = midhSchemeId });
+                var result = await connection.QueryAsync<MIDHSchemeDto>(sql, new { SchemeId = schemeId });
                 return Result<List<MIDHSchemeDto>>.Success(result.ToList());
             }
             catch (Exception ex)
@@ -224,10 +224,11 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                     description_en = @MIDHSchemeDescriptionEn,
                     updated_by = @UserId,
                     updated_ip_address = @IpAddress
-                WHERE midh_scheme_id = @MidhSchemeId;";
+                WHERE scheme_id = @SchemeId;";
 
                 var rows = await connection.ExecuteAsync(updateSql, new
                 {
+                    dto.SchemeId,
                     dto.MIDHSchemeId,
                     dto.SchemeTypeId,
                     dto.MIDHSchemeCode,
@@ -285,20 +286,20 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             }
         }
 
-        public async Task<Result<bool>> UpdateMIDHActiveFlagAsync(int midhSchemeId, bool flag, string userId, string clientIp)
+        public async Task<Result<bool>> UpdateMIDHActiveFlagAsync(int schemeId, bool flag, string userId, string clientIp)
         {
             using var connection = dbFactory.CreateConnection(HortiDb.Bts);
 
             const string sql = @"
             UPDATE mas_scheme_new
             SET flag = @Flag, updated_by = @UserId, updated_ip_address = @IpAddress
-            WHERE midh_scheme_id = @MIDHSchemeId;";
+            WHERE scheme_id = @SchemeId;";
 
             try
             {
                 var rows = await connection.ExecuteAsync(sql, new
                 {
-                    MIDHSchemeId = midhSchemeId,
+                    SchemeId = schemeId,
                     Flag = flag ? 1 : 0,
                     UserId = userId,
                     IpAddress = clientIp

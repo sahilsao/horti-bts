@@ -11,8 +11,8 @@ namespace HortiBts.Client.Services.FinancialYears
         {
             try
             {
-                var data = await http.GetFromJsonAsync<List<FinancialYearDto>>("api/financial-years/fyears-for-report");
-                return Result<List<FinancialYearDto>>.Success(data ?? []);
+                var data = await http.GetFromJsonAsync<Result<List<FinancialYearDto>>>("api/financial-years/fyears-for-report");
+                return data ?? Result<List<FinancialYearDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {

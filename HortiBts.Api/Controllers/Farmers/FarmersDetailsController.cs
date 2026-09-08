@@ -17,7 +17,7 @@ namespace HortiBts.Api.Controllers.Farmers
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpGet("get-address-details")]
@@ -30,7 +30,7 @@ namespace HortiBts.Api.Controllers.Farmers
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpGet("get-bank-details")]
@@ -43,7 +43,7 @@ namespace HortiBts.Api.Controllers.Farmers
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpGet("get-land-details")]
@@ -56,7 +56,7 @@ namespace HortiBts.Api.Controllers.Farmers
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpGet("get-scheme-details")]
@@ -69,7 +69,7 @@ namespace HortiBts.Api.Controllers.Farmers
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpGet("get-crop-details")]
@@ -82,7 +82,7 @@ namespace HortiBts.Api.Controllers.Farmers
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
     }
 }

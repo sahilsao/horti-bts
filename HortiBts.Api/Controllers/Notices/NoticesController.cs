@@ -1,5 +1,4 @@
-﻿using HortiBts.Api.Repositories;
-using HortiBts.Api.Repositories.Notices;
+﻿using HortiBts.Api.Repositories.Notices;
 using HortiBts.Shared.Dtos.Notices;
 using Microsoft.AspNetCore.Mvc;
 

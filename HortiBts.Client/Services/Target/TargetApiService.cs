@@ -11,8 +11,8 @@ namespace HortiBts.Client.Services.Target
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<TargetDto>>("api/target/get-user-targets-list");
-                return Result<List<TargetDto>>.Success(result ?? []);
+                var result = await http.GetFromJsonAsync<Result<List<TargetDto>>>("api/target/get-user-targets-list");
+                return result ?? Result<List<TargetDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {

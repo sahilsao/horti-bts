@@ -21,7 +21,7 @@ namespace HortiBts.Api.Controllers.Target
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
 
-                return Ok(result.Data);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -40,7 +40,7 @@ namespace HortiBts.Api.Controllers.Target
         [EndpointDescription("Inserts a new target record.")]
         public async Task<IActionResult> SaveTarget([FromBody] AddTargetDto dto)
         {
-            var userId = User.Identity?.Name ?? "system";
+            var userId = User.Identity?.Name ?? "0";
             var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
             try
@@ -50,7 +50,7 @@ namespace HortiBts.Api.Controllers.Target
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
 
-                return Ok(result.Data);
+                return Ok(result);
             }
             catch (Exception ex)
             {

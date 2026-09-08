@@ -24,7 +24,7 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -48,7 +48,7 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
         if (fileValidation is not null)
             return BadRequest(new { error = true, message = fileValidation });
 
-        var userId = User.Identity?.Name ?? "system";
+        var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
         try
@@ -58,7 +58,7 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data); // new scheme_id
+            return Ok(result); // new scheme_id
         }
         catch (Exception ex)
         {
@@ -80,7 +80,7 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
         if (fileValidation is not null)
             return BadRequest(new { error = true, message = fileValidation });
 
-        var userId = User.Identity?.Name ?? "system";
+        var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
         try
@@ -90,7 +90,7 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -99,25 +99,25 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
         }
     }
 
-    [HttpPatch("{midhSchemeId}/active-flag")]
+    [HttpPatch("{schemeId}/active-flag")]
     [EndpointSummary("Toggle a midh scheme's active flag")]
     [EndpointDescription("Toggles the active flag for a specific midh scheme.")]
-    public async Task<IActionResult> UpdateMIDHSchemeActiveFlag(int midhSchemeId, [FromBody] UpdateFlagDto dto)
+    public async Task<IActionResult> UpdateMIDHSchemeActiveFlag(int schemeId, [FromBody] UpdateFlagDto dto)
     {
-        var userId = User.Identity?.Name ?? "system";
+        var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
         try
         {
-            var result = await repository.UpdateMIDHActiveFlagAsync(midhSchemeId, dto.Flag, userId, clientIp);
+            var result = await repository.UpdateMIDHActiveFlagAsync(schemeId, dto.Flag, userId, clientIp);
 
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to update active flag for midh scheme {midhSchemeId}", midhSchemeId);
+            logger.LogError(ex, "Failed to update active flag for midh scheme {schemeId}", schemeId);
             return Problem("Failed to update active flag.", statusCode: 500);
         }
     }

@@ -219,7 +219,6 @@
     // Converted to your own Dapper-backed API (see SchemesController / ManualsController).
     // nFile (PDF download) hasn't been converted yet -- still goes through the Node proxy
     // until you give me that query too.
-    private readonly string ApiBase = "";
 
     private List<SchemeDto> CentralSchemes = new();
     private List<SchemeDto> StateSchemes = new();
@@ -318,7 +317,7 @@
         if (string.IsNullOrWhiteSpace(fileName)) return;
         try
         {
-            var bytes = await Http.GetByteArrayAsync($"{ApiBase}api/files/{category}/{Uri.EscapeDataString(fileName)}");
+            var bytes = await Http.GetByteArrayAsync($"api/files/{category}/{Uri.EscapeDataString(fileName)}");
 
             await using var stream = new MemoryStream(bytes);
             using var streamRef = new DotNetStreamReference(stream);
@@ -340,7 +339,7 @@
     {
         try
         {
-            GalleryImages = await Http.GetFromJsonAsync<List<SchemesGalleryDto>>($"{ApiBase}api/gallery") ?? [];
+            GalleryImages = await Http.GetFromJsonAsync<List<SchemesGalleryDto>>($"api/gallery") ?? [];
         }
         catch (Exception ex)
         {

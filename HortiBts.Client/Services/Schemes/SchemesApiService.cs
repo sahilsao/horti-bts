@@ -11,8 +11,8 @@ namespace HortiBts.Client.Services.Schemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<SchemeTypeDto>>("api/schemes/schemes-types");
-                return Result<List<SchemeTypeDto>>.Success(result ?? []);
+                var result = await http.GetFromJsonAsync<Result<List<SchemeTypeDto>>>("api/schemes/schemes-types");
+                return result ?? Result<List<SchemeTypeDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -24,8 +24,8 @@ namespace HortiBts.Client.Services.Schemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<SchemeDto>>($"api/schemes/schemes-by-type?stId={schemeTypeId}");
-                return Result<List<SchemeDto>>.Success(result ?? []);
+                var result = await http.GetFromJsonAsync<Result<List<SchemeDto>>>($"api/schemes/schemes-by-type?stId={schemeTypeId}");
+                return result ?? Result<List<SchemeDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -37,8 +37,8 @@ namespace HortiBts.Client.Services.Schemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<SchemeDto>>("api/schemes/schemes-list");
-                return Result<List<SchemeDto>>.Success(result ?? []);
+                var result = await http.GetFromJsonAsync<Result<List<SchemeDto>>>("api/schemes/schemes-list");
+                return result ?? Result<List<SchemeDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -132,11 +132,11 @@ namespace HortiBts.Client.Services.Schemes
 
             if (dto.SchemeId is not null)
                 content.Add(new StringContent(dto.SchemeId.Value.ToString()), nameof(dto.SchemeId));
-                content.Add(new StringContent(dto.SchemeTypeId?.ToString() ?? string.Empty), nameof(dto.SchemeTypeId));
-                content.Add(new StringContent(dto.SchemeName ?? string.Empty), nameof(dto.SchemeName));
-                content.Add(new StringContent(dto.SchemeNameEn ?? string.Empty), nameof(dto.SchemeNameEn));
-                content.Add(new StringContent(dto.SchemeDescriptionHi ?? string.Empty), nameof(dto.SchemeDescriptionHi));
-                content.Add(new StringContent(dto.SchemeDescriptionEn ?? string.Empty), nameof(dto.SchemeDescriptionEn));
+            content.Add(new StringContent(dto.SchemeTypeId?.ToString() ?? string.Empty), nameof(dto.SchemeTypeId));
+            content.Add(new StringContent(dto.SchemeName ?? string.Empty), nameof(dto.SchemeName));
+            content.Add(new StringContent(dto.SchemeNameEn ?? string.Empty), nameof(dto.SchemeNameEn));
+            content.Add(new StringContent(dto.SchemeDescriptionHi ?? string.Empty), nameof(dto.SchemeDescriptionHi));
+            content.Add(new StringContent(dto.SchemeDescriptionEn ?? string.Empty), nameof(dto.SchemeDescriptionEn));
 
             if (file is not null)
             {

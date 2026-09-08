@@ -11,8 +11,8 @@ namespace HortiBts.Client.Services.Benefits
         {
             try
             {
-                var data = await http.GetFromJsonAsync<List<BenefitsTypeDto>>("api/benefits/benefits-types");
-                return Result<List<BenefitsTypeDto>>.Success(data ?? []);
+                var data = await http.GetFromJsonAsync<Result<List<BenefitsTypeDto>>>("api/benefits/benefits-types");
+                return data ?? Result<List<BenefitsTypeDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -24,8 +24,8 @@ namespace HortiBts.Client.Services.Benefits
         {
             try
             {
-                var data = await http.GetFromJsonAsync<List<BenefitsListDto>>("api/benefits/benefits-list");
-                return Result<List<BenefitsListDto>>.Success(data ?? []);
+                var data = await http.GetFromJsonAsync<Result<List<BenefitsListDto>>>("api/benefits/benefits-list");
+                return data ?? Result<List<BenefitsListDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {

@@ -10,9 +10,9 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<FarmersListByVillageForUFPVerificationDto>>($"api/farmer-verification/get-farmers-list-by-village-from-ufp?villageCode={Uri.EscapeDataString(VillageCode)}");
+                var result = await http.GetFromJsonAsync<Result<List<FarmersListByVillageForUFPVerificationDto>>>($"api/farmer-verification/get-farmers-list-by-village-from-ufp?villageCode={Uri.EscapeDataString(VillageCode)}");
 
-                return Result<List<FarmersListByVillageForUFPVerificationDto>>.Success(result ?? []);
+                return result ?? Result<List<FarmersListByVillageForUFPVerificationDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {

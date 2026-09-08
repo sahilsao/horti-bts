@@ -20,7 +20,7 @@ namespace HortiBts.Api.Controllers.Benefits
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpGet("benefits-list")]
@@ -33,7 +33,7 @@ namespace HortiBts.Api.Controllers.Benefits
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         [HttpPost("save-benefit-data")]
@@ -43,21 +43,21 @@ namespace HortiBts.Api.Controllers.Benefits
         {
             var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
-            var insertedBy = User.Identity?.Name ?? "system"; // adjust to however you extract the logged-in user id/claim
+            var insertedBy = User.Identity?.Name ?? "0"; // adjust to however you extract the logged-in user id/claim
 
             var result = await benefitsRepository.SaveBenefitAsync(dto, insertedBy, clientIp);
 
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data); // returns the new benefit_id, matching raw-value client expectation
+            return Ok(result); // returns the new benefit_id, matching raw-value client expectation
         }
 
         [HttpPatch("{id}/flag")]
         [EndpointSummary("Toggle a benefit's active status")]
         public async Task<IActionResult> UpdateFlag(int id, [FromBody] UpdateFlagDto dto)
         {
-            var userId = User.Identity?.Name ?? "system";
+            var userId = User.Identity?.Name ?? "0";
             var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
             var result = await benefitsRepository.UpdateFlagAsync(id, dto.Flag, userId, clientIp);
@@ -65,7 +65,7 @@ namespace HortiBts.Api.Controllers.Benefits
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
     }
 }

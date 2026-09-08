@@ -12,8 +12,8 @@ namespace HortiBts.Client.Services.MIDHSchemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<MIDHSchemeDto>>("api/midh-schemes/midh-schemes-list");
-                return Result<List<MIDHSchemeDto>>.Success(result ?? []);
+                var result = await http.GetFromJsonAsync<Result<List<MIDHSchemeDto>>>("api/midh-schemes/midh-schemes-list");
+                return result ?? Result<List<MIDHSchemeDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -67,11 +67,11 @@ namespace HortiBts.Client.Services.MIDHSchemes
             }
         }
 
-        public async Task<Result<bool>> UpdateMIDHSchemeActiveFlagAsync(int? midhSchemeId, bool flag)
+        public async Task<Result<bool>> UpdateMIDHSchemeActiveFlagAsync(int? schemeId, bool flag)
         {
             try
             {
-                var response = await http.PatchAsJsonAsync($"api/midh-schemes/{midhSchemeId}/active-flag", new { Flag = flag });
+                var response = await http.PatchAsJsonAsync($"api/midh-schemes/{schemeId}/active-flag", new { Flag = flag });
 
                 if (!response.IsSuccessStatusCode)
                     return Result<bool>.Failure($"Failed to update active flag: {response.StatusCode}");

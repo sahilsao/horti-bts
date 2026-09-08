@@ -96,13 +96,12 @@
     private bool _loading = true;
     private string? _loadError;
 
-    private const string ApiBase = "";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var docs = await Http.GetFromJsonAsync<List<MIDHSchemeDocDto>>($"{ApiBase}api/midh-schemes/{MidhScheme.MidhSchemeId}/documents?docType={DocType}");
+            var docs = await Http.GetFromJsonAsync<List<MIDHSchemeDocDto>>($"api/midh-schemes/{MidhScheme.MidhSchemeId}/documents?docType={DocType}");
             Documents = docs ?? new();
         }
         catch (Exception ex)

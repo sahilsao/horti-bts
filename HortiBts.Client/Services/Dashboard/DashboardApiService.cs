@@ -1,4 +1,5 @@
 ﻿using HortiBts.Shared.Common;
+using HortiBts.Shared.Dtos.Components;
 using HortiBts.Shared.Dtos.Dashboard.Admin;
 using HortiBts.Shared.Dtos.FinancialYear;
 using System.Data;
@@ -14,13 +15,10 @@ public class DashboardApiService(HttpClient http)
         try
         {
             var result =
-                await http.GetFromJsonAsync<List<DashboardCountDto>>(
+                await http.GetFromJsonAsync<Result<List<DashboardCountDto>>>(
                     "api/dashboard/admin/get-tot-rheo-count");
 
-            if (result == null)
-                return Result<List<DashboardCountDto>>.Failure("Empty response from server.");
-
-            return Result<List<DashboardCountDto>>.Success(result);
+            return result ?? Result<List<DashboardCountDto>>.Failure("No response received.");
         }
         catch (Exception ex)
         {
@@ -33,12 +31,9 @@ public class DashboardApiService(HttpClient http)
     {
         try
         {
-            var result = await http.GetFromJsonAsync<List<DashboardCountDto>>("api/dashboard/admin/get-tot-reg-farmers-count");
-            
-            if (result == null)
-                return Result<List<DashboardCountDto>>.Failure("Empty response from server.");
+            var result = await http.GetFromJsonAsync<Result<List<DashboardCountDto>>>("api/dashboard/admin/get-tot-reg-farmers-count");
 
-            return Result<List<DashboardCountDto>>.Success(result);
+            return result ?? Result<List<DashboardCountDto>>.Failure("No response received.");
         }
         catch (Exception ex)
         {
@@ -50,12 +45,8 @@ public class DashboardApiService(HttpClient http)
     {
         try
         {
-            var result = await http.GetFromJsonAsync<List<DashboardCountDto>>($"api/dashboard/admin/get-tot-reg-backlog-farmers-count" + $"?finYear={Uri.EscapeDataString(finYear)}");
-
-            if (result == null)
-                return Result<List<DashboardCountDto>>.Failure("Empty response from server.");
-
-            return Result<List<DashboardCountDto>>.Success(result);
+            var result = await http.GetFromJsonAsync<Result<List<DashboardCountDto>>>($"api/dashboard/admin/get-tot-reg-backlog-farmers-count" + $"?finYear={Uri.EscapeDataString(finYear)}");
+            return result ?? Result<List<DashboardCountDto>>.Failure("No response received.");
         }
         catch (Exception ex)
         {
@@ -68,14 +59,11 @@ public class DashboardApiService(HttpClient http)
         try
         {
             var result =
-                await http.GetFromJsonAsync<List<ApplicationDashboardDto>>(
+                await http.GetFromJsonAsync<Result<List<ApplicationDashboardDto>>>(
                     $"api/dashboard/admin/get-application-dashboard" +
                     $"?finYear={Uri.EscapeDataString(finYear)}");
 
-            if (result == null)
-                return Result<List<ApplicationDashboardDto>>.Failure("Empty response from server.");
-
-            return Result<List<ApplicationDashboardDto>>.Success(result);
+            return result ?? Result<List<ApplicationDashboardDto>>.Failure("No response received.");
         }
         catch (Exception ex)
         {

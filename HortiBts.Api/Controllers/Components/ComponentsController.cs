@@ -25,7 +25,7 @@ namespace HortiBts.Api.Controllers.Components
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
 
-                return Ok(result.Data);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -44,7 +44,7 @@ namespace HortiBts.Api.Controllers.Components
         [EndpointDescription("Inserts a new component record.")]
         public async Task<IActionResult> SaveComponent([FromBody] AddComponentDto dto)
         {
-            var userId = User.Identity?.Name ?? "system";
+            var userId = User.Identity?.Name ?? "0";
             var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
             try
@@ -54,7 +54,7 @@ namespace HortiBts.Api.Controllers.Components
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
 
-                return Ok(result.Data);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace HortiBts.Api.Controllers.Components
         [EndpointDescription("Updates an existing component record.")]
         public async Task<IActionResult> UpdateComponent([FromBody] AddComponentDto dto)
         {
-            var userId = User.Identity?.Name ?? "system";
+            var userId = User.Identity?.Name ?? "0";
             var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
             try
@@ -78,7 +78,7 @@ namespace HortiBts.Api.Controllers.Components
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
 
-                return Ok(result.Data);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -92,7 +92,7 @@ namespace HortiBts.Api.Controllers.Components
         [EndpointDescription("Soft deactivates a component by setting its flag to N.")]
         public async Task<IActionResult> DeactivateComponent([FromBody] int componentId)
         {
-            var userId = User.Identity?.Name ?? "system";
+            var userId = User.Identity?.Name ?? "0";
             var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
             try
@@ -107,7 +107,7 @@ namespace HortiBts.Api.Controllers.Components
                         detail: result.Error,
                         statusCode: 500);
 
-                return Ok(result.Data);
+                return Ok(result);
             }
             catch (Exception ex)
             {

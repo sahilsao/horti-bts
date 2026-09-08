@@ -18,7 +18,7 @@ namespace HortiBts.Api.Controllers.Units
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
     }
 }

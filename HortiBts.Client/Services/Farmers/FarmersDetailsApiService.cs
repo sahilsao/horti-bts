@@ -10,9 +10,9 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<FarmerBasicDetailsDto>>($"api/farmer-details/get-basic-details?UFID={Uri.EscapeDataString(UFID)}");
+                var result = await http.GetFromJsonAsync<Result<List<FarmerBasicDetailsDto>>>($"api/farmer-details/get-basic-details?UFID={Uri.EscapeDataString(UFID)}");
 
-                return Result<List<FarmerBasicDetailsDto>>.Success(result ?? []);
+                return result ?? Result<List<FarmerBasicDetailsDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -24,9 +24,9 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<FarmerAddressDetailsDto>>($"api/farmer-details/get-address-details?UFID={Uri.EscapeDataString(UFID)}");
+                var result = await http.GetFromJsonAsync<Result<List<FarmerAddressDetailsDto>>>($"api/farmer-details/get-address-details?UFID={Uri.EscapeDataString(UFID)}");
 
-                return Result<List<FarmerAddressDetailsDto>>.Success(result ?? []);
+                return result ?? Result<List<FarmerAddressDetailsDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -38,9 +38,9 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<FarmerBankDetailsDto>>($"api/farmer-details/get-bank-details?UFID={Uri.EscapeDataString(UFID)}");
+                var result = await http.GetFromJsonAsync<Result<List<FarmerBankDetailsDto>>>($"api/farmer-details/get-bank-details?UFID={Uri.EscapeDataString(UFID)}");
 
-                return Result<List<FarmerBankDetailsDto>>.Success(result ?? []);
+                return result ?? Result<List<FarmerBankDetailsDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -52,9 +52,9 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<FarmerLandDetailsDto>>($"api/farmer-details/get-land-details?UFID={Uri.EscapeDataString(UFID)}&FinYear={Uri.EscapeDataString(FinYear)}");
+                var result = await http.GetFromJsonAsync<Result<List<FarmerLandDetailsDto>>>($"api/farmer-details/get-land-details?UFID={Uri.EscapeDataString(UFID)}&FinYear={Uri.EscapeDataString(FinYear)}");
 
-                return Result<List<FarmerLandDetailsDto>>.Success(result ?? []);
+                return result ?? Result<List<FarmerLandDetailsDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -66,9 +66,9 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<FarmerSchemeDetailsDto>>($"api/farmer-details/get-scheme-details?UFID={Uri.EscapeDataString(UFID)}&FinYear={Uri.EscapeDataString(FinYear)}");
+                var result = await http.GetFromJsonAsync<Result<List<FarmerSchemeDetailsDto>>>($"api/farmer-details/get-scheme-details?UFID={Uri.EscapeDataString(UFID)}&FinYear={Uri.EscapeDataString(FinYear)}");
 
-                return Result<List<FarmerSchemeDetailsDto>>.Success(result ?? []);
+                return result ?? Result<List<FarmerSchemeDetailsDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
@@ -80,9 +80,9 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<FarmerCropDetailsDto>>($"api/farmer-details/get-crop-details?UFID={Uri.EscapeDataString(UFID)}&FinYear={Uri.EscapeDataString(FinYear)}");
+                var result = await http.GetFromJsonAsync<Result<List<FarmerCropDetailsDto>>>($"api/farmer-details/get-crop-details?UFID={Uri.EscapeDataString(UFID)}&FinYear={Uri.EscapeDataString(FinYear)}");
 
-                return Result<List<FarmerCropDetailsDto>>.Success(result ?? []);
+                return result ?? Result<List<FarmerCropDetailsDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {

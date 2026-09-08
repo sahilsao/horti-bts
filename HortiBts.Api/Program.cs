@@ -7,6 +7,7 @@ using HortiBts.Api.Repositories.Districts;
 using HortiBts.Api.Repositories.Farmers;
 using HortiBts.Api.Repositories.FinancialYears;
 using HortiBts.Api.Repositories.Girdawari;
+using HortiBts.Api.Repositories.MIDHComponents;
 using HortiBts.Api.Repositories.MIDHSchemes;
 using HortiBts.Api.Repositories.Notices;
 using HortiBts.Api.Repositories.Schemes;
@@ -59,20 +60,30 @@ builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 builder.Services.AddScoped<ITargetRepository, TargetRepository>();
 builder.Services.AddScoped<IMIDHSchemeRepository, MIDHSchemeRepository>();
 builder.Services.AddScoped<IMIDHSchemeDocRepository, MIDHSchemeDocRepository>();
+builder.Services.AddScoped<IMIDHComponentTypeRepository, MIDHComponentTypeRepository>();
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.
 const string ClientCorsPolicy = "HortiBtsClient";
+const string PublicClientCorsPolicy = "HortiPublicClient";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(ClientCorsPolicy, policy =>
     {
-        policy.WithOrigins(            
+        policy.WithOrigins(
                 "http://10.132.36.9:5032",
-                "https://10.132.36.9:7126",           // local Blazor dev server -- confirm your actual port
+                "https://10.132.36.9:7126",             // local Blazor dev server -- confirm your actual port
                 "https://cghorticulture.gov.in",
                 "https://www.cghorticulture.gov.in")     // production client origin, once deployed
               .AllowAnyHeader()
               .AllowAnyMethod();
+    });
+
+    options.AddPolicy(PublicClientCorsPolicy, policy =>
+    {
+        policy
+            .WithOrigins("https://10.132.36.9:7188")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -106,6 +117,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors(ClientCorsPolicy);
+app.UseCors(PublicClientCorsPolicy);
 
 app.UseAuthentication(); // will start doing something once JWT is added
 app.UseAuthorization();

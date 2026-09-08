@@ -10,12 +10,12 @@ namespace HortiBts.Client.Services.Units
         {
             try
             {
-                var data = await http.GetFromJsonAsync<List<UnitDto>>($"api/units/get-all-units");
-                return Result<List<UnitDto>>.Success(data ?? []);
+                var data = await http.GetFromJsonAsync<Result<List<UnitDto>>>($"api/units/get-all-units");
+                return data ?? Result<List<UnitDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {
-                return Result<List<UnitDto>>.Failure($"Failed to fetch subdistricts: {ex.Message}");
+                return Result<List<UnitDto>>.Failure($"Failed to fetch units: {ex.Message}");
             }
         }
     }

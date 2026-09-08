@@ -10,8 +10,8 @@ namespace HortiBts.Client.Services.Villages
         {
             try
             {
-                var data = await http.GetFromJsonAsync<List<VillagesDto>>($"api/get-villages-from-sub-district?subdistrictCode={subdistrictCode}");
-                return Result<List<VillagesDto>>.Success(data ?? []);
+                var data = await http.GetFromJsonAsync<Result<List<VillagesDto>>>($"api/get-villages-from-sub-district?subdistrictCode={subdistrictCode}");
+                return data ?? Result<List<VillagesDto>>.Failure("No response received.");
             }
             catch (Exception ex)
             {

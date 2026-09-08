@@ -49,7 +49,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -75,7 +75,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -99,7 +99,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
         if (fileValidation is not null)
             return BadRequest(new { error = true, message = fileValidation });
 
-        var userId = User.Identity?.Name ?? "system";
+        var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
         try
@@ -109,7 +109,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data); // new scheme_id
+            return Ok(result); // new scheme_id
         }
         catch (Exception ex)
         {
@@ -131,7 +131,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
         if (fileValidation is not null)
             return BadRequest(new { error = true, message = fileValidation });
 
-        var userId = User.Identity?.Name ?? "system";
+        var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
         try
@@ -141,7 +141,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -155,7 +155,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
     [EndpointDescription("Toggles the beneficiary flag for a specific scheme.")]
     public async Task<IActionResult> UpdateBeneficiaryFlag(int id, [FromBody] UpdateFlagDto dto)
     {
-        var userId = User.Identity?.Name ?? "system";
+        var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
         try
         {
@@ -164,7 +164,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -178,7 +178,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
     [EndpointDescription("Toggles the active flag for a specific scheme.")]
     public async Task<IActionResult> UpdateActiveFlag(int id, [FromBody] UpdateFlagDto dto)
     {
-        var userId = User.Identity?.Name ?? "system";
+        var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
         try
         {
@@ -187,7 +187,7 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result.Data);
+            return Ok(result);
         }
         catch (Exception ex)
         {
