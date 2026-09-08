@@ -70,8 +70,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy(ClientCorsPolicy, policy =>
     {
         policy.WithOrigins(
-                "http://10.132.36.9:5032",
-                "https://10.132.36.9:7126",             // local Blazor dev server -- confirm your actual port
+                "http://localhost:5032",
+                "https://localhost:7126",             // local Blazor dev server -- confirm your actual port
                 "https://cghorticulture.gov.in",
                 "https://www.cghorticulture.gov.in")     // production client origin, once deployed
               .AllowAnyHeader()
@@ -81,7 +81,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(PublicClientCorsPolicy, policy =>
     {
         policy
-            .WithOrigins("https://10.132.36.9:7188")
+            .WithOrigins("https://localhost:7188")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });

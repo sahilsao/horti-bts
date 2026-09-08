@@ -39,8 +39,8 @@ builder.Services.AddScoped<LocalStorageService>();
 // HttpClient pointed at the Api project (not the WASM host itself)
 builder.Services.AddHttpClient("Api", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "https://10.132.36.9:7202/");
-    //client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://10.132.36.9:5170");
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7202/");
+    //client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5170");
 })
 .AddHttpMessageHandler<RefreshTokenDelegatingHandler>()
 .AddHttpMessageHandler<AuthorizationMessageHandler>();

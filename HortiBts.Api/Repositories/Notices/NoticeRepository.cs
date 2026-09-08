@@ -1,19 +1,21 @@
 ﻿using Dapper;
 using HortiBts.Api.Data;
+using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Notices;
 
 namespace HortiBts.Api.Repositories.Notices;
 
 public interface INoticeRepository
 {
-    Task<IEnumerable<NoticesDto>> GetActiveAsync();
+    Task<Result<List<NoticesDto>>> GetActiveAsync();
 }
 
 public class NoticeRepository(IDbConnectionFactory connectionFactory) : INoticeRepository
 {
-
-    // Ported 1:1 from the Node getNoticeList() query.
-    private const string Sql = @"
+    public async Task<Result<List<NoticesDto>>> GetActiveAsync()
+    {
+        using var connection = connectionFactory.CreateConnection();
+        string Sql = @"
         SELECT
             nb.notice_id    AS NoticeId,
             nb.subject      AS Subject,
@@ -28,9 +30,7 @@ public class NoticeRepository(IDbConnectionFactory connectionFactory) : INoticeR
         LEFT JOIN noticeboard_file_path p ON p.notice_id = nb.notice_id
         WHERE nb.status = 1";
 
-    public async Task<IEnumerable<NoticesDto>> GetActiveAsync()
-    {
-        using var connection = connectionFactory.CreateConnection();
-        return await connection.QueryAsync<NoticesDto>(Sql);
+        var notices = await connection.QueryAsync<NoticesDto>(Sql);
+        return Result<List<NoticesDto>>.Success(notices.ToList());
     }
 }

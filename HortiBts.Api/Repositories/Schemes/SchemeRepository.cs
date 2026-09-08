@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Schemes;
@@ -9,7 +10,7 @@ namespace HortiBts.Api.Repositories.Schemes
 {
     public interface ISchemeRepository
     {
-        Task<IEnumerable<SchemeDto>> GetSchemesByTypeAsync(int stId);
+        Task<Result<List<SchemeDto>>> GetSchemesByTypeAsync(int stId);
         Task<Result<List<SchemeTypeDto>>> GetSchemesTypesAsync();
         Task<Result<List<SchemeDto>>> GetSchemesListAsync();
         Task<Result<int>> SaveSchemeAsync(AddSchemeDto dto, IFormFile? file, string userId, string clientIp);
@@ -21,31 +22,38 @@ namespace HortiBts.Api.Repositories.Schemes
 
     public class SchemeRepository(IDbConnectionFactory dbFactory, IWebHostEnvironment env) : ISchemeRepository
     {
-        public async Task<IEnumerable<SchemeDto>> GetSchemesByTypeAsync(int stId)
+        public async Task<Result<List<SchemeDto>>> GetSchemesByTypeAsync(int stId)
         {
-            using var connection = dbFactory.CreateConnection(HortiDb.Bts);
-            const string Sql = @"
-            SELECT
-            ms.s_id            AS SchemeId,
-            ms.scheme_name     AS SchemeName,
-            ms.scheme_name_en  AS SchemeNameEn,
-            ms.scheme_code     AS SchemeCode,
-            st.st_id           AS SchemeTypeId,
-            st.scheme_name     AS SchemeTypeHi,
-            st.scheme_name_en  AS SchemeTypeEn,
-            ms.description_hi  AS SchemeDescriptionHi,
-            ms.description_en  AS SchemeDescriptionEn,
-            ms.isbeneficiary   AS IsBeneficiary,
-            ms.flag            AS Flag
-            FROM mas_scheme_horti ms
-            INNER JOIN mas_scheme_horti st ON st.s_id = ms.st_id
-            WHERE ms.flag = 'Y'
-          AND ms.isbeneficiary = 'Y'
-          AND ms.st_id = @StId";
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string Sql = @"
+                SELECT
+                ms.s_id            AS SchemeId,
+                ms.scheme_name     AS SchemeName,
+                ms.scheme_name_en  AS SchemeNameEn,
+                ms.scheme_code     AS SchemeCode,
+                st.st_id           AS SchemeTypeId,
+                st.scheme_name     AS SchemeTypeHi,
+                st.scheme_name_en  AS SchemeTypeEn,
+                ms.description_hi  AS SchemeDescriptionHi,
+                ms.description_en  AS SchemeDescriptionEn,
+                ms.isbeneficiary   AS IsBeneficiary,
+                ms.flag            AS Flag
+                FROM mas_scheme_horti ms
+                INNER JOIN mas_scheme_horti st ON st.s_id = ms.st_id
+                WHERE ms.flag = 'Y'
+              AND ms.isbeneficiary = 'Y'
+              AND ms.st_id = @StId";
 
-            return await connection.QueryAsync<SchemeDto>(Sql, new { StId = stId });
+                var schemes = await connection.QueryAsync<SchemeDto>(Sql, new { StId = stId });
+                return Result<List<SchemeDto>>.Success(schemes.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<SchemeDto>>.Failure($"Failed to fetch scheme: {ex.Message}");
+            }
         }
-
         public async Task<Result<List<SchemeTypeDto>>> GetSchemesTypesAsync()
         {
             try
