@@ -73,8 +73,8 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
     [RequestSizeLimit(2 * 1024 * 1024 + 1024)]
     public async Task<IActionResult> UpdateMIDHSchemeData([FromForm] AddMIDHSchemeDto dto, [FromForm] IFormFile? file)
     {
-        if (dto.SchemeId is null or 0)
-            return BadRequest(new { error = true, message = "SchemeId is required for update." });
+        if (dto.MIDHSchemeId is null or 0)
+            return BadRequest(new { error = true, message = "MIDHSchemeId is required for update." });
 
         var fileValidation = file is not null ? ValidatePdf(file, required: false) : null;
         if (fileValidation is not null)
@@ -99,16 +99,16 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
         }
     }
 
-    [HttpPatch("{id}/active-flag")]
+    [HttpPatch("{midhSchemeId}/active-flag")]
     [EndpointSummary("Toggle a midh scheme's active flag")]
     [EndpointDescription("Toggles the active flag for a specific midh scheme.")]
-    public async Task<IActionResult> UpdateMIDHSchemeActiveFlag(int id, [FromBody] UpdateFlagDto dto)
+    public async Task<IActionResult> UpdateMIDHSchemeActiveFlag(int midhSchemeId, [FromBody] UpdateFlagDto dto)
     {
         var userId = User.Identity?.Name ?? "system";
-
+        var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
         try
         {
-            var result = await repository.UpdateMIDHActiveFlagAsync(id, dto.Flag, userId);
+            var result = await repository.UpdateMIDHActiveFlagAsync(midhSchemeId, dto.Flag, userId, clientIp);
 
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
@@ -117,7 +117,7 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to update active flag for midh scheme {SchemeId}", id);
+            logger.LogError(ex, "Failed to update active flag for midh scheme {midhSchemeId}", midhSchemeId);
             return Problem("Failed to update active flag.", statusCode: 500);
         }
     }

@@ -10,15 +10,15 @@ public class MIDHSchemeDocsController(
     IMIDHSchemeDocRepository repository,
     ILogger<MIDHSchemeDocsController> logger) : ControllerBase
 {
-    // GET api/midh-schemes/documents?schemeId=136&docType=SCHEME_NEW
-    [HttpGet("documents")]
+    // GET api/midh-schemes/{midhschemeId}/documents
+    [HttpGet("{midhschemeId}/documents")]
     [EndpointSummary("Get midh scheme documents")]
     [EndpointDescription("Retrieves the midh documents associated with a specific scheme.")]
-    public async Task<ActionResult<IEnumerable<SchemeDocDto>>> GetBySchemeId([FromQuery] int schemeId, [FromQuery] string? docType)
+    public async Task<ActionResult<IEnumerable<SchemeDocDto>>> GetByMidhSchemeId(int midhschemeId, [FromQuery] string? docType)
     {
         try
         {
-            var docs = await repository.GetBySchemeIdAsync(schemeId);
+            var docs = await repository.GetByMidhSchemeIdAsync(midhschemeId);
 
             return Ok(docs);
         }
@@ -27,7 +27,7 @@ public class MIDHSchemeDocsController(
             logger.LogError(
                 ex,
                 "Failed to load midh documents for schemeId={SchemeId}, docType={DocType}",
-                schemeId,
+                midhschemeId,
                 docType);
 
             return Problem(

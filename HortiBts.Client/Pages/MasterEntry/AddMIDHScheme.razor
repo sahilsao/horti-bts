@@ -1,26 +1,29 @@
-﻿@page "/admin/add-scheme"
+﻿@page "/admin/add-midh-scheme"
 @attribute [Authorize(Roles = "Admin")]
 @using System.Text.RegularExpressions
-@using HortiBts.Client.Services.Auth
-@using HortiBts.Client.Services.Schemes
-@using HortiBts.Shared.Dtos.Schemes
 @using HortiBts.Client.Pages.Home
-@using Microsoft.AspNetCore.Components.Forms;
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.MIDHSchemes
+@using HortiBts.Client.Services.Schemes
+@using HortiBts.Shared.Dtos.MIDHSchemes
+@using HortiBts.Shared.Dtos.Schemes
 @using HortiBts.Shared.Validation
+@using Microsoft.AspNetCore.Components.Forms;
 @inject HttpClient Http
 @inject SchemesApiService SchemesApiService
+@inject MidhSchemesApiService MidhSchemesApiService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
 
-<PageTitle>@Lang.Text("Add Scheme", "योजना जोड़ें")</PageTitle>
+<PageTitle>@Lang.Text("Add MIDH Scheme", "MIDH योजना जोड़ें")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
     <MudIcon Icon="@Icons.Material.Filled.PostAdd" Color="Color.Primary" Size="Size.Large" />
-    @Lang.Text("Add Scheme", "योजना जोड़ें")
+    @Lang.Text("Add MIDH Scheme", "MIDH योजना जोड़ें")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
-    @Lang.Text("Fill in the field below and save it to add a new option to the schemes.", "योजनाओ में नया विकल्प जोड़ने हेतु निचे दिए गये फील्ड को भरकर सुरक्षित करें।")
+    @Lang.Text("Fill in the field below and save it to add a new option to the MIDH schemes.", "MIDH योजनाओ में नया विकल्प जोड़ने हेतु निचे दिए गये फील्ड को भरकर सुरक्षित करें।")
 </MudText>
 
 <MudForm @ref="Form" Model="@this">
@@ -45,26 +48,49 @@
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_SchemeNameEn" @ref="_schemeNameEnField"
-                              Label="@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")"
+                <MudNumericField @bind-Value="_selectedMidhSchemeId"
+                                 Label="@Lang.Text("MIDH Scheme ID", "MIDH योजना ID")"
+                                 Variant="Variant.Outlined"
+                                 Required="true"
+                                 Immediate="true" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudSelect T="string"
+                           @bind-Value="_selectedMidhSchemeCode"
+                           Label="@Lang.Text("MIDH Scheme Code", "MIDH योजना कोड")"
+                           Variant="Variant.Outlined"
+                           Required="true">
+                    <MudSelectItem T="string" Value="@("F")">
+                        @Lang.Text("F", "F")
+                    </MudSelectItem>
+                    <MudSelectItem T="string" Value="@("T")">
+                        @Lang.Text("T", "T")
+                    </MudSelectItem>
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="_MidhSchemeNameEn" @ref="_midhSchemeNameEnField"
+                              Label="@Lang.Text("MIDH Scheme Name (English)", "MIDH योजना का नाम (अंग्रेज़ी)")"
                               Variant="Variant.Outlined"
                               Required="true"
-                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishName(value, Lang.Text)))"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiWithSpecialCharsName(value, Lang.Text)))"
                               Immediate="true" />
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_SchemeNameHi"
-                              Label="@Lang.Text("Scheme Name (Hindi)", "योजना का नाम (हिंदी)")"
+                <MudTextField @bind-Value="_MidhSchemeNameHi"
+                              Label="@Lang.Text("MIDH Scheme Name (Hindi)", "MIDH योजना का नाम (हिंदी)")"
                               Variant="Variant.Outlined"
                               Required="true"
-                              Validation="@(new Func<string, string?>(value => FieldValidators.HindiName(value, Lang.Text)))"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiWithSpecialCharsName(value, Lang.Text)))"
                               Immediate="true" />
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_SchemeDescriptionEn"
-                              Label="@Lang.Text("Scheme Description (English)", "योजना का विवरण (अंग्रेज़ी)")"
+                <MudTextField @bind-Value="_MidhSchemeDescriptionEn"
+                              Label="@Lang.Text("MIDH Scheme Description (English)", "MIDH योजना का विवरण (अंग्रेज़ी)")"
                               Variant="Variant.Outlined"
                               Lines="3"
                               Required="true"
@@ -73,8 +99,8 @@
             </MudItem>
 
             <MudItem xs="12" sm="4">
-                <MudTextField @bind-Value="_SchemeDescriptionHi"
-                              Label="@Lang.Text("Scheme Description (Hindi)", "योजना का विवरण (हिंदी)")"
+                <MudTextField @bind-Value="_MidhSchemeDescriptionHi"
+                              Label="@Lang.Text("MIDH Scheme Description (Hindi)", "MIDH योजना का विवरण (हिंदी)")"
                               Variant="Variant.Outlined"
                               Lines="3"
                               Required="true"
@@ -145,13 +171,13 @@
     </div>
 
     <MudStack Row="true" Spacing="1">
-        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveScheme" Disabled="_isLoading">
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveMIDHScheme" Disabled="_isLoading">
             @if (_isLoading)
             {
                 <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
                 <span>@Lang.Text("Saving...", "सुरक्षित हो रहा है...")</span>
             }
-            else if (_selectedSchemeId is null)
+            else if (!_isEditMode)
             {
                 <span>@Lang.Text("Save", "सुरक्षित करे")</span>
             }
@@ -166,16 +192,16 @@
     </MudStack>
 </MudForm>
 
-@if (_schemes.Any())
+@if (_midhSchemes.Any())
 {
-    <MudTable Items="_filteredSchemes"
+    <MudTable Items="_filteredMidhSchemes"
               SortLabel="Sort By"
               Dense="true"
               Hover="true"
               Elevation="1"
               Class="mt-4">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">@Lang.Text("Schemes", "योजनाएँ")</MudText>
+            <MudText Typo="Typo.h6">@Lang.Text("MIDH Schemes", "MIDH योजनाएँ")</MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
@@ -183,37 +209,36 @@
         </ToolBarContent>
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeTypeEn!)">@Lang.Text("Scheme Type (English)", "योजना का प्रकार (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeTypeHi!)">@Lang.Text("Scheme Type (Hindi)", "योजना का प्रकार (हिंदी)")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeNameEn!)">@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<SchemeDto, object>(x => x.SchemeName!)">@Lang.Text("Scheme Name (Hindi)", "योजना का नाम (हिंदी)")</MudTableSortLabel></MudTh>
-            <MudTh>@Lang.Text("Beneficiary Status", "बेनेफिशियर स्टेटस")</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MIDHSchemeDto, object>(x => x.MidhSchemeTypeNameEn!)">@Lang.Text("MIDH Scheme Type (English)", "MIDH योजना का प्रकार (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MIDHSchemeDto, object>(x => x.MidhSchemeTypeNameHi!)">@Lang.Text("MIDH Scheme Type (Hindi)", "MIDH योजना का प्रकार (हिंदी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MIDHSchemeDto, object>(x => x.MidhSchemeNameEn!)">@Lang.Text("MIDH Scheme Name (English)", "MIDH योजना का नाम (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MIDHSchemeDto, object>(x => x.MidhSchemeNameHi!)">@Lang.Text("MIDH Scheme Name (Hindi)", "MIDH योजना का नाम (हिंदी)")</MudTableSortLabel></MudTh>
+            <MudTh>@Lang.Text("Active Status", "एक्टिव स्टेटस")</MudTh>
             <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredSchemes.ToList().IndexOf(context) + 1)</MudTd>
-            <MudTd DataLabel="@Lang.Text("Scheme Type (English)", "योजना का प्रकार (अंग्रेज़ी)")">@context.SchemeTypeEn</MudTd>
-            <MudTd DataLabel="@Lang.Text("Scheme Type (Hindi)", "योजना का प्रकार (हिंदी)")">@context.SchemeTypeHi</MudTd>
-            <MudTd DataLabel="@Lang.Text("Scheme Name (English)", "योजना का नाम (अंग्रेज़ी)")">@context.SchemeNameEn</MudTd>
-            <MudTd DataLabel="@Lang.Text("Scheme Name (Hindi)", "योजना का नाम (हिंदी)")">@context.SchemeName</MudTd>
-            <MudTd DataLabel="@Lang.Text("Beneficiary Status", "बेनेफिशियर स्टेटस")">
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredMidhSchemes.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("MIDH Scheme Type (English)", "MIDH योजना का प्रकार (अंग्रेज़ी)")">@context.MidhSchemeTypeNameEn</MudTd>
+            <MudTd DataLabel="@Lang.Text("MIDH Scheme Type (Hindi)", "MIDH योजना का प्रकार (हिंदी)")">@context.MidhSchemeTypeNameHi</MudTd>
+            <MudTd DataLabel="@Lang.Text("MIDH Scheme Name (English)", "MIDH योजना का नाम (अंग्रेज़ी)")">@context.MidhSchemeNameEn</MudTd>
+            <MudTd DataLabel="@Lang.Text("MIDH Scheme Name (Hindi)", "MIDH योजना का नाम (हिंदी)")">@context.MidhSchemeNameHi</MudTd>
+
+            <MudTd DataLabel="@Lang.Text("Active Status", "एक्टिव स्टेटस")">
                 <MudSwitch T="bool"
-                           Value="@(context.IsBeneficiary == "Y")"
-                           ValueChanged="@(value => ToggleBeneficiaryFlag(context, value))"
+                           Value="@context.Flag"
+                           ValueChanged="@(newValue => ToggleFlag(context, newValue))"
                            Color="Color.Success"
-                           Disabled="@_togglingBeneficiaryIds.Contains(context.SchemeId!.Value)" />
+                           Disabled="@_togglingIds.Contains(context.MidhSchemeId)" />
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Edit", "संपादित करें")">
                 <MudStack Row="true" Spacing="1">
-
-                    <MudTooltip Text="@Lang.Text("View", "देखें")">
-                        <MudIconButton Icon="@Icons.Material.Filled.Visibility"
-                                       Color="Color.Info"
-                                       Size="Size.Small"
-                                       OnClick="@(() => OpenSchemeDialog(context))" />
-                    </MudTooltip>
-
                     <MudTooltip Text="@Lang.Text("Edit", "संपादित करें")">
+                        <MudTooltip Text="@Lang.Text("View", "देखें")">
+                            <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                           Color="Color.Info"
+                                           Size="Size.Small"
+                                           OnClick="@(() => OpenSchemeDialog(context))" />
+                        </MudTooltip>
                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                        Color="Color.Primary"
                                        Size="Size.Small"
@@ -232,23 +257,27 @@
 
 @code {
     private List<SchemeTypeDto> _schemesTypes = new();
-    private List<SchemeDto> _schemes = new();
+    private List<MIDHSchemeDto> _midhSchemes = new();
     private string _searchString = string.Empty;
 
-    private int? _selectedSchemeId;
+    private int? _selectedMidhSchemeId;
     private int? _selectedSchemeTypeId;
+    private string? _selectedMidhSchemeCode;
+    private int? _selectedSchemeId;
 
-    public string? _SchemeNameEn { get; set; }
-    public string? _SchemeNameHi { get; set; }
-    public string? _SchemeDescriptionEn { get; set; }
-    public string? _SchemeDescriptionHi { get; set; }
+    public string? _MidhSchemeCode { get; set; }
+    public string? _MidhSchemeNameEn { get; set; }
+    public string? _MidhSchemeNameHi { get; set; }
+    public string? _MidhSchemeDescriptionEn { get; set; }
+    public string? _MidhSchemeDescriptionHi { get; set; }
 
     private CurrentUserInfo _currentUser = new("", "", "", 0);
     private bool _isLoading = false;
-    private HashSet<int?> _togglingBeneficiaryIds = new();
+    private HashSet<int?> _togglingIds = new();
+    private bool _isEditMode = false;
 
     private ElementReference _formTopRef;
-    private MudTextField<string> _schemeNameEnField = default!;
+    private MudTextField<string> _midhSchemeNameEnField = default!;
 
     private IBrowserFile? _filesPDF;
     private MudFileUpload<IBrowserFile> _fileUploadPDF = default!;
@@ -256,9 +285,9 @@
     protected override async Task OnInitializedAsync()
     {
         var schemeTypesTask = SchemesApiService.GetSchemesTypesAsync();
-        var schemesTask = SchemesApiService.GetSchemesListAsync();
+        var midhSchemesTask = MidhSchemesApiService.GetMIDHSchemesListAsync();
 
-        await Task.WhenAll(schemeTypesTask, schemesTask);
+        await Task.WhenAll(schemeTypesTask, midhSchemesTask);
 
         var resultSchemeTypes = schemeTypesTask.Result;
         if (resultSchemeTypes.IsSuccess && resultSchemeTypes.Data is not null)
@@ -266,31 +295,31 @@
         else
             Snackbar.Add(Lang.Text("Failed to load scheme types.", "योजना प्रकार लोड करने में विफल।"), Severity.Error);
 
-        var resultSchemes = schemesTask.Result;
+        var resultSchemes = midhSchemesTask.Result;
         if (resultSchemes.IsSuccess && resultSchemes.Data is not null)
-            _schemes = resultSchemes.Data;
+            _midhSchemes = resultSchemes.Data;
         else
             Snackbar.Add(Lang.Text("Failed to load schemes list.", "योजना सूची लोड करने में विफल।"), Severity.Error);
     }
 
-    private async Task LoadSchemes()
+    private async Task LoadMidhSchemes()
     {
-        var result = await SchemesApiService.GetSchemesListAsync();
+        var result = await MidhSchemesApiService.GetMIDHSchemesListAsync();
         if (result.IsSuccess && result.Data is not null)
-            _schemes = result.Data;
+            _midhSchemes = result.Data;
         else
-            Snackbar.Add(Lang.Text("Failed to load schemes list.", "योजना सूची लोड करने में विफल।"), Severity.Error);
+            Snackbar.Add(Lang.Text("Failed to load midh schemes list.", "midh योजना सूची लोड करने में विफल।"), Severity.Error);
     }
 
-    private IEnumerable<SchemeDto> _filteredSchemes =>
-    _schemes.Where(s =>
+    private IEnumerable<MIDHSchemeDto> _filteredMidhSchemes =>
+    _midhSchemes.Where(s =>
         string.IsNullOrWhiteSpace(_searchString)
-        || (s.SchemeNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-        || (s.SchemeName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-        || (s.SchemeDescriptionEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-        || (s.SchemeDescriptionHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+        || (s.MidhSchemeNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (s.MidhSchemeNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (s.MidhSchemeDescriptionEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (s.MidhSchemeDescriptionHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
 
-    private async Task SaveScheme()
+    private async Task SaveMIDHScheme()
     {
         await Form!.ValidateAsync();
 
@@ -310,38 +339,40 @@
 
         try
         {
-            var dto = new AddSchemeDto
+            var dto = new AddMIDHSchemeDto
             {
                 SchemeId = _selectedSchemeId,
+                MIDHSchemeId = _selectedMidhSchemeId,
+                MIDHSchemeCode = _selectedMidhSchemeCode,
                 SchemeTypeId = _selectedSchemeTypeId,
-                SchemeNameEn = _SchemeNameEn!,
-                SchemeName = _SchemeNameHi!,
-                SchemeDescriptionHi = _SchemeDescriptionHi!,
-                SchemeDescriptionEn = _SchemeDescriptionEn!
+                MIDHSchemeNameEn = _MidhSchemeNameEn!,
+                MIDHSchemeNameHi = _MidhSchemeNameHi!,
+                MIDHSchemeDescriptionHi = _MidhSchemeDescriptionHi!,
+                MIDHSchemeDescriptionEn = _MidhSchemeDescriptionEn!
             };
 
-            var result = _selectedSchemeId is null
-                ? await SchemesApiService.SaveSchemeAsync(dto, _filesPDF)
-                : await SchemesApiService.UpdateSchemeAsync(dto, _filesPDF);
+            var result = _isEditMode
+                        ? await MidhSchemesApiService.UpdateMIDHSchemeAsync(dto, _filesPDF)
+                        : await MidhSchemesApiService.SaveMIDHSchemeAsync(dto, _filesPDF);
 
             if (result.IsSuccess)
             {
                 Snackbar.Add(
                     Lang.Text(
-                        "Scheme saved successfully.",
-                        "योजना सफलतापूर्वक सुरक्षित की गई।"),
+                        "MIDH Scheme saved successfully.",
+                        "MIDH योजना सफलतापूर्वक सुरक्षित की गई।"),
                     Severity.Success);
 
                 Reset();
-                await LoadSchemes();
+                await LoadMidhSchemes();
             }
             else
             {
                 Snackbar.Add(
                     result.Error ??
                     Lang.Text(
-                        "Failed to save scheme.",
-                        "योजना सुरक्षित करने में विफल।"),
+                        "Failed to save MIDH scheme.",
+                        "MIDH योजना सुरक्षित करने में विफल।"),
                     Severity.Error);
             }
         }
@@ -351,8 +382,8 @@
 
             Snackbar.Add(
                 Lang.Text(
-                    "Failed to save scheme.",
-                    "योजना सुरक्षित करने में विफल।"),
+                    "Failed to save MIDH scheme.",
+                    "MIDH योजना सुरक्षित करने में विफल।"),
                 Severity.Error);
         }
         finally
@@ -363,12 +394,15 @@
 
     private async void Reset()
     {
+        _isEditMode = false;
         _selectedSchemeId = null;
+        _selectedMidhSchemeId = null;
         _selectedSchemeTypeId = null;
-        _SchemeNameEn = null;
-        _SchemeNameHi = null;
-        _SchemeDescriptionEn = null;
-        _SchemeDescriptionHi = null;
+        _selectedMidhSchemeCode = null;
+        _MidhSchemeNameEn = null;
+        _MidhSchemeNameHi = null;
+        _MidhSchemeDescriptionEn = null;
+        _MidhSchemeDescriptionHi = null;
         Form?.ResetValidationAsync();
         await RemovePdf();
     }
@@ -405,73 +439,42 @@
             : null;
     }
 
-    private async Task ToggleBeneficiaryFlag(SchemeDto scheme, bool newValue)
+   
+    private async Task LoadForEdit(MIDHSchemeDto scheme)
     {
-        _togglingBeneficiaryIds.Add(scheme.SchemeId);
-        var previousValue = scheme.IsBeneficiary;
-        scheme.IsBeneficiary = newValue.ToString(); // optimistic UI update
-
-        try
-        {
-            var result = await SchemesApiService.UpdateSchemeBeneficiaryFlagAsync(scheme.SchemeId!.Value, newValue);
-
-            if (!result.IsSuccess)
-            {
-                scheme.IsBeneficiary = previousValue; // revert on failure
-                Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
-            }
-            else
-            {
-                Snackbar.Add(
-                    newValue
-                        ? Lang.Text("Scheme activated.", "योजना सक्रिय की गई।")
-                        : Lang.Text("Scheme deactivated.", "योजना निष्क्रिय की गई।"),
-                    Severity.Success);
-            }
-        }
-        catch
-        {
-            scheme.Flag = previousValue;
-            Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
-        }
-        finally
-        {
-            _togglingBeneficiaryIds.Remove(scheme.SchemeId);
-        }
-    }
-
-    private async Task LoadForEdit(SchemeDto scheme)
-    {
+        _isEditMode = true;
         _selectedSchemeId = scheme.SchemeId;
-        _selectedSchemeTypeId = scheme.SchemeTypeId; // requires SchemeTypeId on SchemesListDto — add if missing
-        _SchemeNameEn = scheme.SchemeNameEn;
-        _SchemeNameHi = scheme.SchemeName;
-        _SchemeDescriptionEn = scheme.SchemeDescriptionEn;
-        _SchemeDescriptionHi = scheme.SchemeDescriptionHi;
+        _selectedMidhSchemeId = scheme.MidhSchemeId;
+        _selectedMidhSchemeCode = scheme.MidhSchemeCode;
+        _selectedSchemeTypeId = scheme.SchemeTypeId;
+        _MidhSchemeNameEn = scheme.MidhSchemeNameEn;
+        _MidhSchemeNameHi = scheme.MidhSchemeNameHi;
+        _MidhSchemeDescriptionEn = scheme.MidhSchemeDescriptionEn;
+        _MidhSchemeDescriptionHi = scheme.MidhSchemeDescriptionHi;
 
         if (Form is not null)
             await Form.ResetValidationAsync();
 
         // scroll the form into view, then focus the first field
         await JS.InvokeVoidAsync("scrollAndFocus", _formTopRef);
-        await _schemeNameEnField.FocusAsync();
+        await _midhSchemeNameEnField.FocusAsync();
     }
 
-    private async Task OpenSchemeDialog(SchemeDto scheme)
+    private async Task OpenSchemeDialog(MIDHSchemeDto scheme)
     {
-        var parameters = new DialogParameters<SchemeDialog>
-    {
-        { x => x.Scheme, scheme },
-        { x => x.DocType, "SCHEME" },
+        var parameters = new DialogParameters<MIDHSchemeDialog>
         {
-            x => x.OnOpenDocument,
-            EventCallback.Factory.Create<string?>(
-                this,
-                path => GetPdf(path, "scheme"))
-        }
-    };
+            { x => x.MidhScheme, scheme },
+            { x => x.DocType, "SCHEME_NEW" },
+            {
+                x => x.OnOpenDocument,
+                EventCallback.Factory.Create<string?>(
+                    this,
+                    path => GetPdf(path, "scheme_new"))
+            }
+        };
 
-        await DialogService.ShowAsync<SchemeDialog>(
+        await DialogService.ShowAsync<MIDHSchemeDialog>(
             "",
             parameters,
             new DialogOptions
@@ -484,7 +487,7 @@
 
     private async Task GetPdf(string? fileName, string category)
     {
-        string ApiBase = ""; // Set your API base URL here if needed
+        string ApiBase = ""; // Adjust this if your API
         if (string.IsNullOrWhiteSpace(fileName)) return;
         try
         {
@@ -503,6 +506,41 @@
         catch (Exception ex)
         {
             Console.WriteLine($"[GetPdf] failed to download {category}/{fileName}: {ex}");
+        }
+    }
+
+    private async Task ToggleFlag(MIDHSchemeDto scheme, bool newValue)
+    {
+        _togglingIds.Add(scheme.MidhSchemeId);
+        var previousValue = scheme.Flag;
+        scheme.Flag = newValue; // optimistic UI update
+
+        try
+        {
+            var result = await MidhSchemesApiService.UpdateMIDHSchemeActiveFlagAsync(scheme.MidhSchemeId, newValue);
+            if (!result.IsSuccess)
+            {
+                scheme.Flag = previousValue; // revert on failure
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+                await LoadMidhSchemes();
+            }
+            else
+            {
+                Snackbar.Add(
+                    newValue
+                        ? Lang.Text("Scheme activated.", "योजना सक्रिय की गई।")
+                        : Lang.Text("Scheme deactivated.", "योजना निष्क्रिय की गई।"),
+                    Severity.Success);
+            }
+        }
+        catch
+        {
+            scheme.Flag = previousValue;
+            Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+        }
+        finally
+        {
+            _togglingIds.Remove(scheme.MidhSchemeId);
         }
     }
 }

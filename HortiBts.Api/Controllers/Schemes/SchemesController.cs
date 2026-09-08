@@ -156,10 +156,10 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
     public async Task<IActionResult> UpdateBeneficiaryFlag(int id, [FromBody] UpdateFlagDto dto)
     {
         var userId = User.Identity?.Name ?? "system";
-
+        var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
         try
         {
-            var result = await repository.UpdateBeneficiaryFlagAsync(id, dto.Flag, userId);
+            var result = await repository.UpdateBeneficiaryFlagAsync(id, dto.Flag, userId, clientIp);
 
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);
@@ -179,10 +179,10 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
     public async Task<IActionResult> UpdateActiveFlag(int id, [FromBody] UpdateFlagDto dto)
     {
         var userId = User.Identity?.Name ?? "system";
-
+        var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
         try
         {
-            var result = await repository.UpdateActiveFlagAsync(id, dto.Flag, userId);
+            var result = await repository.UpdateActiveFlagAsync(id, dto.Flag, userId, clientIp);
 
             if (!result.IsSuccess)
                 return Problem(detail: result.Error, statusCode: 500);

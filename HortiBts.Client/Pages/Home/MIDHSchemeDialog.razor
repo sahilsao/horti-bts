@@ -1,0 +1,120 @@
+@using System.Net.Http.Json
+@using HortiBts.Shared.Dtos.MIDHSchemes
+@using HortiBts.Shared.Dtos.Schemes
+@inject HttpClient Http
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Primary" Class="w-100">
+            <b>@Lang.Text("MIDH Scheme Details", "MIDH योजना विवरण")</b>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudSimpleTable Dense="true" Striped="true" Elevation="0" Class="mb-4">
+            <tbody>
+                <tr>
+                    <td style="width: 40%;"><b>@Lang.Text("MIDH Scheme Id", "MIDH योजना आईडी")</b></td>
+                    <td>@MidhScheme.MidhSchemeId</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("MIDH Scheme Name Hindi", "MIDH योजना नाम हिंदी")</b></td>
+                    <td>@MidhScheme.MidhSchemeNameHi</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("MIDH Scheme Name English", "MIDH योजना नाम अंग्रेज़ी")</b></td>
+                    <td>@MidhScheme.MidhSchemeNameEn</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("MIDH Scheme Code", "MIDH योजना कोड")</b></td>
+                    <td>@MidhScheme.MidhSchemeCode</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("MIDH Scheme Type Hindi", "MIDH योजना प्रकार हिंदी")</b></td>
+                    <td>@MidhScheme.MidhSchemeTypeNameHi</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("MIDH Scheme Type English", "MIDH योजना प्रकार अंग्रेज़ी")</b></td>
+                    <td>@MidhScheme.MidhSchemeTypeNameEn</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("Description Hindi", "विवरण हिंदी")</b></td>
+                    <td>@MidhScheme.MidhSchemeDescriptionHi</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("Description English", "विवरण अंग्रेज़ी")</b></td>
+                    <td>@MidhScheme.MidhSchemeDescriptionEn</td>
+                </tr>
+            </tbody>
+        </MudSimpleTable>
+
+        <MudText Typo="Typo.subtitle1" Class="mb-2"><b>@Lang.Text("Documents:", "डॉक्यूमेंट:")</b></MudText>
+
+        @if (_loading)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        }
+        else if (_loadError is not null)
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true">
+                @Lang.Text("Could not load documents for this scheme.", "इस योजना के दस्तावेज़ लोड नहीं हो सके।")
+            </MudAlert>
+        }
+        else if (!Documents.Any())
+        {
+            <MudText Typo="Typo.body2" Color="Color.Default">
+                @Lang.Text("No documents attached.", "कोई दस्तावेज़ संलग्न नहीं है।")
+            </MudText>
+        }
+        else
+        {
+            <MudList T="string">
+                @foreach (var doc in Documents)
+                {
+                    <MudListItem T="string" IconColor="Color.Error" Icon="@Icons.Material.Filled.PictureAsPdf" OnClick="@(() => OnOpenDocument.InvokeAsync(doc.Path))">
+                        @(!string.IsNullOrWhiteSpace(doc.FileName) ? doc.FileName : Lang.Text("Document", "दस्तावेज़"))
+                    </MudListItem>
+                }
+            </MudList>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudStack Row="true" Justify="Justify.Center" Class="w-100 mb-2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Close">
+                @Lang.Text("Close", "बंद करें")
+            </MudButton>
+        </MudStack>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public MIDHSchemeDto MidhScheme { get; set; } = default!;
+    [Parameter] public string DocType { get; set; } = "SCHEME_NEW"; // "SCHEME_NEW" for central, "SCHEME" for state
+    [Parameter] public EventCallback<string?> OnOpenDocument { get; set; }
+
+    private List<MIDHSchemeDocDto> Documents = new();
+    private bool _loading = true;
+    private string? _loadError;
+
+    private const string ApiBase = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var docs = await Http.GetFromJsonAsync<List<MIDHSchemeDocDto>>($"{ApiBase}api/midh-schemes/{MidhScheme.MidhSchemeId}/documents?docType={DocType}");
+            Documents = docs ?? new();
+        }
+        catch (Exception ex)
+        {
+            _loadError = ex.Message;
+            Console.WriteLine($"[SchemeDialog] failed to load documents for s_id={MidhScheme.MidhSchemeId}, doc_type={DocType}: {ex}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

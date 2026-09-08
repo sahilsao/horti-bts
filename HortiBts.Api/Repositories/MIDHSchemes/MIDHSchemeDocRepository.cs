@@ -6,7 +6,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes;
 
 public interface IMIDHSchemeDocRepository
 {
-    Task<IEnumerable<MIDHSchemeDocDto>> GetBySchemeIdAsync(int schemeId);
+    Task<IEnumerable<MIDHSchemeDocDto>> GetByMidhSchemeIdAsync(int midhSchemeId);
 }
 
 public class MIDHSchemeDocRepository(IDbConnectionFactory connectionFactory) : IMIDHSchemeDocRepository
@@ -17,7 +17,7 @@ public class MIDHSchemeDocRepository(IDbConnectionFactory connectionFactory) : I
     // as doc_type=SCHEME. So both central and state schemes resolve to this one query for now.
     // If that _new table gets wired back up on their end, split this into two queries again.
 
-    public async Task<IEnumerable<MIDHSchemeDocDto>> GetBySchemeIdAsync(int schemeId)
+    public async Task<IEnumerable<MIDHSchemeDocDto>> GetByMidhSchemeIdAsync(int midhSchemeId)
     {
         using var connection = connectionFactory.CreateConnection((HortiDb.Bts));
         const string Sql = @"
@@ -30,6 +30,6 @@ public class MIDHSchemeDocRepository(IDbConnectionFactory connectionFactory) : I
         WHERE ms.flag = 1
           AND ms.scheme_id = @SchemeId";
 
-        return await connection.QueryAsync<MIDHSchemeDocDto>(Sql, new { SchemeId = schemeId });
+        return await connection.QueryAsync<MIDHSchemeDocDto>(Sql, new { SchemeId = midhSchemeId });
     }
 }

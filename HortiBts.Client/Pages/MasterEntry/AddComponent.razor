@@ -102,7 +102,7 @@
                               Label="@Lang.Text("Component Name (English)", "घटक का नाम (अंग्रेज़ी)")"
                               Variant="Variant.Outlined"
                               Required="true"
-                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiForComponentName(value, Lang.Text)))"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiWithSpecialCharsName(value, Lang.Text)))"
                               Immediate="true" />
             </MudItem>
 
@@ -111,7 +111,7 @@
                               Label="@Lang.Text("Component Name (Hindi)", "घटक का नाम (हिंदी)")"
                               Variant="Variant.Outlined"
                               Required="true"
-                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiForComponentName(value, Lang.Text)))"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiWithSpecialCharsName(value, Lang.Text)))"
                               Immediate="true" />
             </MudItem>
 

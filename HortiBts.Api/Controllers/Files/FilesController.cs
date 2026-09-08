@@ -21,7 +21,7 @@ public class FilesController(
     public IActionResult GetSchemeFile(string fileName)
         => ServeFile("scheme_files", fileName);
 
-        // GET api/files/scheme_new/{fileName}
+    // GET api/files/scheme_new/{fileName}
     // Files at: wwwroot/docs/scheme_files_new/{fileName}
     [HttpGet("scheme_new/{fileName}")]
     [EndpointSummary("Download midh scheme file")]

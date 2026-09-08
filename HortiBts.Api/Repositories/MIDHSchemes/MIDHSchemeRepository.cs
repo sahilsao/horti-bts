@@ -13,10 +13,10 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
         Task<Result<List<SchemeTypeDto>>> GetSchemesTypesAsync();
         Task<IEnumerable<MIDHSchemeDto>> GetMIDHSchemesByTypeAsync(int stId);
         Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesListAsync();
-        Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesBySchemeIDAsync(int schemeId);
+        Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByMidhSchemeIDAsync(int midhSchemeId);
         Task<Result<int>> SaveMIDHSchemeAsync(AddMIDHSchemeDto dto, IFormFile? file, string userId, string clientIp);
         Task<Result<int>> UpdateMIDHSchemeAsync(AddMIDHSchemeDto dto, IFormFile? file, string userId, string clientIp);
-        Task<Result<bool>> UpdateMIDHActiveFlagAsync(int schemeId, bool flag, string userId);
+        Task<Result<bool>> UpdateMIDHActiveFlagAsync(int schemeId, bool flag, string userId, string clientIp);
     }
 
     public class MIDHSchemeRepository(IDbConnectionFactory dbFactory, IWebHostEnvironment env) : IMIDHSchemeRepository
@@ -56,6 +56,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 s.scheme_id AS SchemeId,
                 s.midh_scheme_id AS MidhSchemeId,
                 s.scheme_type_id AS SchemeTypeId,
+                s.code AS MidhSchemeCode,
                 st.scheme_type_name_hi AS MidhSchemeTypeNameHi,
                 st.scheme_type_name_en AS MidhSchemeTypeNameEn,
                 s.scheme_name_en AS MidhSchemeNameEn,
@@ -80,18 +81,19 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 SELECT 
                     s.scheme_id AS SchemeId,
                     s.midh_scheme_id AS MidhSchemeId,
-                    s.scheme_type_id AS SchemeTypeId,
+                    s.scheme_type_id AS SchemeTypeId,                
+                    s.code AS MidhSchemeCode,
                     st.scheme_type_name_hi AS MidhSchemeTypeNameHi,
                     st.scheme_type_name_en AS MidhSchemeTypeNameEn,
                     s.scheme_name_en AS MidhSchemeNameEn,
                     s.scheme_name_hi AS MidhSchemeNameHi,
                     s.description_en AS MidhSchemeDescriptionEn,
-                    s.description_hi AS MidhSchemeDescriptionHi
+                    s.description_hi AS MidhSchemeDescriptionHi,
+                    s.flag AS Flag
                 FROM mas_scheme_new s
                 INNER
                 JOIN mas_scheme_type st ON st.scheme_type_id = s.scheme_type_id
-                WHERE s.flag = 1
-                AND s.scheme_type_id > 0 
+                WHERE s.scheme_type_id > 0 
                 """;
                 var result = await connection.QueryAsync<MIDHSchemeDto>(sql);
                 return Result<List<MIDHSchemeDto>>.Success(result.ToList());
@@ -102,7 +104,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             }
         }
 
-        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesBySchemeIDAsync(int schemeId)
+        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByMidhSchemeIDAsync(int midhSchemeId)
         {
             try
             {
@@ -112,6 +114,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                     s.scheme_id AS SchemeId,
                     s.midh_scheme_id AS MidhSchemeId,
                     s.scheme_type_id AS SchemeTypeId,
+                    s.code AS MidhSchemeCode,
                     st.scheme_type_name_hi AS MidhSchemeTypeNameHi,
                     st.scheme_type_name_en AS MidhSchemeTypeNameEn,
                     s.scheme_name_en AS MidhSchemeNameEn,
@@ -122,9 +125,9 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 INNER
                 JOIN mas_scheme_type st ON st.scheme_type_id = s.scheme_type_id
                 WHERE s.flag = 1
-                AND s.midh_scheme_id = @SchemeId
+                AND s.midh_scheme_id = @MidhSchemeId
                 """;
-                var result = await connection.QueryAsync<MIDHSchemeDto>(sql, new { SchemeId = schemeId });
+                var result = await connection.QueryAsync<MIDHSchemeDto>(sql, new { MidhSchemeId = midhSchemeId });
                 return Result<List<MIDHSchemeDto>>.Success(result.ToList());
             }
             catch (Exception ex)
@@ -150,7 +153,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                     flag, created_by, ip_address)
                 VALUES
                     (@MidhSchemeId, @SchemeTypeId, @MIDHSchemeCode, @MIDHSchemeNameHi, @MIDHSchemeNameEn, @MIDHSchemeDescriptionHi, @MIDHSchemeDescriptionEn,
-                     'N', 'Y', @UserId, @IpAddress);
+                     '0', @UserId, @IpAddress);
                 SELECT LAST_INSERT_ID();";
 
                 var insertedSchemeId = await connection.ExecuteScalarAsync<int>(insertSql, new
@@ -168,7 +171,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
 
                 if (file is not null)
                 {
-                    var savedPath = await SaveFileToDiskAsync(file, insertedSchemeId);
+                    var savedPath = await SaveFileToDiskAsync(file, dto.MIDHSchemeId!.Value);
 
                     const string filePathSql = @"
                     INSERT INTO mas_scheme_file_path_new (scheme_id, path, file_name, created_by, ip_address)
@@ -176,7 +179,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
 
                     await connection.ExecuteAsync(filePathSql, new
                     {
-                        SchemeId = insertedSchemeId,
+                        SchemeId = dto.MIDHSchemeId!.Value,
                         Path = savedPath.Path,
                         FileName = savedPath.FileName,
                         UserId = userId,
@@ -190,7 +193,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             catch (MySqlException ex) when (ex.Number == 1062)
             {
                 transaction.Rollback();
-                return Result<int>.Failure("A scheme with this name already exists.");
+                return Result<int>.Failure("A scheme with this name/ID already exists.");
             }
             catch (Exception ex)
             {
@@ -215,19 +218,19 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 SET midh_scheme_id = @MIDHSchemeId,
                     scheme_type_id = @SchemeTypeId,
                     code = @MIDHSchemeCode,
-                    scheme_name = @MIDHSchemeNameHi,
+                    scheme_name_hi = @MIDHSchemeNameHi,
                     scheme_name_en = @MIDHSchemeNameEn,
                     description_hi = @MIDHSchemeDescriptionHi,
                     description_en = @MIDHSchemeDescriptionEn,
                     updated_by = @UserId,
                     updated_ip_address = @IpAddress
-                WHERE scheme_id = @SchemeId;";
+                WHERE midh_scheme_id = @MidhSchemeId;";
 
                 var rows = await connection.ExecuteAsync(updateSql, new
-                {                    
-                    dto.SchemeId,
+                {
                     dto.MIDHSchemeId,
                     dto.SchemeTypeId,
+                    dto.MIDHSchemeCode,
                     dto.MIDHSchemeNameHi,
                     dto.MIDHSchemeNameEn,
                     dto.MIDHSchemeDescriptionHi,
@@ -239,37 +242,32 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 if (rows == 0)
                 {
                     transaction.Rollback();
-                    return Result<int>.Failure("Scheme not found for update.");
+                    return Result<int>.Failure("MIDH Scheme not found for update.");
                 }
 
                 if (file is not null)
                 {
-                    var savedPath = await SaveFileToDiskAsync(file, dto.SchemeId!.Value);
+                    var savedPath = await SaveFileToDiskAsync(file, dto.MIDHSchemeId!.Value);
 
-                    // deactivate any existing active file record(s) for this scheme
                     const string deactivateSql = @"
                     UPDATE mas_scheme_file_path_new
-                    SET flag = 0,
-                        updated_by = @UserId,
-                        updated_ip_address = @IpAddress
-                    WHERE scheme_id = @SchemeId
-                      AND flag = 1;";
+                    SET flag = 0, updated_by = @UserId, updated_ip_address = @IpAddress
+                    WHERE scheme_id = @SchemeId AND flag = 1;";
 
                     await connection.ExecuteAsync(deactivateSql, new
                     {
-                        SchemeId = dto.SchemeId!.Value,
+                        SchemeId = dto.MIDHSchemeId!.Value,
                         UserId = userId,
                         IpAddress = clientIp
                     }, transaction);
 
-                    // insert the new file as the active record
                     const string insertFileSql = @"
                     INSERT INTO mas_scheme_file_path_new (scheme_id, path, file_name, created_by, ip_address, flag)
                     VALUES (@SchemeId, @Path, @FileName, @UserId, @IpAddress, 1);";
 
                     await connection.ExecuteAsync(insertFileSql, new
                     {
-                        SchemeId = dto.SchemeId!.Value,
+                        SchemeId = dto.MIDHSchemeId!.Value,
                         Path = savedPath.Path,
                         FileName = savedPath.FileName,
                         UserId = userId,
@@ -278,7 +276,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 }
 
                 transaction.Commit();
-                return Result<int>.Success(dto.SchemeId!.Value);
+                return Result<int>.Success(dto.MIDHSchemeId!.Value);
             }
             catch (Exception ex)
             {
@@ -287,25 +285,25 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             }
         }
 
-        public async Task<Result<bool>> UpdateMIDHActiveFlagAsync(int schemeId, bool flag, string userId)
+        public async Task<Result<bool>> UpdateMIDHActiveFlagAsync(int midhSchemeId, bool flag, string userId, string clientIp)
         {
             using var connection = dbFactory.CreateConnection(HortiDb.Bts);
 
             const string sql = @"
             UPDATE mas_scheme_new
-            SET flag = @Flag, updated_by = @UserId
-            WHERE scheme_id = @SchemeId;";
+            SET flag = @Flag, updated_by = @UserId, updated_ip_address = @IpAddress
+            WHERE midh_scheme_id = @MIDHSchemeId;";
 
             try
             {
                 var rows = await connection.ExecuteAsync(sql, new
                 {
-                    SchemeId = schemeId,
-                    Flag = flag ? "Y" : "N",
-                    UserId = userId
+                    MIDHSchemeId = midhSchemeId,
+                    Flag = flag ? 1 : 0,
+                    UserId = userId,
+                    IpAddress = clientIp
                 });
-
-                return rows > 0 ? Result<bool>.Success(true) : Result<bool>.Failure("Scheme not found.");
+                return rows > 0 ? Result<bool>.Success(true) : Result<bool>.Failure("midh Scheme not found.");
             }
             catch (Exception ex)
             {
@@ -314,7 +312,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
         }
 
         private const string TargetFolderName = "scheme_files_new";
-        private async Task<(string FileName, string Path)> SaveFileToDiskAsync(IFormFile file, int schemeId)
+        private async Task<(string FileName, string Path)> SaveFileToDiskAsync(IFormFile file, int midhSchemeId)
         {
             var uploadDir = Path.Combine(env.WebRootPath, "docs", TargetFolderName);
 
@@ -322,7 +320,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
 
             var sanitizedName = SafeFileName(file.FileName);
 
-            var savedFileName = $"{schemeId}_{sanitizedName}";
+            var savedFileName = $"{midhSchemeId}_{sanitizedName}";
 
             var fullPath = Path.Combine(uploadDir, savedFileName);
 
@@ -342,6 +340,6 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             var cleaned = new string(fileName.Where(c => !invalidChars.Contains(c)).ToArray());
 
             return string.IsNullOrWhiteSpace(cleaned) ? "file.pdf" : cleaned;
-        }        
+        }
     }
 }

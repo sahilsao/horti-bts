@@ -14,8 +14,8 @@ namespace HortiBts.Api.Repositories.Schemes
         Task<Result<List<SchemeDto>>> GetSchemesListAsync();
         Task<Result<int>> SaveSchemeAsync(AddSchemeDto dto, IFormFile? file, string userId, string clientIp);
         Task<Result<int>> UpdateSchemeAsync(AddSchemeDto dto, IFormFile? file, string userId, string clientIp);
-        Task<Result<bool>> UpdateBeneficiaryFlagAsync(int schemeId, bool flag, string userId);
-        Task<Result<bool>> UpdateActiveFlagAsync(int schemeId, bool flag, string userId);
+        Task<Result<bool>> UpdateBeneficiaryFlagAsync(int schemeId, bool flag, string userId, string clientIp);
+        Task<Result<bool>> UpdateActiveFlagAsync(int schemeId, bool flag, string userId, string clientIp);
 
     }
 
@@ -254,7 +254,7 @@ namespace HortiBts.Api.Repositories.Schemes
             }
         }
 
-        public async Task<Result<bool>> UpdateBeneficiaryFlagAsync(int schemeId, bool flag, string userId)
+        public async Task<Result<bool>> UpdateBeneficiaryFlagAsync(int schemeId, bool flag, string userId, string clientIp)
         {
             using var connection = dbFactory.CreateConnection(HortiDb.Bts);
 
@@ -269,7 +269,8 @@ namespace HortiBts.Api.Repositories.Schemes
                 {
                     SchemeId = schemeId,
                     Flag = flag ? "Y" : "N",
-                    UserId = userId
+                    UserId = userId,
+                    IpAddress = clientIp
                 });
 
                 return rows > 0 ? Result<bool>.Success(true) : Result<bool>.Failure("Scheme not found.");
@@ -280,7 +281,7 @@ namespace HortiBts.Api.Repositories.Schemes
             }
         }
 
-        public async Task<Result<bool>> UpdateActiveFlagAsync(int schemeId, bool flag, string userId)
+        public async Task<Result<bool>> UpdateActiveFlagAsync(int schemeId, bool flag, string userId, string clientIp)
         {
             using var connection = dbFactory.CreateConnection(HortiDb.Bts);
 
@@ -295,7 +296,8 @@ namespace HortiBts.Api.Repositories.Schemes
                 {
                     SchemeId = schemeId,
                     Flag = flag ? "Y" : "N",
-                    UserId = userId
+                    UserId = userId,
+                    IpAddress = clientIp
                 });
 
                 return rows > 0 ? Result<bool>.Success(true) : Result<bool>.Failure("Scheme not found.");

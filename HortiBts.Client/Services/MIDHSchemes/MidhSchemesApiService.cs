@@ -1,51 +1,38 @@
 ﻿using HortiBts.Shared.Common;
+using HortiBts.Shared.Dtos.MIDHSchemes;
 using HortiBts.Shared.Dtos.Schemes;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http.Json;
 
-namespace HortiBts.Client.Services.Schemes
+namespace HortiBts.Client.Services.MIDHSchemes
 {
     public class MidhSchemesApiService(HttpClient http)
-    {      
-
-        public async Task<Result<List<SchemeDto>>> GetSchemesByTypeAsync(int? schemeTypeId)
+    {
+        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesListAsync()
         {
             try
             {
-                var result = await http.GetFromJsonAsync<List<SchemeDto>>($"api/schemes/schemes-by-type/{schemeTypeId}");
-                return Result<List<SchemeDto>>.Success(result ?? []);
+                var result = await http.GetFromJsonAsync<List<MIDHSchemeDto>>("api/midh-schemes/midh-schemes-list");
+                return Result<List<MIDHSchemeDto>>.Success(result ?? []);
             }
             catch (Exception ex)
             {
-                return Result<List<SchemeDto>>.Failure($"Failed to fetch schemes: {ex.Message}");
+                return Result<List<MIDHSchemeDto>>.Failure($"Failed to fetch midh schemes: {ex.Message}");
             }
         }
 
-        public async Task<Result<List<SchemeDto>>> GetSchemesListAsync()
-        {
-            try
-            {
-                var result = await http.GetFromJsonAsync<List<SchemeDto>>("api/schemes/schemes-list");
-                return Result<List<SchemeDto>>.Success(result ?? []);
-            }
-            catch (Exception ex)
-            {
-                return Result<List<SchemeDto>>.Failure($"Failed to fetch schemes: {ex.Message}");
-            }
-        }
-
-        public async Task<Result<int>> SaveSchemeAsync(AddSchemeDto dto, IBrowserFile? file)
+        public async Task<Result<int>> SaveMIDHSchemeAsync(AddMIDHSchemeDto dto, IBrowserFile? file)
         {
             try
             {
                 using var content = BuildMultipartContent(dto, file);
 
-                var response = await http.PostAsync("api/schemes/save-scheme-data", content);
+                var response = await http.PostAsync("api/midh-schemes/save-midh-scheme-data", content);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorBody = await response.Content.ReadAsStringAsync();
-                    return Result<int>.Failure($"Failed to save scheme: {response.StatusCode} - {errorBody}");
+                    return Result<int>.Failure($"Failed to save midh scheme: {response.StatusCode} - {errorBody}");
                 }
 
                 var schemeId = await response.Content.ReadFromJsonAsync<int>();
@@ -53,22 +40,22 @@ namespace HortiBts.Client.Services.Schemes
             }
             catch (Exception ex)
             {
-                return Result<int>.Failure($"Failed to save scheme: {ex.Message}");
+                return Result<int>.Failure($"Failed to save midh scheme: {ex.Message}");
             }
         }
 
-        public async Task<Result<int>> UpdateSchemeAsync(AddSchemeDto dto, IBrowserFile? file)
+        public async Task<Result<int>> UpdateMIDHSchemeAsync(AddMIDHSchemeDto dto, IBrowserFile? file)
         {
             try
             {
                 using var content = BuildMultipartContent(dto, file);
 
-                var response = await http.PostAsync("api/schemes/update-scheme-data", content);
+                var response = await http.PostAsync("api/midh-schemes/update-midh-scheme-data", content);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorBody = await response.Content.ReadAsStringAsync();
-                    return Result<int>.Failure($"Failed to update scheme: {response.StatusCode} - {errorBody}");
+                    return Result<int>.Failure($"Failed to update midh scheme: {response.StatusCode} - {errorBody}");
                 }
 
                 var schemeId = await response.Content.ReadFromJsonAsync<int>();
@@ -76,32 +63,15 @@ namespace HortiBts.Client.Services.Schemes
             }
             catch (Exception ex)
             {
-                return Result<int>.Failure($"Failed to update scheme: {ex.Message}");
+                return Result<int>.Failure($"Failed to update midh scheme: {ex.Message}");
             }
         }
 
-        public async Task<Result<bool>> UpdateSchemeBeneficiaryFlagAsync(int schemeId, bool flag)
+        public async Task<Result<bool>> UpdateMIDHSchemeActiveFlagAsync(int? midhSchemeId, bool flag)
         {
             try
             {
-                var response = await http.PatchAsJsonAsync($"api/schemes/{schemeId}/beneficiary-flag", new { Flag = flag });
-
-                if (!response.IsSuccessStatusCode)
-                    return Result<bool>.Failure($"Failed to update beneficiary flag: {response.StatusCode}");
-
-                return Result<bool>.Success(true);
-            }
-            catch (Exception ex)
-            {
-                return Result<bool>.Failure($"Failed to update beneficiary flag: {ex.Message}");
-            }
-        }
-
-        public async Task<Result<bool>> UpdateSchemeActiveFlagAsync(int schemeId, bool flag)
-        {
-            try
-            {
-                var response = await http.PatchAsJsonAsync($"api/schemes/{schemeId}/active-flag", new { Flag = flag });
+                var response = await http.PatchAsJsonAsync($"api/midh-schemes/{midhSchemeId}/active-flag", new { Flag = flag });
 
                 if (!response.IsSuccessStatusCode)
                     return Result<bool>.Failure($"Failed to update active flag: {response.StatusCode}");
@@ -114,17 +84,26 @@ namespace HortiBts.Client.Services.Schemes
             }
         }
 
-        private static MultipartFormDataContent BuildMultipartContent(AddSchemeDto dto, IBrowserFile? file)
+        private static MultipartFormDataContent BuildMultipartContent(AddMIDHSchemeDto dto, IBrowserFile? file)
         {
             var content = new MultipartFormDataContent();
 
             if (dto.SchemeId is not null)
+            {
                 content.Add(new StringContent(dto.SchemeId.Value.ToString()), nameof(dto.SchemeId));
-                content.Add(new StringContent(dto.SchemeTypeId?.ToString() ?? string.Empty), nameof(dto.SchemeTypeId));
-                content.Add(new StringContent(dto.SchemeName ?? string.Empty), nameof(dto.SchemeName));
-                content.Add(new StringContent(dto.SchemeNameEn ?? string.Empty), nameof(dto.SchemeNameEn));
-                content.Add(new StringContent(dto.SchemeDescriptionHi ?? string.Empty), nameof(dto.SchemeDescriptionHi));
-                content.Add(new StringContent(dto.SchemeDescriptionEn ?? string.Empty), nameof(dto.SchemeDescriptionEn));
+            }
+
+            if (dto.MIDHSchemeId is not null)
+            {
+                content.Add(new StringContent(dto.MIDHSchemeId.Value.ToString()), nameof(dto.MIDHSchemeId));
+            }
+
+            content.Add(new StringContent(dto.SchemeTypeId?.ToString() ?? string.Empty), nameof(dto.SchemeTypeId));
+            content.Add(new StringContent(dto.MIDHSchemeCode ?? string.Empty), nameof(dto.MIDHSchemeCode));
+            content.Add(new StringContent(dto.MIDHSchemeNameHi ?? string.Empty), nameof(dto.MIDHSchemeNameHi));
+            content.Add(new StringContent(dto.MIDHSchemeNameEn ?? string.Empty), nameof(dto.MIDHSchemeNameEn));
+            content.Add(new StringContent(dto.MIDHSchemeDescriptionHi ?? string.Empty), nameof(dto.MIDHSchemeDescriptionHi));
+            content.Add(new StringContent(dto.MIDHSchemeDescriptionEn ?? string.Empty), nameof(dto.MIDHSchemeDescriptionEn));
 
             if (file is not null)
             {

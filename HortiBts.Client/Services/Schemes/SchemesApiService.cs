@@ -109,11 +109,11 @@ namespace HortiBts.Client.Services.Schemes
             }
         }
 
-        public async Task<Result<bool>> UpdateSchemeActiveFlagAsync(int schemeId, bool flag)
+        public async Task<Result<bool>> UpdateSchemeActiveFlagAsync(int schemeId, bool flag, string userId)
         {
             try
             {
-                var response = await http.PatchAsJsonAsync($"api/schemes/{schemeId}/active-flag", new { Flag = flag });
+                var response = await http.PatchAsJsonAsync($"api/schemes/{schemeId}/active-flag", new { Flag = flag, UserId = userId });
 
                 if (!response.IsSuccessStatusCode)
                     return Result<bool>.Failure($"Failed to update active flag: {response.StatusCode}");

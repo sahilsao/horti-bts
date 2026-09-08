@@ -60,7 +60,7 @@ namespace HortiBts.Shared.Validation
                     "केवल हिंदी अक्षर मान्य हैं।");
         }
 
-        public static string? EnglishHindiForComponentName(string? value, Func<string, string, string> text)
+        public static string? EnglishHindiWithSpecialCharsName(string? value, Func<string, string, string> text)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return text(
@@ -69,11 +69,11 @@ namespace HortiBts.Shared.Validation
 
             return Regex.IsMatch(
                 value,
-                @"^[a-zA-Z\u0900-\u097F0-9\s.\-()']+$")
+                @"^[a-zA-Z\u0900-\u097F0-9\s.\-()'/]+$")
                 ? null
                 : text(
-                    "Only English, Hindi, numbers, spaces, dots, dashes and brackets are allowed.",
-                    "केवल अंग्रेज़ी, हिंदी, अंक, स्पेस, डॉट, डैश और ब्रैकेट मान्य हैं।");
+                    "Only English, Hindi, numbers, spaces, dots, dashes, brackets, apostrophes and slashes are allowed.",
+                    "केवल अंग्रेज़ी, हिंदी, अंक, स्पेस, डॉट, डैश, ब्रैकेट, एपोस्ट्रोफ और स्लैश मान्य हैं।");
         }
     }
 }
