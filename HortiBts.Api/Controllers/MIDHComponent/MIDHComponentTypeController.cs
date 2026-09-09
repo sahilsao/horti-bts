@@ -17,7 +17,7 @@ public class MIDHComponentTypesController(IMIDHComponentTypeRepository repositor
     [HttpGet("midh-components-type-list")]
     [EndpointSummary("Get MIDH components types list")]
     [EndpointDescription("Retrieves the list of available MIDH components types.")]
-    public async Task<ActionResult<IEnumerable<SchemeDto>>> GetMIDHSchemesList()
+    public async Task<ActionResult<IEnumerable<MIDHComponentTypeDto>>> GetMIDHSchemesList()
     {
         try
         {
@@ -38,12 +38,12 @@ public class MIDHComponentTypesController(IMIDHComponentTypeRepository repositor
                 "Failed to load component types.",
                 statusCode: 500);
         }
-    }
+    }    
 
     [HttpPost("save-midh-component-type-data")]
     [EndpointSummary("Save a new midh component type")]
     [EndpointDescription("Inserts a new midh component type record.")]
-    public async Task<IActionResult> SaveMIDHComponentTypeData([FromForm] AddMIDHComponentTypeDto dto)
+    public async Task<IActionResult> SaveMIDHComponentTypeData([FromBody] AddMIDHComponentTypeDto dto)
     {
         var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
@@ -67,8 +67,8 @@ public class MIDHComponentTypesController(IMIDHComponentTypeRepository repositor
     [HttpPost("update-midh-component-type-data")]
     [EndpointSummary("Update an existing midh component type")]
     [EndpointDescription("Updates a midh component type record.")]
-    public async Task<IActionResult> UpdateMIDHComponentTypeData([FromForm] AddMIDHComponentTypeDto dto)
-    {       
+    public async Task<IActionResult> UpdateMIDHComponentTypeData([FromBody] AddMIDHComponentTypeDto dto)
+    {
         var userId = User.Identity?.Name ?? "0";
         var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
@@ -109,5 +109,5 @@ public class MIDHComponentTypesController(IMIDHComponentTypeRepository repositor
             logger.LogError(ex, "Failed to update active flag for midh component type {componentTypeId}", componentTypeId);
             return Problem("Failed to update active flag.", statusCode: 500);
         }
-    }  
+    }
 }

@@ -1,11 +1,14 @@
 ﻿using Dapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using HortiBts.Api.Data;
 using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Components;
 using HortiBts.Shared.Dtos.Schemes;
 using MySqlConnector;
+using System.ComponentModel;
 using System.Data;
+using System.Net;
 
 namespace HortiBts.Api.Repositories.Components
 {
@@ -14,7 +17,7 @@ namespace HortiBts.Api.Repositories.Components
         Task<Result<List<ComponentDto>>> GetComponentListAsync();
         Task<Result<int>> SaveComponentAsync(AddComponentDto dto, string userId, string clientIp);
         Task<Result<int>> UpdateComponentAsync(AddComponentDto dto, string userId, string clientIp);
-        Task<Result<int>> DeactivateComponentAsync(int componentId, string userId, string clientIp);
+        Task<Result<bool>> UpdateComponentActiveFlagAsync(int componentId, bool flag, string userId, string clientIp);
     }
     public class ComponentRepository(IDbConnectionFactory dbFactory) : IComponentRepository
     {
@@ -34,7 +37,8 @@ namespace HortiBts.Api.Repositories.Components
                     mc.s_id AS SchemeId,
                     ms.scheme_name AS SchemeName,
                     ms.scheme_name_en AS SchemeNameEn,
-                    ms.st_id  AS SchemeTypeId
+                    ms.st_id  AS SchemeTypeId,
+                    CASE WHEN mc.flag = 'Y' THEN 1 ELSE 0 END AS ComponentFlag
                 FROM mas_component_horti mc
                 INNER JOIN mas_scheme_horti ms ON ms.s_id=mc.s_id
                 WHERE mc.flag='Y'
@@ -172,7 +176,7 @@ namespace HortiBts.Api.Repositories.Components
             }
         }
 
-        public async Task<Result<int>> DeactivateComponentAsync(int componentId, string userId, string clientIp)
+        public async Task<Result<bool>> UpdateComponentActiveFlagAsync(int componentId, bool flag, string userId, string clientIp)
         {
             using var connection = dbFactory.CreateConnection(HortiDb.Bts);
 
@@ -183,20 +187,18 @@ namespace HortiBts.Api.Repositories.Components
 
             try
             {
-                const string deactivateSql = @"
-                UPDATE mas_component_horti
-                SET
-                    flag = 'N',
-                    updated_by = @UserId,
-                    ip_address = @IpAddress
-                WHERE c_id = @ComponentId
-                  AND flag = 'Y';";
+                const string updateActiveFlagSql = @"               
 
+                UPDATE mas_component_horti
+                SET flag = @Flag, updated_by = @UserId,
+                    ip_address = @IpAddress
+                WHERE c_id = @ComponentId ";
                 var rows = await connection.ExecuteAsync(
-                    deactivateSql,
+                    updateActiveFlagSql,
                     new
                     {
                         ComponentId = componentId,
+                        Flag = flag ? "Y" : "N",
                         UserId = userId,
                         IpAddress = clientIp
                     },
@@ -206,18 +208,18 @@ namespace HortiBts.Api.Repositories.Components
                 {
                     transaction.Rollback();
 
-                    return Result<int>.Failure("Component not found or already deactivated.");
+                    return Result<bool>.Failure("Component not found or already deactivated.");
                 }
 
                 transaction.Commit();
 
-                return Result<int>.Success(componentId);
+                return Result<bool>.Success(flag);
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
 
-                return Result<int>.Failure($"Unable to deactivate component: {ex.Message}");
+                return Result<bool>.Failure($"Unable to deactivate component: {ex.Message}");
             }
         }
     }

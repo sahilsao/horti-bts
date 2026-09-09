@@ -16,5 +16,6 @@ namespace HortiBts.Shared.Dtos.Components
         public string? SchemeName { get; set; } // scheme_name
         public string? SchemeNameEn { get; set; } // scheme_name_en
         public int? SchemeTypeId { get; set; } // st_id
+        public bool ComponentFlag { get; set; } 
     }
 }

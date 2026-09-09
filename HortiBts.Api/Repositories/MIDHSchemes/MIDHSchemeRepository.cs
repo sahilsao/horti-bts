@@ -11,9 +11,9 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
     public interface IMIDHSchemeRepository
     {
         Task<Result<List<SchemeTypeDto>>> GetSchemesTypesAsync();
-        Task<IEnumerable<MIDHSchemeDto>> GetMIDHSchemesByTypeAsync(int stId);
+        Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByTypeAsync(int stId);
         Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesListAsync();
-        Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByMidhSchemeIDAsync(int schemeId);
+        Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesBySchemeIDAsync(int schemeId);
         Task<Result<int>> SaveMIDHSchemeAsync(AddMIDHSchemeDto dto, IFormFile? file, string userId, string clientIp);
         Task<Result<int>> UpdateMIDHSchemeAsync(AddMIDHSchemeDto dto, IFormFile? file, string userId, string clientIp);
         Task<Result<bool>> UpdateMIDHActiveFlagAsync(int schemeId, bool flag, string userId, string clientIp);
@@ -48,10 +48,12 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             }
         }
 
-        public async Task<IEnumerable<MIDHSchemeDto>> GetMIDHSchemesByTypeAsync(int stId)
+        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByTypeAsync(int stId)
         {
-            using var connection = dbFactory.CreateConnection(HortiDb.Bts);
-            const string Sql = @"
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string Sql = @"
             SELECT 
                 s.scheme_id AS SchemeId,
                 s.midh_scheme_id AS MidhSchemeId,
@@ -68,8 +70,14 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             JOIN mas_scheme_type st ON st.scheme_type_id = s.scheme_type_id
             WHERE s.flag = 1
             AND s.scheme_type_id = @StId";
+                var result = await connection.QueryAsync<MIDHSchemeDto>(Sql, new { StId = stId });
+                return Result<List<MIDHSchemeDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
 
-            return await connection.QueryAsync<MIDHSchemeDto>(Sql, new { StId = stId });
+                return Result<List<MIDHSchemeDto>>.Failure($"Failed to fetch scheme types: {ex.Message}");
+            }
         }
 
         public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesListAsync()
@@ -104,7 +112,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
             }
         }
 
-        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesByMidhSchemeIDAsync(int schemeId)
+        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesBySchemeIDAsync(int schemeId)
         {
             try
             {
@@ -125,7 +133,7 @@ namespace HortiBts.Api.Repositories.MIDHSchemes
                 INNER
                 JOIN mas_scheme_type st ON st.scheme_type_id = s.scheme_type_id
                 WHERE s.flag = 1
-                AND s.scheme_id = @SchemeId
+                AND s.scheme_type_id = @SchemeId
                 """;
                 var result = await connection.QueryAsync<MIDHSchemeDto>(sql, new { SchemeId = schemeId });
                 return Result<List<MIDHSchemeDto>>.Success(result.ToList());

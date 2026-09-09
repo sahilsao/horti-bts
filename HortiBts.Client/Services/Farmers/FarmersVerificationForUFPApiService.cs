@@ -1,4 +1,5 @@
 ﻿using HortiBts.Shared.Common;
+using HortiBts.Shared.Dtos.Dashboard.Admin;
 using HortiBts.Shared.Dtos.Farmers;
 using System.Net.Http.Json;
 
@@ -10,9 +11,10 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<List<FarmersListByVillageForUFPVerificationDto>>>($"api/farmer-verification/get-farmers-list-by-village-from-ufp?villageCode={Uri.EscapeDataString(VillageCode)}");
-
-                return result ?? Result<List<FarmersListByVillageForUFPVerificationDto>>.Failure("No response received.");
+                var response =
+                    await http.GetAsync($"api/farmer-verification/get-farmers-list-by-village-from-ufp" +
+                    $"?villageCode={Uri.EscapeDataString(VillageCode)}");
+                return await ApiResultHelper.ReadResultAsync<List<FarmersListByVillageForUFPVerificationDto>>(response);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
 ﻿using HortiBts.Shared.Common;
+using HortiBts.Shared.Dtos.Dashboard.Admin;
 using HortiBts.Shared.Dtos.Farmers;
 using System.Net.Http.Json;
 
@@ -10,9 +11,8 @@ namespace HortiBts.Client.Services.Farmers
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<List<FarmerBasicDetailsDto>>>($"api/farmer-details/get-basic-details?UFID={Uri.EscapeDataString(UFID)}");
-
-                return result ?? Result<List<FarmerBasicDetailsDto>>.Failure("No response received.");
+                var response = await http.GetAsync($"api/farmer-details/get-basic-details?UFID={Uri.EscapeDataString(UFID)}");
+                return await ApiResultHelper.ReadResultAsync<List<FarmerBasicDetailsDto>>(response);
             }
             catch (Exception ex)
             {

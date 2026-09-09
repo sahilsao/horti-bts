@@ -38,6 +38,32 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
         }
     }
 
+    [HttpGet("midh-schemes-list-by-scheme-id")]
+    [EndpointSummary("Get MIDH schemes list by scheme type")]
+    [EndpointDescription("Retrieves the list of available MIDH schemes for a specific scheme type.")]
+    public async Task<ActionResult<IEnumerable<MIDHSchemeDto>>> GetMIDHSchemesListBySchemeType([FromQuery] int schemeTypeId)
+    {
+        try
+        {
+            var result = await repository.GetMIDHSchemesBySchemeIDAsync(schemeTypeId);
+
+            if (!result.IsSuccess)
+                return Problem(detail: result.Error, statusCode: 500);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "Failed to load schemes.");
+
+            return Problem(
+                "Failed to load schemes.",
+                statusCode: 500);
+        }
+    }
+
     [HttpPost("save-midh-scheme-data")]
     [EndpointSummary("Save a new midh scheme")]
     [EndpointDescription("Inserts a new midh scheme record, optionally with a PDF attachment.")]

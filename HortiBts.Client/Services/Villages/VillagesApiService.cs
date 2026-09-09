@@ -1,4 +1,5 @@
 ﻿using HortiBts.Shared.Common;
+using HortiBts.Shared.Dtos.Target;
 using HortiBts.Shared.Dtos.Villages;
 using System.Net.Http.Json;
 
@@ -10,8 +11,8 @@ namespace HortiBts.Client.Services.Villages
         {
             try
             {
-                var data = await http.GetFromJsonAsync<Result<List<VillagesDto>>>($"api/get-villages-from-sub-district?subdistrictCode={subdistrictCode}");
-                return data ?? Result<List<VillagesDto>>.Failure("No response received.");
+                var response = await http.GetAsync($"api/get-villages-from-sub-district?subdistrictCode={subdistrictCode}");
+                return await ApiResultHelper.ReadResultAsync<List<VillagesDto>>(response);
             }
             catch (Exception ex)
             {

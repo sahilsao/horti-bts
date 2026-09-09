@@ -12,10 +12,8 @@ namespace HortiBts.Client.Services.Auth
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<LoginHistoryRecord>>(
-                    $"api/login-history/active?userId={userId}&userType={userType}");
-
-                return result ?? Result<LoginHistoryRecord>.Failure("Empty response from server.");
+                var response = await http.GetAsync($"api/login-history/active?userId={userId}&userType={userType}");
+                return await ApiResultHelper.ReadResultAsync<LoginHistoryRecord>(response);
             }
             catch (Exception ex)
             {
@@ -28,10 +26,8 @@ namespace HortiBts.Client.Services.Auth
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<bool>>(
-                    $"api/login-history/is-logged-in?userId={userId}");
-
-                return result ?? Result<bool>.Failure("Empty response from server.");
+                var response = await http.GetAsync($"api/login-history/is-logged-in?userId={userId}");
+                return await ApiResultHelper.ReadResultAsync<bool>(response);
             }
             catch (Exception ex)
             {

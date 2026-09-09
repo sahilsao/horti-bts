@@ -11,8 +11,8 @@ namespace HortiBts.Client.Services.Schemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<List<SchemeTypeDto>>>("api/schemes/schemes-types");
-                return result ?? Result<List<SchemeTypeDto>>.Failure("No response received.");
+                var response = await http.GetAsync("api/schemes/schemes-types");
+                return await ApiResultHelper.ReadResultAsync<List<SchemeTypeDto>>(response);
             }
             catch (Exception ex)
             {
@@ -24,8 +24,8 @@ namespace HortiBts.Client.Services.Schemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<List<SchemeDto>>>($"api/schemes/schemes-by-type?stId={schemeTypeId}");
-                return result ?? Result<List<SchemeDto>>.Failure("No response received.");
+                var response = await http.GetAsync($"api/schemes/schemes-by-type?stId={schemeTypeId}");
+                return await ApiResultHelper.ReadResultAsync<List<SchemeDto>>(response);
             }
             catch (Exception ex)
             {
@@ -37,8 +37,8 @@ namespace HortiBts.Client.Services.Schemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<List<SchemeDto>>>("api/schemes/schemes-list");
-                return result ?? Result<List<SchemeDto>>.Failure("No response received.");
+                var response = await http.GetAsync("api/schemes/schemes-list");
+                return await ApiResultHelper.ReadResultAsync<List<SchemeDto>>(response);
             }
             catch (Exception ex)
             {
@@ -53,15 +53,7 @@ namespace HortiBts.Client.Services.Schemes
                 using var content = BuildMultipartContent(dto, file);
 
                 var response = await http.PostAsync("api/schemes/save-scheme-data", content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-                    return Result<int>.Failure($"Failed to save scheme: {response.StatusCode} - {errorBody}");
-                }
-
-                var schemeId = await response.Content.ReadFromJsonAsync<int>();
-                return Result<int>.Success(schemeId);
+                return await ApiResultHelper.ReadResultAsync<int>(response);
             }
             catch (Exception ex)
             {
@@ -76,15 +68,7 @@ namespace HortiBts.Client.Services.Schemes
                 using var content = BuildMultipartContent(dto, file);
 
                 var response = await http.PostAsync("api/schemes/update-scheme-data", content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-                    return Result<int>.Failure($"Failed to update scheme: {response.StatusCode} - {errorBody}");
-                }
-
-                var schemeId = await response.Content.ReadFromJsonAsync<int>();
-                return Result<int>.Success(schemeId);
+                return await ApiResultHelper.ReadResultAsync<int>(response);
             }
             catch (Exception ex)
             {
@@ -97,11 +81,7 @@ namespace HortiBts.Client.Services.Schemes
             try
             {
                 var response = await http.PatchAsJsonAsync($"api/schemes/{schemeId}/beneficiary-flag", new { Flag = flag });
-
-                if (!response.IsSuccessStatusCode)
-                    return Result<bool>.Failure($"Failed to update beneficiary flag: {response.StatusCode}");
-
-                return Result<bool>.Success(true);
+                return await ApiResultHelper.ReadResultAsync<bool>(response);
             }
             catch (Exception ex)
             {
@@ -114,11 +94,7 @@ namespace HortiBts.Client.Services.Schemes
             try
             {
                 var response = await http.PatchAsJsonAsync($"api/schemes/{schemeId}/active-flag", new { Flag = flag, UserId = userId });
-
-                if (!response.IsSuccessStatusCode)
-                    return Result<bool>.Failure($"Failed to update active flag: {response.StatusCode}");
-
-                return Result<bool>.Success(true);
+                return await ApiResultHelper.ReadResultAsync<bool>(response);
             }
             catch (Exception ex)
             {

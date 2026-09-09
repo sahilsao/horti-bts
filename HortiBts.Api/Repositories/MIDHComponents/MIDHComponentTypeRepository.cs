@@ -12,7 +12,7 @@ namespace HortiBts.Api.Repositories.MIDHComponents
         Task<Result<List<MIDHComponentTypeDto>>> GetMIDHComponentTypeListAsync();
         Task<Result<int>> SaveMIDHComponentTypeAsync(AddMIDHComponentTypeDto dto, string userId, string clientIp);
         Task<Result<int>> UpdateMIDHComponentTypeAsync(AddMIDHComponentTypeDto dto, string userId, string clientIp);
-        Task<Result<int>> UpdateMIDHComponentTypeActiveFlagAsync(int componentId, bool flag, string userId, string clientIp);
+        Task<Result<bool>> UpdateMIDHComponentTypeActiveFlagAsync(int componentId, bool flag, string userId, string clientIp);
 
     }
     public class MIDHComponentTypeRepository(IDbConnectionFactory dbFactory) : IMIDHComponentTypeRepository
@@ -31,9 +31,10 @@ namespace HortiBts.Api.Repositories.MIDHComponents
                     ct.component_type_name_en AS MIDHComponentTypeNameEn,
                     ct.component_type_name_hi AS MIDHComponentTypeNameHi,
                     s.scheme_type_id AS SchemeTypeId,
-                    ct.description_en AS MIDHComponentDescriptionEn,
-                    ct.description_hi AS MIDHComponentDescriptionHi,
-                    ct.midh_component_type_id AS MidhComponentTypeId
+                    ct.description_en AS MIDHComponentTypeDescriptionEn,
+                    ct.description_hi AS MIDHComponentTypeDescriptionHi,
+                    ct.midh_component_type_id AS MidhComponentTypeId,
+                    ct.flag AS Flag
                 FROM mas_component_type_new ct
                 INNER
                 JOIN mas_scheme_new s ON s.scheme_id=ct.scheme_id
@@ -75,8 +76,8 @@ namespace HortiBts.Api.Repositories.MIDHComponents
                     @MidhComponentTypeId,
                     @MidhComponentTypeNameEn, 
                     @MidhComponentTypeNameHi,
-                    @MidhComponentDescriptionEn, 
-                    @MidhComponentDescriptionHi, 
+                    @MidhComponentTypeDescriptionEn, 
+                    @MidhComponentTypeDescriptionHi, 
                     '1', 
                     @UserId,
                     @IpAddress);
@@ -144,12 +145,12 @@ namespace HortiBts.Api.Repositories.MIDHComponents
                 const string updateSql = @"
                 UPDATE mas_component_type_new
                 SET
-                    scheme_id = @SchemeId,
-                    midh_component_type_id = @ComponentNameEn,
-                    component_type_name_en = @ComponentNameHi,
-                    component_type_name_hi = @ComponentDescriptionEn,
-                    description_en = @ComponentDescriptionEn,
-                    description_hi = @ComponentDescriptionHi,
+                    scheme_id = @MidhSchemeId,
+                    midh_component_type_id = @MidhComponentTypeId,
+                    component_type_name_en = @MidhComponentTypeNameEn,
+                    component_type_name_hi = @MidhComponentTypeNameHi,
+                    description_en = @MidhComponentTypeDescriptionEn,
+                    description_hi = @MidhComponentTypeDescriptionHi,
                     updated_by = @UserId,
                     updated_ip_address = @IpAddress
                 WHERE component_type_id = @ComponentTypeId;";
@@ -165,7 +166,8 @@ namespace HortiBts.Api.Repositories.MIDHComponents
                         dto.MidhComponentTypeDescriptionEn,
                         dto.MidhComponentTypeDescriptionHi,
                         UserId = userId,
-                        IpAddress = clientIp
+                        IpAddress = clientIp,
+                        dto.ComponentTypeId
                     },
                     transaction);
 
@@ -188,7 +190,7 @@ namespace HortiBts.Api.Repositories.MIDHComponents
             }
         }
 
-        public async Task<Result<int>> UpdateMIDHComponentTypeActiveFlagAsync(int componentTypeId, bool flag, string userId, string clientIp)
+        public async Task<Result<bool>> UpdateMIDHComponentTypeActiveFlagAsync(int componentTypeId, bool flag, string userId, string clientIp)
         {
             using var connection = dbFactory.CreateConnection(HortiDb.Bts);
 
@@ -222,18 +224,18 @@ namespace HortiBts.Api.Repositories.MIDHComponents
                 {
                     transaction.Rollback();
 
-                    return Result<int>.Failure("MIDH Component Type not found or already deactivated.");
+                    return Result<bool>.Failure("MIDH Component Type not found or already deactivated.");
                 }
 
                 transaction.Commit();
 
-                return Result<int>.Success(componentTypeId);
+                return Result<bool>.Success(flag);
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
 
-                return Result<int>.Failure($"Unable to deactivate MIDH Component Type: {ex.Message}");
+                return Result<bool>.Failure($"Unable to deactivate MIDH Component Type: {ex.Message}");
             }
         }
     }

@@ -9,6 +9,7 @@ using HortiBts.Client.Services.Districts;
 using HortiBts.Client.Services.Farmers;
 using HortiBts.Client.Services.FinancialYears;
 using HortiBts.Client.Services.Girdawari;
+using HortiBts.Client.Services.MIDHComponents;
 using HortiBts.Client.Services.MIDHSchemes;
 using HortiBts.Client.Services.Schemes;
 using HortiBts.Client.Services.SubDistricts;
@@ -66,6 +67,7 @@ builder.Services.AddScoped<MidhSchemesApiService>();
 builder.Services.AddScoped<ComponentsApiService>();
 builder.Services.AddScoped<UnitsApiService>();
 builder.Services.AddScoped<TargetApiService>();
+builder.Services.AddScoped<MIDHComponentTypeApiService>();
 
 
 await builder.Build().RunAsync();

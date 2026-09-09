@@ -13,5 +13,6 @@ namespace HortiBts.Shared.Dtos.Components
         public string? ComponentNameEn { get; set; }
         public string? ComponentDescriptionHi { get; set; }
         public string? ComponentDescriptionEn { get; set; }
+        public bool Flag { get; set; } // flag
     }
 }

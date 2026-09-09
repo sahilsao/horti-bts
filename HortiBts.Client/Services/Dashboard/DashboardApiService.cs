@@ -14,16 +14,12 @@ public class DashboardApiService(HttpClient http)
     {
         try
         {
-            var result =
-                await http.GetFromJsonAsync<Result<List<DashboardCountDto>>>(
-                    "api/dashboard/admin/get-tot-rheo-count");
-
-            return result ?? Result<List<DashboardCountDto>>.Failure("No response received.");
+            var response = await http.GetAsync("api/dashboard/admin/get-tot-rheo-count");
+            return await ApiResultHelper.ReadResultAsync<List<DashboardCountDto>>(response);
         }
         catch (Exception ex)
         {
-            return Result<List<DashboardCountDto>>.Failure(
-                $"Failed to fetch total RHEO count: {ex.Message}");
+            return Result<List<DashboardCountDto>>.Failure($"Failed to fetch total RHEO count: {ex.Message}");
         }
     }
 
@@ -31,9 +27,8 @@ public class DashboardApiService(HttpClient http)
     {
         try
         {
-            var result = await http.GetFromJsonAsync<Result<List<DashboardCountDto>>>("api/dashboard/admin/get-tot-reg-farmers-count");
-
-            return result ?? Result<List<DashboardCountDto>>.Failure("No response received.");
+            var response = await http.GetAsync("api/dashboard/admin/get-tot-reg-farmers-count");
+            return await ApiResultHelper.ReadResultAsync<List<DashboardCountDto>>(response);
         }
         catch (Exception ex)
         {
@@ -45,8 +40,8 @@ public class DashboardApiService(HttpClient http)
     {
         try
         {
-            var result = await http.GetFromJsonAsync<Result<List<DashboardCountDto>>>($"api/dashboard/admin/get-tot-reg-backlog-farmers-count" + $"?finYear={Uri.EscapeDataString(finYear)}");
-            return result ?? Result<List<DashboardCountDto>>.Failure("No response received.");
+            var response = await http.GetAsync($"api/dashboard/admin/get-tot-reg-backlog-farmers-count?finYear={Uri.EscapeDataString(finYear)}");
+            return await ApiResultHelper.ReadResultAsync<List<DashboardCountDto>>(response);
         }
         catch (Exception ex)
         {
@@ -58,12 +53,10 @@ public class DashboardApiService(HttpClient http)
     {
         try
         {
-            var result =
-                await http.GetFromJsonAsync<Result<List<ApplicationDashboardDto>>>(
-                    $"api/dashboard/admin/get-application-dashboard" +
-                    $"?finYear={Uri.EscapeDataString(finYear)}");
-
-            return result ?? Result<List<ApplicationDashboardDto>>.Failure("No response received.");
+            var response =
+                await http.GetAsync($"api/dashboard/admin/get-application-dashboard" + 
+                $"?finYear={Uri.EscapeDataString(finYear)}");
+            return await ApiResultHelper.ReadResultAsync<List<ApplicationDashboardDto>>(response);
         }
         catch (Exception ex)
         {

@@ -12,8 +12,8 @@ namespace HortiBts.Client.Services.Components
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<List<ComponentDto>>>("api/components/components-list");
-                return result ?? Result<List<ComponentDto>>.Failure("No response received.");
+                var response = await http.GetAsync("api/components/components-list");
+                return await ApiResultHelper.ReadResultAsync<List<ComponentDto>>(response);
             }
             catch (Exception ex)
             {
@@ -27,21 +27,12 @@ namespace HortiBts.Client.Services.Components
             {
                 var response = await http.PostAsJsonAsync("api/components/save-component-data", dto);
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-
-                    return Result<int>.Failure(
-                        $"Failed to save component: {response.StatusCode} - {errorBody}");
-                }
-
-                var componentId = await response.Content.ReadFromJsonAsync<int>();
-                return Result<int>.Success(componentId);
+                return await ApiResultHelper.ReadResultAsync<int>(response);
             }
+
             catch (Exception ex)
             {
-                return Result<int>.Failure(
-                    $"Failed to save component: {ex.Message}");
+                return Result<int>.Failure($"Failed to save component: {ex.Message}");
             }
         }
 
@@ -50,15 +41,7 @@ namespace HortiBts.Client.Services.Components
             try
             {
                 var response = await http.PostAsJsonAsync("api/components/update-component-data", dto);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-                    return Result<int>.Failure($"Failed to update component: {response.StatusCode} - {errorBody}");
-                }
-
-                var componentId = await response.Content.ReadFromJsonAsync<int>();
-                return Result<int>.Success(componentId);
+                return await ApiResultHelper.ReadResultAsync<int>(response);
             }
             catch (Exception ex)
             {
@@ -66,26 +49,16 @@ namespace HortiBts.Client.Services.Components
             }
         }
 
-        public async Task<Result<int>> DeactivateComponentAsync(int componentId)
+        public async Task<Result<bool>> UpdateComponentActiveFlagAsync(int componentId, bool flag)
         {
             try
             {
-                var response = await http.PostAsJsonAsync("api/components/deactivate-component-data", componentId);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-
-                    return Result<int>.Failure($"Failed to deactivate component: {response.StatusCode} - {errorBody}");
-                }
-
-                var deactivatedComponentId = await response.Content.ReadFromJsonAsync<int>();
-
-                return Result<int>.Success(deactivatedComponentId);
+                var response = await http.PostAsJsonAsync($"api/components/{componentId}/flag", new { Flag = flag });
+                return await ApiResultHelper.ReadResultAsync<bool>(response);
             }
             catch (Exception ex)
             {
-                return Result<int>.Failure($"Failed to deactivate component: {ex.Message}");
+                return Result<bool>.Failure($"Failed to update component flag: {ex.Message}");
             }
         }
     }

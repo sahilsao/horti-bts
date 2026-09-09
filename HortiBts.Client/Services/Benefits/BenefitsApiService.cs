@@ -11,8 +11,8 @@ namespace HortiBts.Client.Services.Benefits
         {
             try
             {
-                var data = await http.GetFromJsonAsync<Result<List<BenefitsTypeDto>>>("api/benefits/benefits-types");
-                return data ?? Result<List<BenefitsTypeDto>>.Failure("No response received.");
+                var response = await http.GetAsync("api/benefits/benefits-types");
+                return await ApiResultHelper.ReadResultAsync<List<BenefitsTypeDto>>(response);
             }
             catch (Exception ex)
             {
@@ -24,8 +24,8 @@ namespace HortiBts.Client.Services.Benefits
         {
             try
             {
-                var data = await http.GetFromJsonAsync<Result<List<BenefitsListDto>>>("api/benefits/benefits-list");
-                return data ?? Result<List<BenefitsListDto>>.Failure("No response received.");
+                var response = await http.GetAsync("api/benefits/benefits-list");
+                return await ApiResultHelper.ReadResultAsync<List<BenefitsListDto>>(response);
             }
             catch (Exception ex)
             {
@@ -38,12 +38,7 @@ namespace HortiBts.Client.Services.Benefits
             try
             {
                 var response = await http.PostAsJsonAsync("api/benefits/save-benefit-data", dto);
-
-                if (!response.IsSuccessStatusCode)
-                    return Result<int>.Failure($"Failed to save benefit: {response.StatusCode}");
-
-                var benefitId = await response.Content.ReadFromJsonAsync<int>();
-                return Result<int>.Success(benefitId);
+                return await ApiResultHelper.ReadResultAsync<int>(response);
             }
             catch (Exception ex)
             {
@@ -56,11 +51,7 @@ namespace HortiBts.Client.Services.Benefits
             try
             {
                 var response = await http.PatchAsJsonAsync($"api/benefits/{benefitId}/flag", new { Flag = flag });
-
-                if (!response.IsSuccessStatusCode)
-                    return Result<bool>.Failure($"Failed to update flag: {response.StatusCode}");
-
-                return Result<bool>.Success(true);
+                return await ApiResultHelper.ReadResultAsync<bool>(response);
             }
             catch (Exception ex)
             {

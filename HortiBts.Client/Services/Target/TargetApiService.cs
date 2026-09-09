@@ -11,8 +11,8 @@ namespace HortiBts.Client.Services.Target
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<List<TargetDto>>>("api/target/get-user-targets-list");
-                return result ?? Result<List<TargetDto>>.Failure("No response received.");
+                var response = await http.GetAsync("api/target/get-user-targets-list");
+                return await ApiResultHelper.ReadResultAsync<List<TargetDto>>(response);
             }
             catch (Exception ex)
             {
@@ -25,17 +25,7 @@ namespace HortiBts.Client.Services.Target
             try
             {
                 var response = await http.PostAsJsonAsync("api/target/save-target-data", Dto);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-
-                    return Result<int>.Failure(
-                        $"Failed to save component: {response.StatusCode} - {errorBody}");
-                }
-
-                var componentId = await response.Content.ReadFromJsonAsync<int>();
-                return Result<int>.Success(componentId);
+                return await ApiResultHelper.ReadResultAsync<int>(response);
             }
             catch (Exception ex)
             {

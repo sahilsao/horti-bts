@@ -86,7 +86,7 @@
 
         // Original flattened each inner array with a nested forEach into a
         // single MatTableDataSource — SelectMany does the same here.
-        var items = result.Data.SelectMany(record => record).ToList();
+        var items = result.Data.ToList();
 
         if (items.Count == 0)
         {

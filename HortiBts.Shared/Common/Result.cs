@@ -11,11 +11,12 @@ public class Result<T>
     {
         IsSuccess = true,
         Data = data,
-        Count = data is ICollection<object> c ? c.Count : 0
+        Count = data is System.Collections.ICollection c ? c.Count : 0
     };
 
     public static Result<T> Failure(string error) => new()
     {
+        IsSuccess = false,
         Error = error
     };
 }
@@ -24,6 +25,15 @@ public class Result
 {
     public bool IsSuccess { get; set; }
     public string? Error { get; set; }
-    public static Result Success() => new() { IsSuccess = true };
-    public static Result Failure(string error) => new() { Error = error };
+
+    public static Result Success() => new()
+    {
+        IsSuccess = true
+    };
+
+    public static Result Failure(string error) => new()
+    {
+        IsSuccess = false,
+        Error = error
+    };
 }

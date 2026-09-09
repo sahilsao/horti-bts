@@ -180,7 +180,7 @@
             <MudTh><MudTableSortLabel SortBy="new Func<ComponentDto, object>(x => x.ComponentNameHi!)">@Lang.Text("Component Name (Hindi)", "घटक का नाम (हिंदी)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ComponentDto, object>(x => x.ComponentDescriptionEn!)">@Lang.Text("Component Description (English)", "घटक का विवरण (अंग्रेज़ी)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<ComponentDto, object>(x => x.ComponentDescriptionHi!)">@Lang.Text("Component Description (Hindi)", "घटक का विवरण (हिंदी)")</MudTableSortLabel></MudTh>
-
+            <MudTh>@Lang.Text("Active Status", "एक्टिव स्टेटस")</MudTh>
             <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -199,18 +199,18 @@
                                        Size="Size.Small"
                                        OnClick="@(() => OpenSchemeDialog(context))" />
                     </MudTooltip> *@
-
+                    <MudTd DataLabel="@Lang.Text("Active Status", "एक्टिव स्टेटस")">
+                        <MudSwitch T="bool"
+                                   Value="@context.ComponentFlag"
+                                   ValueChanged="@(newValue => ToggleFlag(context, newValue))"
+                                   Color="Color.Success"
+                                   Disabled="@_togglingIds.Contains(context.ComponentId)" />
+                    </MudTd>
                     <MudTooltip Text="@Lang.Text("Edit", "संपादित करें")">
                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                        Color="Color.Primary"
                                        Size="Size.Small"
                                        OnClick="@(() => LoadForEdit(context))" />
-                    </MudTooltip>
-                    <MudTooltip Text="@Lang.Text("Delete", "हटाएं")">
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                       Color="Color.Error"
-                                       Size="Size.Small"
-                                       OnClick="@(() => DeactivateComponent(context))" />
                     </MudTooltip>
                 </MudStack>
             </MudTd>
@@ -242,6 +242,7 @@
 
     private CurrentUserInfo _currentUser = new("", "", "", 0);
     private bool _isLoading = false;
+    private HashSet<int> _togglingIds = new();
 
     private ElementReference _formTopRef;
     private MudTextField<string> _componentNameEnField = default!;
@@ -421,67 +422,40 @@
         }
     }
 
-    private async Task DeactivateComponent(ComponentDto component)
+    private async Task ToggleFlag(ComponentDto benefit, bool newValue)
     {
-        bool? confirmed = await DialogService.ShowMessageBoxAsync(
-            Lang.Text("Confirm Deactivate", "निष्क्रिय की पुष्टि करें"),
-           (MarkupString)Lang.Text(
-            $"Are you sure you want to Deactivate the component <span style='color:red'>{component.ComponentName}</span>?",
-            $"क्या आप वाकई घटक <span style='color:red'>{component.ComponentNameHi}</span> को हटाना चाहते हैं?"),
-            yesText: Lang.Text("Deactivate", "निष्क्रिय करें"),
-            cancelText: Lang.Text("Cancel", "रद्द करें"),
-            options: new DialogOptions
-            {
-                CloseOnEscapeKey = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true
-            });
-
-        if (confirmed != true)
-            return;
-
-        _isLoading = true;
+        _togglingIds.Add(benefit.ComponentId);
+        var previousValue = benefit.ComponentFlag;
+        benefit.ComponentFlag = newValue; // optimistic UI update
 
         try
         {
-            var result = await ComponentsApiService.DeactivateComponentAsync(component.ComponentId);
+            var result = await ComponentsApiService.UpdateComponentActiveFlagAsync(benefit.ComponentId, newValue);
 
-            if (result.IsSuccess)
+            if (!result.IsSuccess)
             {
-                Snackbar.Add(
-                    Lang.Text(
-                        "Component deactivated successfully.",
-                        "घटक सफलतापूर्वक निष्क्रिय किया गया।"),
-                    Severity.Success);
-
-                await LoadComponents();
+                benefit.ComponentFlag = previousValue; // revert on failure
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
             }
             else
             {
                 Snackbar.Add(
-                    result.Error ??
-                    Lang.Text(
-                        "Failed to deactivate component.",
-                        "घटक निष्क्रिय करने में विफल।"),
-                    Severity.Error);
+                    newValue
+                        ? Lang.Text("Component activated.", "घटक सक्रिय किया गया।")
+                        : Lang.Text("Component deactivated.", "घटक निष्क्रिय किया गया।"),
+                    Severity.Success);
             }
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine(ex);
-
-            Snackbar.Add(
-                Lang.Text(
-                    "Failed to deactivate component.",
-                    "घटक निष्क्रिय करने में विफल।"),
-                Severity.Error);
+            benefit.ComponentFlag = previousValue;
+            Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
         }
         finally
         {
-            _isLoading = false;
+            _togglingIds.Remove(benefit.ComponentId);
         }
     }
-
 
     private async Task Reset()
     {

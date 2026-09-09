@@ -12,8 +12,21 @@ namespace HortiBts.Client.Services.MIDHSchemes
         {
             try
             {
-                var result = await http.GetFromJsonAsync<Result<List<MIDHSchemeDto>>>("api/midh-schemes/midh-schemes-list");
-                return result ?? Result<List<MIDHSchemeDto>>.Failure("No response received.");
+                var response = await http.GetAsync("api/midh-schemes/midh-schemes-list");
+                return await ApiResultHelper.ReadResultAsync<List<MIDHSchemeDto>>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<MIDHSchemeDto>>.Failure($"Failed to fetch midh schemes: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<List<MIDHSchemeDto>>> GetMIDHSchemesListBySchemeTypeAsync(int schemeTypeId)
+        {
+            try
+            {
+                var response = await http.GetAsync("api/midh-schemes/midh-schemes-list-by-scheme-id?schemeTypeId=" + schemeTypeId);
+                return await ApiResultHelper.ReadResultAsync<List<MIDHSchemeDto>>(response);
             }
             catch (Exception ex)
             {
@@ -28,15 +41,7 @@ namespace HortiBts.Client.Services.MIDHSchemes
                 using var content = BuildMultipartContent(dto, file);
 
                 var response = await http.PostAsync("api/midh-schemes/save-midh-scheme-data", content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-                    return Result<int>.Failure($"Failed to save midh scheme: {response.StatusCode} - {errorBody}");
-                }
-
-                var schemeId = await response.Content.ReadFromJsonAsync<int>();
-                return Result<int>.Success(schemeId);
+                return await ApiResultHelper.ReadResultAsync<int>(response);
             }
             catch (Exception ex)
             {
@@ -51,15 +56,7 @@ namespace HortiBts.Client.Services.MIDHSchemes
                 using var content = BuildMultipartContent(dto, file);
 
                 var response = await http.PostAsync("api/midh-schemes/update-midh-scheme-data", content);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorBody = await response.Content.ReadAsStringAsync();
-                    return Result<int>.Failure($"Failed to update midh scheme: {response.StatusCode} - {errorBody}");
-                }
-
-                var schemeId = await response.Content.ReadFromJsonAsync<int>();
-                return Result<int>.Success(schemeId);
+                return await ApiResultHelper.ReadResultAsync<int>(response);
             }
             catch (Exception ex)
             {
@@ -72,11 +69,7 @@ namespace HortiBts.Client.Services.MIDHSchemes
             try
             {
                 var response = await http.PatchAsJsonAsync($"api/midh-schemes/{schemeId}/active-flag", new { Flag = flag });
-
-                if (!response.IsSuccessStatusCode)
-                    return Result<bool>.Failure($"Failed to update active flag: {response.StatusCode}");
-
-                return Result<bool>.Success(true);
+                return await ApiResultHelper.ReadResultAsync<bool>(response);
             }
             catch (Exception ex)
             {

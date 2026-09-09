@@ -39,7 +39,7 @@ namespace HortiBts.Api.Repositories.Schemes
                 ms.description_hi  AS SchemeDescriptionHi,
                 ms.description_en  AS SchemeDescriptionEn,
                 ms.isbeneficiary   AS IsBeneficiary,
-                ms.flag            AS Flag
+                CASE WHEN ms.flag = 'Y' THEN 1 ELSE 0 END AS Flag
                 FROM mas_scheme_horti ms
                 INNER JOIN mas_scheme_horti st ON st.s_id = ms.st_id
                 WHERE ms.flag = 'Y'

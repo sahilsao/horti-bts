@@ -1,8 +1,10 @@
 ﻿using HortiBts.Api.Controllers.Schemes;
 using HortiBts.Api.Helpers;
+using HortiBts.Api.Repositories.Benefits;
 using HortiBts.Api.Repositories.Components;
 using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Shared.Dtos.Components;
+using HortiBts.Shared.Dtos.Flag;
 using HortiBts.Shared.Dtos.Schemes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -87,38 +89,20 @@ namespace HortiBts.Api.Controllers.Components
             }
         }
 
-        [HttpPost("deactivate-component-data")]
-        [EndpointSummary("Deactivate a component")]
-        [EndpointDescription("Soft deactivates a component by setting its flag to N.")]
-        public async Task<IActionResult> DeactivateComponent([FromBody] int componentId)
+        [HttpPatch("{id}/flag")]
+        [EndpointSummary("Toggle a benefit's active status")]
+        public async Task<IActionResult> UpdateFlag(int id, [FromBody] UpdateFlagDto dto)
         {
             var userId = User.Identity?.Name ?? "0";
             var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
-            try
-            {
-                var result = await repository.DeactivateComponentAsync(
-                    componentId,
-                    userId,
-                    clientIp);
+            var result = await repository.UpdateComponentActiveFlagAsync(id, dto.Flag, userId, clientIp);
 
-                if (!result.IsSuccess)
-                    return Problem(
-                        detail: result.Error,
-                        statusCode: 500);
+            if (!result.IsSuccess)
+                return Problem(detail: result.Error, statusCode: 500);
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to delete component.");
-
-                return Problem(
-                    detail: "Failed to delete component.",
-                    statusCode: 500);
-            }
+            return Ok(result);
         }
     }
 }
 
-           

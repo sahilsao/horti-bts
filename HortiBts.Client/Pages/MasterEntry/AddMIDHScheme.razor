@@ -511,13 +511,13 @@
 
     private async Task ToggleFlag(MIDHSchemeDto scheme, bool newValue)
     {
-        _togglingIds.Add(scheme.MidhSchemeId);
+        _togglingIds.Add(scheme.SchemeId);
         var previousValue = scheme.Flag;
         scheme.Flag = newValue; // optimistic UI update
 
         try
         {
-            var result = await MidhSchemesApiService.UpdateMIDHSchemeActiveFlagAsync(scheme.MidhSchemeId, newValue);
+            var result = await MidhSchemesApiService.UpdateMIDHSchemeActiveFlagAsync(scheme.SchemeId, newValue);
             if (!result.IsSuccess)
             {
                 scheme.Flag = previousValue; // revert on failure
@@ -540,7 +540,7 @@
         }
         finally
         {
-            _togglingIds.Remove(scheme.MidhSchemeId);
+            _togglingIds.Remove(scheme.SchemeId);
         }
     }
 }

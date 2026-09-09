@@ -1,4 +1,5 @@
 ﻿using HortiBts.Shared.Common;
+using HortiBts.Shared.Dtos.Target;
 using HortiBts.Shared.Dtos.Units;
 using System.Net.Http.Json;
 
@@ -10,8 +11,8 @@ namespace HortiBts.Client.Services.Units
         {
             try
             {
-                var data = await http.GetFromJsonAsync<Result<List<UnitDto>>>($"api/units/get-all-units");
-                return data ?? Result<List<UnitDto>>.Failure("No response received.");
+                var response = await http.GetAsync("api/units/get-all-units");
+                return await ApiResultHelper.ReadResultAsync<List<UnitDto>>(response);
             }
             catch (Exception ex)
             {
