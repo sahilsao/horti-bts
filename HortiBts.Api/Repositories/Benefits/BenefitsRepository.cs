@@ -10,23 +10,9 @@ namespace HortiBts.Api.Repositories.Benefits
 {
     public interface IBenefitsRepository
     {
-        /// <summary>Returns all benefits</summary>
         Task<Result<List<BenefitsTypeDto>>> GetBenefitsTypeAsync();
-
-        /// <summary>
-        /// Returns all benefits list
-        /// </summary>
-        /// <returns></returns>
         Task<Result<List<BenefitsListDto>>> GetBenefitsListAsync();
-
-        /// <summary>
-        /// Saves a new benefit
-        /// </summary>
         Task<Result<int>> SaveBenefitAsync(AddBenefitDto dto, string insertedBy, string clientIp);
-
-        /// <summary>
-        /// Updates the flag status of a benefit
-        /// </summary>        
         Task<Result<bool>> UpdateFlagAsync(int benefitId, bool flag, string userId, string clientIp);
     }
     public class BenefitsRepository(IDbConnectionFactory dbFactory) : IBenefitsRepository
