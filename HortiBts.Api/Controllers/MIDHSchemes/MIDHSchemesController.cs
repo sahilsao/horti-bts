@@ -28,13 +28,8 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Failed to load schemes.");
-
-            return Problem(
-                "Failed to load schemes.",
-                statusCode: 500);
+            logger.LogError(ex, "Failed to load schemes.");
+            return Problem("Failed to load schemes.", statusCode: 500);
         }
     }
 
@@ -54,13 +49,8 @@ public class MIDHSchemesController(IMIDHSchemeRepository repository, IHttpContex
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Failed to load schemes.");
-
-            return Problem(
-                "Failed to load schemes.",
-                statusCode: 500);
+            logger.LogError(ex, "Failed to load schemes.");
+            return Problem("Failed to load schemes.", statusCode: 500);
         }
     }
 

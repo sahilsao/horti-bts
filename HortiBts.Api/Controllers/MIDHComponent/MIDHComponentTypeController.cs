@@ -30,15 +30,10 @@ public class MIDHComponentTypesController(IMIDHComponentTypeRepository repositor
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Failed to load component types.");
-
-            return Problem(
-                "Failed to load component types.",
-                statusCode: 500);
+            logger.LogError(ex, "Failed to load component types.");
+            return Problem("Failed to load component types.", statusCode: 500);
         }
-    }    
+    }
 
     [HttpPost("save-midh-component-type-data")]
     [EndpointSummary("Save a new midh component type")]

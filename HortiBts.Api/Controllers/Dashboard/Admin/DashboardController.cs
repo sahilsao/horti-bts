@@ -5,19 +5,27 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
 {
     [Route("api/dashboard/admin")]
     [ApiController]
-    public class DashboardController(IDashboardRepository dashboardRepository) : ControllerBase
+    public class DashboardController(IDashboardRepository dashboardRepository, ILogger<DashboardController> logger) : ControllerBase
     {
         [HttpGet("get-tot-rheo-count")]
         [EndpointSummary("Get total RHEO count")]
         [EndpointDescription("Retrieves the total number of RHEO users registered in the system.")]
         public async Task<IActionResult> GetTotRheoCount()
         {
-            var result = await dashboardRepository.GetTotRHEOCount();
+            try
+            {
+                var result = await dashboardRepository.GetTotRHEOCount();
 
-            if (!result.IsSuccess)
-                return Problem(detail: result.Error, statusCode: 500);
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving total RHEO count.");
+                return Problem(detail: "An unexpected error occurred.", statusCode: 500);
+            }
         }
 
         [HttpGet("get-tot-reg-farmers-count")]
@@ -25,58 +33,72 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
         [EndpointDescription("Retrieves the total number of farmers registered in the system.")]
         public async Task<IActionResult> GetTotRegFarmersCount()
         {
-            var result = await dashboardRepository.GetTotRegFarmersCount();
+            try
+            {
+                var result = await dashboardRepository.GetTotRegFarmersCount();
 
-            if (!result.IsSuccess)
-                return Problem(detail: result.Error, statusCode: 500);
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving total registered farmers count.");
+                return Problem(detail: "An unexpected error occurred.", statusCode: 500);
+            }
         }
 
         [HttpGet("get-tot-reg-backlog-farmers-count")]
         [EndpointSummary("Get total backlog farmers count")]
         [EndpointDescription("Retrieves the total number of backlog farmers registered for the specified financial year.")]
-        public async Task<IActionResult> GetTotRegBacklogFarmersCount(
-            [FromQuery] string finYear)
+        public async Task<IActionResult> GetTotRegBacklogFarmersCount([FromQuery] string finYear)
         {
-            if (string.IsNullOrWhiteSpace(finYear))
-                return Problem(
-                    detail: "finYear query parameter is required.",
-                    statusCode: 400);
+            try
+            {
+                if (string.IsNullOrWhiteSpace(finYear))
+                    return Problem(detail: "finYear query parameter is required.", statusCode: 400);
 
-            var result =
-                await dashboardRepository.GetTotRegBacklogFarmersCount(finYear);
+                var result = await dashboardRepository.GetTotRegBacklogFarmersCount(finYear);
 
-            if (!result.IsSuccess)
-                return Problem(detail: result.Error, statusCode: 500);
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving total backlog farmers count.");
+                return Problem(detail: "An unexpected error occurred.", statusCode: 500);
+            }
         }
 
         [HttpGet("get-application-dashboard")]
         [EndpointSummary("Get application dashboard")]
         [EndpointDescription("Retrieves application statistics for the specified financial year, including total applications, RHEO approvals, DDH approvals, and state-sponsored and central-sponsored applications.")]
-        public async Task<IActionResult> GetApplicationDashboard(
-            [FromQuery] string finYear)
+        public async Task<IActionResult> GetApplicationDashboard([FromQuery] string finYear)
         {
-            if (string.IsNullOrWhiteSpace(finYear))
+            try
             {
-                return Problem(
-                    detail: "finYear query parameter is required.",
-                    statusCode: 400);
+                if (string.IsNullOrWhiteSpace(finYear))
+                {
+                    return Problem(detail: "finYear query parameter is required.", statusCode: 400);
+                }
+
+                var result = await dashboardRepository.GetApplicationDashboard(finYear);
+
+                if (!result.IsSuccess)
+                {
+                    return Problem(detail: result.Error, statusCode: 500);
+                }
+
+                return Ok(result);
             }
-
-            var result =
-                await dashboardRepository.GetApplicationDashboard(finYear);
-
-            if (!result.IsSuccess)
+            catch (Exception ex)
             {
-                return Problem(
-                    detail: result.Error,
-                    statusCode: 500);
+                logger.LogError(ex, "An error occurred while retrieving application dashboard.");
+                return Problem(detail: "An unexpected error occurred.", statusCode: 500);
             }
-
-            return Ok(result);
         }
     }
 }

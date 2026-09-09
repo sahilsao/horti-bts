@@ -25,13 +25,8 @@ namespace HortiBts.Api.Controllers.Target
             }
             catch (Exception ex)
             {
-                logger.LogError(
-                    ex,
-                    "Failed to load targets.");
-
-                return Problem(
-                    "Failed to load targets.",
-                    statusCode: 500);
+                logger.LogError(ex, "Failed to load targets.");
+                return Problem("Failed to load targets.", statusCode: 500);
             }
         }
 

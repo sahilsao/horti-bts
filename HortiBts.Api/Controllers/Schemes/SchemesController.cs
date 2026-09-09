@@ -15,25 +15,17 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
     [HttpGet("schemes-by-type")]
     [EndpointSummary("Get schemes by type")]
     [EndpointDescription("Retrieves the list of schemes based on the specified scheme type. Use 1 for state-sponsored schemes and 2 for centrally sponsored schemes.")]
-    public async Task<ActionResult<IEnumerable<SchemeDto>>> GetByType(
-        [FromQuery] int stId)
+    public async Task<ActionResult<IEnumerable<SchemeDto>>> GetByType([FromQuery] int stId)
     {
         try
         {
             var schemes = await repository.GetSchemesByTypeAsync(stId);
-
             return Ok(schemes);
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Failed to load schemes for stId={StId}",
-                stId);
-
-            return Problem(
-                "Failed to load schemes.",
-                statusCode: 500);
+            logger.LogError(ex, "Failed to load schemes for stId={StId}", stId);
+            return Problem("Failed to load schemes.", statusCode: 500);
         }
     }
 
@@ -53,13 +45,8 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Failed to load scheme types.");
-
-            return Problem(
-                "Failed to load scheme types.",
-                statusCode: 500);
+            logger.LogError(ex, "Failed to load scheme types.");
+            return Problem("Failed to load scheme types.", statusCode: 500);
         }
     }
 
@@ -79,13 +66,8 @@ public class SchemesController(ISchemeRepository repository, IHttpContextAccesso
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Failed to load schemes.");
-
-            return Problem(
-                "Failed to load schemes.",
-                statusCode: 500);
+            logger.LogError(ex, "Failed to load schemes.");
+            return Problem("Failed to load schemes.", statusCode: 500);
         }
     }
 

@@ -7,9 +7,7 @@ namespace HortiBts.Api.Controllers.MIDHSchemes;
 
 [ApiController]
 [Route("api/midh-schemes")]
-public class MIDHSchemeDocsController(
-    IMIDHSchemeDocRepository repository,
-    ILogger<MIDHSchemeDocsController> logger) : ControllerBase
+public class MIDHSchemeDocsController(IMIDHSchemeDocRepository repository, ILogger<MIDHSchemeDocsController> logger) : ControllerBase
 {
     // GET api/midh-schemes/{schemeId}/documents
     [HttpGet("{schemeId}/documents")]
@@ -20,20 +18,12 @@ public class MIDHSchemeDocsController(
         try
         {
             var docs = await repository.GetByMidhSchemeIdAsync(schemeId);
-
             return Ok(docs);
         }
         catch (Exception ex)
         {
-            logger.LogError(
-                ex,
-                "Failed to load midh documents for schemeId={SchemeId}, docType={DocType}",
-                schemeId,
-                docType);
-
-            return Problem(
-                "Failed to load midh scheme documents.",
-                statusCode: 500);
+            logger.LogError(ex, "Failed to load midh documents for schemeId={SchemeId}, docType={DocType}", schemeId, docType);
+            return Problem("Failed to load midh scheme documents.", statusCode: 500);
         }
     }
 }

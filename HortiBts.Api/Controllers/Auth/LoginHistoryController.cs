@@ -8,19 +8,28 @@ namespace HortiBts.Api.Controllers.Auth
 {
     [Route("api/login-history")]
     [ApiController]
-    public class LoginHistoryController(ILoginHistoryRepository repository) : ControllerBase
+    public class LoginHistoryController(ILoginHistoryRepository repository, ILogger<LoginHistoryController> logger) : ControllerBase
     {
         [HttpGet("active")]
         [EndpointSummary("Get active login")]
         [EndpointDescription("Retrieves the active login history record for a user based on their user ID and user type.")]
         public async Task<IActionResult> GetActiveLogin(int userId, string userType)
         {
-            var login = await repository.GetActiveLoginAsync(userId, userType);
+            try
+            {
+                var login = await repository.GetActiveLoginAsync(userId, userType);
 
-            if (login is null)
-                return Ok(Result<LoginHistoryRecord>.Failure("No active login found."));
+                if (login is null)
+                    return Ok(Result<LoginHistoryRecord>.Failure("No active login found."));
 
-            return Ok(Result<LoginHistoryRecord>.Success(login));
+
+                return Ok(Result<LoginHistoryRecord>.Success(login));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving active login history.");
+                return Problem(detail: "An unexpected error occurred.", statusCode: 500);
+            }
         }
 
         [HttpGet("is-logged-in")]
@@ -28,9 +37,17 @@ namespace HortiBts.Api.Controllers.Auth
         [EndpointDescription("Checks whether a user is currently logged in based on their user ID.")]
         public async Task<IActionResult> IsAlreadyLoggedIn(int userId)
         {
-            var result = await repository.IsAlreadyLoggedInAsync(userId);
+            try
+            {
+                var result = await repository.IsAlreadyLoggedInAsync(userId);
 
-            return Ok(Result<bool>.Success(result));
+                return Ok(Result<bool>.Success(result));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while checking user login status.");
+                return Problem(detail: "An unexpected error occurred.", statusCode: 500);
+            }
         }
 
         [HttpPost("logout")]
@@ -38,9 +55,16 @@ namespace HortiBts.Api.Controllers.Auth
         [EndpointDescription("Logs out a user by updating their login history using the specified login history ID.")]
         public async Task<IActionResult> Logout(long loginHistoryId)
         {
-            await repository.LogoutAsync(loginHistoryId);
-
-            return Ok(Result.Success());
+            try
+            {
+                await repository.LogoutAsync(loginHistoryId);
+                return Ok(Result.Success());
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while logging out the user.");
+                return Problem(detail: "An unexpected error occurred.", statusCode: 500);
+            }
         }
     }
 }

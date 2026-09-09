@@ -6,19 +6,27 @@ namespace HortiBts.Api.Controllers.Units
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UnitsController(IUnitRepository unitRepository) : ControllerBase
+    public class UnitsController(IUnitRepository unitRepository, ILogger<UnitsController> logger) : ControllerBase
     {
         [HttpGet("get-all-units")]
         [EndpointSummary("Get all units")]
         [EndpointDescription("Retrieves the list of all units available in the system.")]
         public async Task<IActionResult> GetUnits()
         {
-            var result = await unitRepository.GetUnitsAsync();
+            try
+            {
+                var result = await unitRepository.GetUnitsAsync();
 
-            if (!result.IsSuccess)
-                return Problem(detail: result.Error, statusCode: 500);
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving units.");
+                return Problem(detail: "An unexpected error occurred while retrieving units.", statusCode: 500);
+            }
         }
     }
 }

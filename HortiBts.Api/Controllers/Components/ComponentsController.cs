@@ -31,13 +31,9 @@ namespace HortiBts.Api.Controllers.Components
             }
             catch (Exception ex)
             {
-                logger.LogError(
-                    ex,
-                    "Failed to load components.");
+                logger.LogError(ex, "Failed to load components.");
 
-                return Problem(
-                    "Failed to load components.",
-                    statusCode: 500);
+                return Problem("Failed to load components.", statusCode: 500);
             }
         }
 
@@ -46,11 +42,10 @@ namespace HortiBts.Api.Controllers.Components
         [EndpointDescription("Inserts a new component record.")]
         public async Task<IActionResult> SaveComponent([FromBody] AddComponentDto dto)
         {
-            var userId = User.Identity?.Name ?? "0";
-            var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
-
             try
             {
+                var userId = User.Identity?.Name ?? "0";
+                var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
                 var result = await repository.SaveComponentAsync(dto, userId, clientIp);
 
                 if (!result.IsSuccess)
@@ -61,7 +56,7 @@ namespace HortiBts.Api.Controllers.Components
             catch (Exception ex)
             {
                 logger.LogError(ex, "Failed to save component.");
-                return Problem("Failed to save component.", statusCode: 500);
+                return Problem(detail: "Failed to save component.", statusCode: 500);
             }
         }
 
@@ -70,11 +65,11 @@ namespace HortiBts.Api.Controllers.Components
         [EndpointDescription("Updates an existing component record.")]
         public async Task<IActionResult> UpdateComponent([FromBody] AddComponentDto dto)
         {
-            var userId = User.Identity?.Name ?? "0";
-            var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
-
             try
             {
+                var userId = User.Identity?.Name ?? "0";
+                var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
+
                 var result = await repository.UpdateComponentAsync(dto, userId, clientIp);
 
                 if (!result.IsSuccess)
@@ -85,7 +80,7 @@ namespace HortiBts.Api.Controllers.Components
             catch (Exception ex)
             {
                 logger.LogError(ex, "Failed to update component.");
-                return Problem("Failed to update component.", statusCode: 500);
+                return Problem(detail: "Failed to update component.", statusCode: 500);
             }
         }
 
@@ -93,15 +88,23 @@ namespace HortiBts.Api.Controllers.Components
         [EndpointSummary("Toggle a benefit's active status")]
         public async Task<IActionResult> UpdateFlag(int id, [FromBody] UpdateFlagDto dto)
         {
-            var userId = User.Identity?.Name ?? "0";
-            var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
+            try
+            {
+                var userId = User.Identity?.Name ?? "0";
+                var clientIp = IpAddressHelper.GetClientIp(httpContextAccessor);
 
-            var result = await repository.UpdateComponentActiveFlagAsync(id, dto.Flag, userId, clientIp);
+                var result = await repository.UpdateComponentActiveFlagAsync(id, dto.Flag, userId, clientIp);
 
-            if (!result.IsSuccess)
-                return Problem(detail: result.Error, statusCode: 500);
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to update component flag.");
+                return Problem(detail: "Failed to update component flag.", statusCode: 500);
+            }
         }
     }
 }
