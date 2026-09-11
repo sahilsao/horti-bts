@@ -10,6 +10,8 @@ using HortiBts.Api.Repositories.Girdawari;
 using HortiBts.Api.Repositories.MIDHComponents;
 using HortiBts.Api.Repositories.MIDHSchemes;
 using HortiBts.Api.Repositories.Notices;
+using HortiBts.Api.Repositories.Reports.Backlog;
+using HortiBts.Api.Repositories.Reports.Yearly;
 using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Api.Repositories.SubDistricts;
 using HortiBts.Api.Repositories.Target;
@@ -33,20 +35,28 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IDbConnectionFactory, MySqlConnectionFactory>();
 
 // ── Services
+
+// Authentication and Authorization Related
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
-builder.Services.AddScoped<ISchemeRepository, SchemeRepository>();
-builder.Services.AddScoped<ISchemeDocRepository, SchemeDocRepository>();
-builder.Services.AddScoped<IDistrictsRepository, DistrictsRepository>();
-builder.Services.AddScoped<ISubDistrictsRepository, SubDistrictsRepository>();
-builder.Services.AddScoped<IVillagesRepository, VillagesRepository>();
 builder.Services.AddScoped<IPasswordPolicyRepository, PasswordPolicyRepository>();
 builder.Services.AddScoped<ILoginHistoryRepository, LoginHistoryRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IJwtTokenRepository, JwtTokenRepository>();
 builder.Services.AddScoped<IPasswordRepository, PasswordRepository>();
-builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+
+// Common Related
+builder.Services.AddScoped<IDistrictsRepository, DistrictsRepository>();
+builder.Services.AddScoped<ISubDistrictsRepository, SubDistrictsRepository>();
+builder.Services.AddScoped<IVillagesRepository, VillagesRepository>();
 builder.Services.AddScoped<IFinancialYearsRepository, FinancialYearsRepository>();
+
+// Dashboard Related
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+
+// Master Entry Related
+builder.Services.AddScoped<ISchemeRepository, SchemeRepository>();
+builder.Services.AddScoped<ISchemeDocRepository, SchemeDocRepository>();
 builder.Services.AddScoped<IFarmersDetailsRepository, FarmersDetailsRepository>();
 builder.Services.AddHttpClient<ICropDetailRepository, CropDetailRepository>(client =>
 {
@@ -61,6 +71,13 @@ builder.Services.AddScoped<ITargetRepository, TargetRepository>();
 builder.Services.AddScoped<IMIDHSchemeRepository, MIDHSchemeRepository>();
 builder.Services.AddScoped<IMIDHSchemeDocRepository, MIDHSchemeDocRepository>();
 builder.Services.AddScoped<IMIDHComponentTypeRepository, MIDHComponentTypeRepository>();
+builder.Services.AddScoped<IMIDHComponentRepository, MIDHComponentRepository>();
+builder.Services.AddScoped<IMIDHSubComponentRepository, MIDHSubComponentRepository>();
+
+// Reports Related
+builder.Services.AddScoped<IYearlyFarmerRegistrationRepository, YearlyFarmerRegistrationRepository>();
+builder.Services.AddScoped<IBacklogFarmerRegistrationRepository, BacklogFarmerRegistrationRepository>();
+
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.
 const string BtsClientCorsPolicy = "HortiBtsClient";

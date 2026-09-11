@@ -18,8 +18,8 @@
         public int? DistCodeCensus { get; set; }
         public int? DistrictId { get; set; } // district_id
         public string? DistrictName { get; set; }
-        public int? SubdistrictCode { get; set; } // subdistrict_code
-        public string? SubdistrictName { get; set; } // subdistrict_name
+        public int? SubDistrictCode { get; set; } // subdistrict_code
+        public string? SubDistrictName { get; set; } // subdistrict_name
         public int FinancialYear { get; set; } // financial_year
         public string? FinancialYearStr { get; set; } // financial_year
     }

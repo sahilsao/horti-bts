@@ -11,6 +11,8 @@ using HortiBts.Client.Services.FinancialYears;
 using HortiBts.Client.Services.Girdawari;
 using HortiBts.Client.Services.MIDHComponents;
 using HortiBts.Client.Services.MIDHSchemes;
+using HortiBts.Client.Services.Reports.Backlog;
+using HortiBts.Client.Services.Reports.Yearly;
 using HortiBts.Client.Services.Schemes;
 using HortiBts.Client.Services.SubDistricts;
 using HortiBts.Client.Services.Target;
@@ -52,13 +54,20 @@ builder.Services.AddSingleton<LanguageService>();
 
 // ── Feature Services (Master Data) — API-backed implementations
 
-builder.Services.AddScoped<DistrictsApiService>();
-builder.Services.AddScoped<SubdistrictsApiService>();
-builder.Services.AddScoped<VillagesApiService>();
-builder.Services.AddScoped<SchemesApiService>();
+// Authentication and Authorization Related
 builder.Services.AddScoped<LoginHistoryApiService>();
-builder.Services.AddScoped<DashboardApiService>();
+
+// Common Related
+builder.Services.AddScoped<DistrictsApiService>();
+builder.Services.AddScoped<SubDistrictsApiService>();
+builder.Services.AddScoped<VillagesApiService>();
 builder.Services.AddScoped<FinancialYearsApiService>();
+
+// Dashboard Related
+builder.Services.AddScoped<DashboardApiService>();
+
+// Master Entry Related
+builder.Services.AddScoped<SchemesApiService>();
 builder.Services.AddScoped<GirdawariApiService>();
 builder.Services.AddScoped<FarmersDetailsApiService>();
 builder.Services.AddScoped<FarmersVerificationForUFPApiService>();
@@ -68,6 +77,11 @@ builder.Services.AddScoped<ComponentsApiService>();
 builder.Services.AddScoped<UnitsApiService>();
 builder.Services.AddScoped<TargetApiService>();
 builder.Services.AddScoped<MIDHComponentTypeApiService>();
+builder.Services.AddScoped<MIDHComponentApiService>();
+builder.Services.AddScoped<MIDHSubComponentApiService>();
 
+// Reports Related
+builder.Services.AddScoped<YearlyFarmerRegistrationApiService>();
+builder.Services.AddScoped<BacklogFarmerRegistrationApiService>();
 
 await builder.Build().RunAsync();

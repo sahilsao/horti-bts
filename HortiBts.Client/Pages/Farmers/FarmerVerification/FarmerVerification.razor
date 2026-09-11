@@ -8,7 +8,7 @@
 @using HortiBts.Shared.Dtos.SubDistricts
 @using HortiBts.Shared.Dtos.Villages
 @inject DistrictsApiService DistrictsApiService
-@inject SubdistrictsApiService SubdistrictsApiService
+@inject SubDistrictsApiService SubDistrictsApiService
 @inject VillagesApiService VillagesApiService
 @inject FarmersVerificationForUFPApiService FarmersVerificationForUFPApiService
 
@@ -52,7 +52,7 @@
                    Disabled="_selectedDistrictCensus is null || _isLoadingVillages">
             @foreach (var s in _subdistricts)
             {
-                <MudSelectItem T="int?" Value="s.SubDistrictCode">
+                <MudSelectItem T="int?" Value="@((int?)s.SubDistrictCode)">
                     @(Lang.IsHindi ? s.SubDistrictNameHi : s.SubDistrictName)
                 </MudSelectItem>
             }
@@ -207,7 +207,7 @@
       
         try
         {
-            var result = await SubdistrictsApiService.GetSubdistrictsAsync(districtId.Value);
+            var result = await SubDistrictsApiService.GetSubDistrictsAsync(districtId.Value);
             if (result.IsSuccess && result.Data is not null)
                 _subdistricts = result.Data;
         }

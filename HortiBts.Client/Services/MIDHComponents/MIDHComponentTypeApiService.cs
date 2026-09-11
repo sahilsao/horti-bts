@@ -21,8 +21,20 @@ namespace HortiBts.Client.Services.MIDHComponents
                 return Result<List<MIDHComponentTypeDto>>.Failure($"Failed to fetch midh component types: {ex.Message}");
             }
         }
+        public async Task<Result<List<MIDHComponentTypeDto>>> GetComponentTypesListBySchemeIdAsync(int schemeId)
+        {
+            try
+            {
+                var response = await http.GetAsync("api/midh-components-types/midh-components-type-list-by-scheme-id?schemeId=" + schemeId);
+                return await ApiResultHelper.ReadResultAsync<List<MIDHComponentTypeDto>>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<MIDHComponentTypeDto>>.Failure($"Failed to fetch midh component types: {ex.Message}");
+            }
+        }
 
-        public async Task<Result<int>> SaveMIDHComponentTypesListAsync(AddMIDHComponentTypeDto dto)
+        public async Task<Result<int>> SaveMIDHComponentTypeAsync(AddMIDHComponentTypeDto dto)
         {
             try
             {

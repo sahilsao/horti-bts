@@ -10,6 +10,7 @@ namespace HortiBts.Api.Repositories.MIDHComponents
     public interface IMIDHComponentTypeRepository
     {
         Task<Result<List<MIDHComponentTypeDto>>> GetMIDHComponentTypeListAsync();
+        Task<Result<List<MIDHComponentTypeDto>>> GetMIDHComponentTypeListBySchemeIdAsync(int schemeId);
         Task<Result<int>> SaveMIDHComponentTypeAsync(AddMIDHComponentTypeDto dto, string userId, string clientIp);
         Task<Result<int>> UpdateMIDHComponentTypeAsync(AddMIDHComponentTypeDto dto, string userId, string clientIp);
         Task<Result<bool>> UpdateMIDHComponentTypeActiveFlagAsync(int componentId, bool flag, string userId, string clientIp);
@@ -38,9 +39,40 @@ namespace HortiBts.Api.Repositories.MIDHComponents
                 FROM mas_component_type_new ct
                 INNER
                 JOIN mas_scheme_new s ON s.scheme_id=ct.scheme_id
-                WHERE ct.flag=1
                 """;
                 var result = await connection.QueryAsync<MIDHComponentTypeDto>(sql);
+                return Result<List<MIDHComponentTypeDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<MIDHComponentTypeDto>>.Failure($"Failed to fetch MIDH Component Type: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<List<MIDHComponentTypeDto>>> GetMIDHComponentTypeListBySchemeIdAsync(int schemeId)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT 
+                    ct.component_type_id AS ComponentTypeId,
+                    ct.scheme_id AS MIDHSchemeId,
+                    s.scheme_name_en AS MIDHSchemeNameEn,
+                    s.scheme_name_hi AS MIDHSchemeNameHi,
+                    ct.component_type_name_en AS MIDHComponentTypeNameEn,
+                    ct.component_type_name_hi AS MIDHComponentTypeNameHi,
+                    s.scheme_type_id AS SchemeTypeId,
+                    ct.description_en AS MIDHComponentTypeDescriptionEn,
+                    ct.description_hi AS MIDHComponentTypeDescriptionHi,
+                    ct.midh_component_type_id AS MidhComponentTypeId,
+                    ct.flag AS Flag
+                FROM mas_component_type_new ct
+                INNER
+                JOIN mas_scheme_new s ON s.scheme_id=ct.scheme_id
+                WHERE ct.flag=1 AND ct.scheme_id=@SchemeId
+                """;
+                var result = await connection.QueryAsync<MIDHComponentTypeDto>(sql, new { SchemeId = schemeId });
                 return Result<List<MIDHComponentTypeDto>>.Success(result.ToList());
             }
             catch (Exception ex)

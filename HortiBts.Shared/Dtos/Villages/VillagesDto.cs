@@ -10,6 +10,6 @@ namespace HortiBts.Shared.Dtos.Villages
         public string? VillageName { get; set; } // village_name
         public string? VillageNameHi { get; set; } // village_name_hi
         public int? TehsilCensus { get; set; } //tehsil_census 
-        public int? SubdistrictCode { get; set; } // SubDistrictCodeCensus
+        public int? SubDistrictCode { get; set; } // SubDistrictCodeCensus
     }
 }

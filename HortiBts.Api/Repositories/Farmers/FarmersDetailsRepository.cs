@@ -75,8 +75,8 @@ namespace HortiBts.Api.Repositories.Farmers
                     v.DistCodeCensus AS DistCodeCensus,
                     v.district_id AS DistrictId,
                     v.DistrictName AS DistrictName,
-                    v.subdistrict_code AS SubdistrictCode,
-                    v.subdistrict_name AS SubdistrictName,
+                    v.subdistrict_code AS SubDistrictCode,
+                    v.subdistrict_name AS SubDistrictName,
                     fd.financial_year AS FinancialYear,
                     fd.data_source AS DataSource
                 FROM farmer_detail_horti fd
@@ -160,8 +160,8 @@ namespace HortiBts.Api.Repositories.Farmers
                     v.DistCodeCensus AS DistCodeCensus,
                     v.district_id AS DistrictId,
                     v.DistrictName AS DistrictName,
-                    v.subdistrict_code AS SubdistrictCode,
-                    v.subdistrict_name AS SubdistrictName,
+                    v.subdistrict_code AS SubDistrictCode,
+                    v.subdistrict_name AS SubDistrictName,
                     ld.financial_year AS FinancialYear,
                     y.financial_year AS FinancialYearStr
                 FROM land_details_horti ld

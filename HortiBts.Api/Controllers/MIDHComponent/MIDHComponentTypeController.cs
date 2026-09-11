@@ -30,8 +30,29 @@ public class MIDHComponentTypesController(IMIDHComponentTypeRepository repositor
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to load component types.");
-            return Problem("Failed to load component types.", statusCode: 500);
+            logger.LogError(ex, "Failed to load midh component types.");
+            return Problem("Failed to load midh component types.", statusCode: 500);
+        }
+    }
+
+    [HttpGet("midh-components-type-list-by-scheme-id")]
+    [EndpointSummary("Get MIDH components types list by scheme id")]
+    [EndpointDescription("Retrieves the list of available MIDH components types for a specific scheme.")]
+    public async Task<ActionResult<IEnumerable<MIDHComponentTypeDto>>> GetMIDHSchemesListBySchemeId([FromQuery] int schemeId)
+    {
+        try
+        {
+            var result = await repository.GetMIDHComponentTypeListBySchemeIdAsync(schemeId);
+
+            if (!result.IsSuccess)
+                return Problem(detail: result.Error, statusCode: 500);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to load midh component types.");
+            return Problem("Failed to load midh component types.", statusCode: 500);
         }
     }
 

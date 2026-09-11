@@ -4,9 +4,9 @@ using System.Net.Http.Json;
 
 namespace HortiBts.Client.Services.SubDistricts
 {
-    public class SubdistrictsApiService(HttpClient http)
+    public class SubDistrictsApiService(HttpClient http)
     {
-        public async Task<Result<List<SubDistrictsDto>>> GetSubdistrictsAsync(int districtCode)
+        public async Task<Result<List<SubDistrictsDto>>> GetSubDistrictsAsync(int districtCode)
         {
             try
             {

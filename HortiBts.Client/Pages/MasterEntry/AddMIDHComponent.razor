@@ -1,11 +1,9 @@
-﻿@page "/admin/add-midh-component-type"
+﻿@page "/admin/add-midh-component"
 @attribute [Authorize(Roles = "Admin")]
 
-@using HortiBts.Client.Services.Components
 @using HortiBts.Client.Services.MIDHComponents
 @using HortiBts.Client.Services.MIDHSchemes
 @using HortiBts.Client.Services.Schemes
-@using HortiBts.Shared.Dtos.Components
 @using HortiBts.Shared.Dtos.MIDHComponents
 @using HortiBts.Shared.Dtos.MIDHSchemes
 @using HortiBts.Shared.Dtos.Schemes
@@ -14,26 +12,27 @@
 @inject SchemesApiService SchemesApiService
 @inject MidhSchemesApiService MidhSchemesApiService
 @inject MIDHComponentTypeApiService MIDHComponentTypeApiService
+@inject MIDHComponentApiService MIDHComponentApiService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
 
 <PageTitle>
-    @Lang.Text("Add MIDH Component Type", "MIDH घटक प्रकार जोड़ें")
+    @Lang.Text("Add MIDH Component", "MIDH घटक जोड़ें")
 </PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="material-symbols-outlined/box_add"
+    <MudIcon Icon="material-symbols-outlined/bookmark_add"
              Color="Color.Primary"
              Size="Size.Large" />
 
-    @Lang.Text("Add MIDH Component Type", "MIDH घटक प्रकार जोड़ें")
+    @Lang.Text("Add MIDH Component", "MIDH घटक जोड़ें")
 </MudText>
 
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
     @Lang.Text(
-        "Fill in the fields below and save it to add a new MIDH component type.",
-        "MIDH घटक प्रकार में नया विकल्प जोड़ने हेतु नीचे दिए गए फील्ड भरकर सुरक्षित करें।")
+        "Fill in the fields below and save it to add a new MIDH component.",
+        "MIDH घटक में नया विकल्प जोड़ने हेतु नीचे दिए गए फील्ड भरकर सुरक्षित करें।")
 </MudText>
 
 <MudForm @ref="Form" Model="@this">
@@ -43,7 +42,7 @@
         <MudGrid Spacing="3" Class="mb-4">
 
             <!-- Scheme Type -->
-            <MudItem xs="12" sm="4">
+            <MudItem xs="12" sm="3">
                 <MudSelect T="int?"
                            Value="_selectedSchemeTypeId"
                            ValueChanged="OnSchemeTypeChanged"
@@ -65,9 +64,10 @@
             </MudItem>
 
             <!-- MIDH Scheme -->
-            <MudItem xs="12" sm="5">
+            <MudItem xs="12" sm="3">
                 <MudSelect T="int?"
-                           @bind-Value="_selectedMidhSchemeId"
+                           Value="_selectedMidhSchemeId"
+                           ValueChanged="OnMidhSchemeChanged"
                            Label="@Lang.Text("MIDH Scheme", "MIDH योजना")"
                            Variant="Variant.Outlined"
                            Required="true"
@@ -83,11 +83,30 @@
                 </MudSelect>
             </MudItem>
 
-            <!-- Component Type ID -->
+            <!-- Component Type -->
+            <MudItem xs="12" sm="3">
+                <MudSelect T="int?"
+                           @bind-Value="_selectedMidhComponentTypeId"
+                           Label="@Lang.Text("MIDH Component Type", "MIDH घटक प्रकार")"
+                           Variant="Variant.Outlined"
+                           Required="true"
+                           Disabled="@(!_midhComponentsTypes.Any())">
+
+                    @foreach (var type in _midhComponentsTypes)
+                    {
+                        <MudSelectItem T="int?"
+                                       Value="@((int?)type.MidhComponentTypeId)">
+                            @type.MidhComponentTypeNameEn
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <!-- Component ID -->
             <MudItem xs="12" sm="3">
                 <MudNumericField T="int?"
-                                 @bind-Value="_selectedMidhComponentTypeId"
-                                 Label="@Lang.Text("MIDH Component Type ID","MIDH घटक प्रकार ID")"
+                                 @bind-Value="_midhComponentId"
+                                 Label="@Lang.Text("MIDH Component ID","MIDH घटक ID")"
                                  Variant="Variant.Outlined"
                                  Required="true"
                                  Immediate="true" />
@@ -95,9 +114,9 @@
 
             <!-- English Name -->
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_midhComponentTypeNameEn"
-                              @ref="_midhComponentTypeNameEnField"
-                              Label="@Lang.Text("MIDH Component Type Name (English)","MIDH घटक प्रकार का नाम (अंग्रेज़ी)")"
+                <MudTextField @bind-Value="_midhComponentNameEn"
+                              @ref="_midhComponentNameEnField"
+                              Label="@Lang.Text("MIDH Component Name (English)","MIDH घटक का नाम (अंग्रेज़ी)")"
                               Variant="Variant.Outlined"
                               Required="true"
                               Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiWithSpecialCharsName(value,Lang.Text)))"
@@ -106,8 +125,8 @@
 
             <!-- Hindi Name -->
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_midhComponentTypeNameHi"
-                              Label="@Lang.Text("MIDH Component Type Name (Hindi)","MIDH घटक प्रकार का नाम (हिंदी)")"
+                <MudTextField @bind-Value="_midhComponentNameHi"
+                              Label="@Lang.Text("MIDH Component Name (Hindi)","MIDH घटक का नाम (हिंदी)")"
                               Variant="Variant.Outlined"
                               Required="true"
                               Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiWithSpecialCharsName(value,Lang.Text)))"
@@ -116,8 +135,8 @@
 
             <!-- English Description -->
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_midhComponentTypeDescriptionEn"
-                              Label="@Lang.Text("MIDH Component Type Description (English)","MIDH घटक प्रकार का विवरण (अंग्रेज़ी)")"
+                <MudTextField @bind-Value="_midhComponentDescriptionEn"
+                              Label="@Lang.Text("MIDH Component Description (English)","MIDH घटक का विवरण (अंग्रेज़ी)")"
                               Variant="Variant.Outlined"
                               Lines="3"
                               Required="true"
@@ -127,8 +146,8 @@
 
             <!-- Hindi Description -->
             <MudItem xs="12" sm="6">
-                <MudTextField @bind-Value="_midhComponentTypeDescriptionHi"
-                              Label="@Lang.Text("MIDH Component Type Description (Hindi)","MIDH घटक प्रकार का विवरण (हिंदी)")"
+                <MudTextField @bind-Value="_midhComponentDescriptionHi"
+                              Label="@Lang.Text("MIDH Component Description (Hindi)","MIDH घटक का विवरण (हिंदी)")"
                               Variant="Variant.Outlined"
                               Lines="3"
                               Required="true"
@@ -183,16 +202,16 @@
 </MudForm>
 
 <!-- MIDH Component Type List -->
-@if (_midhComponentsTypes.Any())
+@if (_midhComponents.Any())
 {
-    <MudTable Items="_filteredMidhComponentsTypes"
+    <MudTable Items="_filteredMidhComponents"
               Dense="true"
               Hover="true"
               Elevation="1"
               Class="mt-4">
         <ToolBarContent>
             <MudText Typo="Typo.h6">
-                @Lang.Text("MIDH Component Types", "MIDH घटक प्रकार")
+                @Lang.Text("MIDH Component", "MIDH घटक")
             </MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString"
@@ -204,55 +223,71 @@
         </ToolBarContent>
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमांक")</MudTh>
-            <MudTh>@Lang.Text("MIDH Component Type ID", "MIDH घटक प्रकार ID")</MudTh>
-            <MudTh>@Lang.Text("MIDH Component Type ID", "MIDH घटक प्रकार ID")</MudTh>
+            <MudTh>@Lang.Text("Component ID", "घटक ID")</MudTh>
+            <MudTh>@Lang.Text("MIDH Component ID", "MIDH घटक ID")</MudTh>
             <MudTh>
-                <MudTableSortLabel SortBy="new Func<MIDHComponentTypeDto, object>(x => x.MidhComponentTypeNameEn ?? string.Empty)">
+                <MudTableSortLabel SortBy="new Func<MIDHComponentDto, object>(x => x.MidhComponentNameEn ?? string.Empty)">
                     @Lang.Text(
-                        "MIDH Component Type Name (English)",
+                        "MIDH Component Name (English)",
                         "MIDH घटक प्रकार का नाम (अंग्रेज़ी)")
                 </MudTableSortLabel>
             </MudTh>
             <MudTh>
-                <MudTableSortLabel SortBy="new Func<MIDHComponentTypeDto, object>(x => x.MidhComponentTypeNameHi ?? string.Empty)">
+                <MudTableSortLabel SortBy="new Func<MIDHComponentDto, object>(x => x.MidhComponentNameHi ?? string.Empty)">
                     @Lang.Text(
-                        "MIDH Component Type Name (Hindi)",
-                        "MIDH घटक प्रकार का नाम (हिंदी)")
+                        "MIDH Component Name (Hindi)",
+                        "MIDH घटक का नाम (हिंदी)")
                 </MudTableSortLabel>
             </MudTh>
-            <MudTh>@Lang.Text("MIDH Component Type Description (English)", "MIDH घटक प्रकार का विवरण (अंग्रेज़ी)")</MudTh>
-            <MudTh>@Lang.Text("MIDH Component Type Description (Hindi)", "MIDH घटक प्रकार का विवरण (हिंदी)")</MudTh>
+            <MudTh>@Lang.Text("MIDH Component Description (English)", "MIDH घटक का विवरण (अंग्रेज़ी)")</MudTh>
+            <MudTh>@Lang.Text("MIDH Component Description (Hindi)", "MIDH घटक का विवरण (हिंदी)")</MudTh>
+            <MudTh>@Lang.Text("MIDH Component Type (English)", "MIDH घटक प्रकार (अंग्रेज़ी)")</MudTh>
+            <MudTh>@Lang.Text("MIDH Component Type (Hindi)", "MIDH घटक प्रकार (हिंदी)")</MudTh>
+            <MudTh>@Lang.Text("MIDH Scheme (English)", "MIDH योजना (अंग्रेज़ी)")</MudTh>
+            <MudTh>@Lang.Text("MIDH Scheme (Hindi)", "MIDH योजना (हिंदी)")</MudTh>
             <MudTh>@Lang.Text("Active Status", "एक्टिव स्टेटस")</MudTh>
             <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमांक")">
-                @(_filteredMidhComponentsTypes.ToList().IndexOf(context) + 1)
+                @(_filteredMidhComponents.ToList().IndexOf(context) + 1)
             </MudTd>
-            <MudTd DataLabel="@Lang.Text("Component Type ID (English)", "घटक प्रकार ID (अंग्रेज़ी)")">
-                @context.ComponentTypeId
+            <MudTd DataLabel="@Lang.Text("Component ID (English)", "घटक ID (अंग्रेज़ी)")">
+                @context.ComponentId
             </MudTd>
-            <MudTd DataLabel="@Lang.Text("MIDH Component Type ID (English)", "MIDH घटक प्रकार ID (अंग्रेज़ी)")">
-                @context.MidhComponentTypeId
+            <MudTd DataLabel="@Lang.Text("MIDH Component ID (English)", "MIDH घटक ID (अंग्रेज़ी)")">
+                @context.MidhComponentId
             </MudTd>
-            <MudTd DataLabel="@Lang.Text("MIDH Component Type Name (English)", "MIDH घटक प्रकार का नाम (अंग्रेज़ी)")">
+            <MudTd DataLabel="@Lang.Text("MIDH Component Name (English)", "MIDH घटक का नाम (अंग्रेज़ी)")">
+                @context.MidhComponentNameEn
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("MIDH Component Name (Hindi)", "MIDH घटक का नाम (हिंदी)")">
+                @context.MidhComponentNameHi
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("MIDH Component Description (English)", "MIDH घटक का विवरण (अंग्रेज़ी)")">
+                @context.MidhComponentDescriptionEn
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("MIDH Component Description (Hindi)", "MIDH घटक का विवरण (हिंदी)")">
+                @context.MidhComponentDescriptionHi
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("MIDH Component Type (English)", "MIDH घटक प्रकार (अंग्रेज़ी)")">
                 @context.MidhComponentTypeNameEn
             </MudTd>
-            <MudTd DataLabel="@Lang.Text("MIDH Component Type Name (Hindi)", "MIDH घटक प्रकार का नाम (हिंदी)")">
+            <MudTd DataLabel="@Lang.Text("MIDH Component Type (Hindi)", "MIDH घटक प्रकार (हिंदी)")">
                 @context.MidhComponentTypeNameHi
             </MudTd>
-            <MudTd DataLabel="@Lang.Text("MIDH Component Type Description (English)", "MIDH घटक प्रकार का विवरण (अंग्रेज़ी)")">
-                @context.MidhComponentTypeDescriptionEn
+            <MudTd DataLabel="@Lang.Text("MIDH Scheme (English)", "MIDH योजना (अंग्रेज़ी)")">
+                @context.MidhSchemeNameEn
             </MudTd>
-            <MudTd DataLabel="@Lang.Text("MIDH Component Type Description (Hindi)", "MIDH घटक प्रकार का विवरण (हिंदी)")">
-                @context.MidhComponentTypeDescriptionHi
+            <MudTd DataLabel="@Lang.Text("MIDH Scheme (Hindi)", "MIDH योजना (हिंदी)")">
+                @context.MidhSchemeNameHi
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Active Status", "एक्टिव स्टेटस")">
                 <MudSwitch T="bool"
                            Value="@context.Flag"
                            ValueChanged="@(newValue => ToggleFlag(context, newValue))"
                            Color="Color.Success"
-                           Disabled="@_togglingIds.Contains(context.ComponentTypeId)" />
+                           Disabled="@_togglingIds.Contains(context.ComponentId)" />
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Edit", "संपादित करें")">
                 <MudStack Row="true" Spacing="1">
@@ -274,12 +309,13 @@
 @code {
 
     private ElementReference _formTopRef;
-    private MudTextField<string> _midhComponentTypeNameEnField = default!;
+    private MudTextField<string> _midhComponentNameEnField = default!;
 
     // Lists
     private List<SchemeTypeDto> _schemeTypes = new();
     private List<MIDHSchemeDto> _midhSchemes = new();
     private List<MIDHComponentTypeDto> _midhComponentsTypes = new();
+    private List<MIDHComponentDto> _midhComponents = new();
 
     // Search
     private string _searchString = string.Empty;
@@ -287,14 +323,15 @@
     // Selected IDs
     private int? _selectedSchemeTypeId;
     private int? _selectedMidhSchemeId;
-    private int? _selectedComponentTypeId;
     private int? _selectedMidhComponentTypeId;
 
     // Form fields
-    private string? _midhComponentTypeNameEn;
-    private string? _midhComponentTypeNameHi;
-    private string? _midhComponentTypeDescriptionEn;
-    private string? _midhComponentTypeDescriptionHi;
+    private int? _selectedComponentId;
+    private int? _midhComponentId;
+    private string? _midhComponentNameEn;
+    private string? _midhComponentNameHi;
+    private string? _midhComponentDescriptionEn;
+    private string? _midhComponentDescriptionHi;
 
     // State
     private bool _isLoading;
@@ -302,13 +339,13 @@
     private bool _isEditMode = false;
 
     // Filter
-    private IEnumerable<MIDHComponentTypeDto> _filteredMidhComponentsTypes =>
-        _midhComponentsTypes.Where(c =>
+    private IEnumerable<MIDHComponentDto> _filteredMidhComponents =>
+        _midhComponents.Where(c =>
             string.IsNullOrWhiteSpace(_searchString)
-            || (c.MidhComponentTypeNameEn?.Contains(
+            || (c.MidhComponentNameEn?.Contains(
                 _searchString,
                 StringComparison.OrdinalIgnoreCase) ?? false)
-            || (c.MidhComponentTypeNameHi?.Contains(
+            || (c.MidhComponentNameHi?.Contains(
                 _searchString,
                 StringComparison.OrdinalIgnoreCase) ?? false));
 
@@ -316,7 +353,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadSchemeTypes();
-        await LoadMidhComponentsTypes();
+        await LoadMidhComponents();
     }
 
     private async Task LoadSchemeTypes()
@@ -339,11 +376,16 @@
 
     private async Task OnSchemeTypeChanged(int? schemeTypeId)
     {
-        _selectedSchemeTypeId = schemeTypeId;
 
         _selectedMidhSchemeId = null;
 
         _midhSchemes.Clear();
+
+        _selectedMidhComponentTypeId = null;
+
+        _midhComponentsTypes.Clear();
+
+        _selectedSchemeTypeId = schemeTypeId;
 
         if (!schemeTypeId.HasValue)
             return;
@@ -364,9 +406,18 @@
         }
     }
 
-    private async Task LoadMidhComponentsTypes()
+    private async Task OnMidhSchemeChanged(int? schemeId)
     {
-        var result = await MIDHComponentTypeApiService.GetMIDHComponentTypesListAsync();
+        _selectedMidhComponentTypeId = null;
+
+        _midhComponentsTypes.Clear();
+
+        _selectedMidhSchemeId = schemeId;
+
+        if (!schemeId.HasValue)
+            return;
+
+        var result = await MIDHComponentTypeApiService.GetComponentTypesListBySchemeIdAsync(schemeId.Value);
 
         if (result.IsSuccess && result.Data is not null && result.Data.Any())
         {
@@ -382,25 +433,45 @@
         }
     }
 
-    private async Task LoadForEdit(MIDHComponentTypeDto componentType)
+    private async Task LoadMidhComponents()
+    {
+        var result = await MIDHComponentApiService.GetMIDHComponentsListAsync();
+
+        if (result.IsSuccess && result.Data is not null && result.Data.Any())
+        {
+            _midhComponents = result.Data;
+        }
+        else
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Failed to load MIDH component.",
+                    "MIDH घटक लोड करने में विफल।"),
+                Severity.Error);
+        }
+    }
+
+    private async Task LoadForEdit(MIDHComponentDto component)
     {
         _isEditMode = true;
-        _selectedComponentTypeId = componentType.ComponentTypeId;
-        _selectedSchemeTypeId = componentType.MidhSchemeId;
+        _selectedComponentId = component.ComponentId;
+        _midhComponentId = component.MidhComponentId;
 
         // Load MIDH schemes first
-        await OnSchemeTypeChanged(componentType.SchemeTypeId);
+        await OnSchemeTypeChanged(component.MidhSchemeTypeId);
 
         // Select existing scheme
-        _selectedMidhSchemeId = componentType.MidhSchemeId;
+        _selectedMidhSchemeId = component.MidhSchemeId;
+        
+        await OnMidhSchemeChanged(component.MidhSchemeId);
 
-        // Existing component type ID
-        _selectedMidhComponentTypeId = componentType.MidhComponentTypeId;
+        // Existing component ID
+        _selectedMidhComponentTypeId = component.MidhComponentTypeId;
 
-        _midhComponentTypeNameEn = componentType.MidhComponentTypeNameEn;
-        _midhComponentTypeNameHi = componentType.MidhComponentTypeNameHi;
-        _midhComponentTypeDescriptionEn = componentType.MidhComponentTypeDescriptionEn;
-        _midhComponentTypeDescriptionHi = componentType.MidhComponentTypeDescriptionHi;
+        _midhComponentNameEn = component.MidhComponentNameEn;
+        _midhComponentNameHi = component.MidhComponentNameHi;
+        _midhComponentDescriptionEn = component.MidhComponentDescriptionEn;
+        _midhComponentDescriptionHi = component.MidhComponentDescriptionHi;
 
 
         if (Form is not null)
@@ -410,7 +481,7 @@
             "scrollAndFocus",
             _formTopRef);
 
-        await _midhComponentTypeNameEnField.FocusAsync();
+        await _midhComponentNameEnField.FocusAsync();
     }
 
     private async Task SaveMidhComponentType()
@@ -446,45 +517,45 @@
 
         try
         {
-            var dto = new AddMIDHComponentTypeDto
+            var dto = new AddMIDHComponentDto
             {
                 // null for insert, existing ID for update
-                ComponentTypeId = _isEditMode ? _selectedComponentTypeId : null,
+                ComponentId = _isEditMode ? _selectedComponentId : null,
 
-                MidhSchemeId = _selectedMidhSchemeId,
                 MidhComponentTypeId = _selectedMidhComponentTypeId,
-                MidhComponentTypeNameEn = _midhComponentTypeNameEn!,
-                MidhComponentTypeNameHi = _midhComponentTypeNameHi!,
-                MidhComponentTypeDescriptionEn = _midhComponentTypeDescriptionEn!,
-                MidhComponentTypeDescriptionHi = _midhComponentTypeDescriptionHi!
+                MidhComponentId = _midhComponentId,
+                MidhComponentNameEn = _midhComponentNameEn!,
+                MidhComponentNameHi = _midhComponentNameHi!,
+                MidhComponentDescriptionEn = _midhComponentDescriptionEn!,
+                MidhComponentDescriptionHi = _midhComponentDescriptionHi!
             };
 
             var result = _isEditMode
-                    ? await MIDHComponentTypeApiService.UpdateMIDHComponentTypeAsync(dto)
-                    : await MIDHComponentTypeApiService.SaveMIDHComponentTypeAsync(dto);
+                    ? await MIDHComponentApiService.UpdateMIDHComponentAsync(dto)
+                    : await MIDHComponentApiService.SaveMIDHComponentAsync(dto);
 
             if (result.IsSuccess)
             {
                 Snackbar.Add(Lang.Text(
-                        _selectedMidhComponentTypeId is null
-                            ? "Component type saved successfully."
-                            : "Component type updated successfully.",
+                        _midhComponentId is null
+                            ? "Component saved successfully."
+                            : "Component updated successfully.",
 
-                        _selectedMidhComponentTypeId is null
-                            ? "घटक प्रकार सफलतापूर्वक सुरक्षित किया गया।"
-                            : "घटक प्रकार सफलतापूर्वक अपडेट किया गया।"),
+                        _midhComponentId is null
+                            ? "घटक सफलतापूर्वक सुरक्षित किया गया।"
+                            : "घटक सफलतापूर्वक अपडेट किया गया।"),
                     Severity.Success);
 
                 await Reset();
-                await LoadMidhComponentsTypes();
+                await LoadMidhComponents();
             }
             else
             {
                 Snackbar.Add(
                     result.Error ??
                     Lang.Text(
-                        "Failed to save component type.",
-                        "घटक प्रकार सुरक्षित करने में विफल।"),
+                        "Failed to save component ",
+                        "घटक सुरक्षित करने में विफल।"),
                     Severity.Error);
             }
         }
@@ -492,8 +563,8 @@
         {
             Snackbar.Add(
                 Lang.Text(
-                    "Failed to save component type.",
-                    "घटक प्रकार सुरक्षित करने में विफल।"),
+                    "Failed to save component.",
+                    "घटक सुरक्षित करने में विफल।"),
                 Severity.Error);
         }
         finally
@@ -502,38 +573,38 @@
         }
     }
 
-    private async Task ToggleFlag(MIDHComponentTypeDto componentType, bool newValue)
+    private async Task ToggleFlag(MIDHComponentDto component, bool newValue)
     {
-        _togglingIds.Add(componentType.ComponentTypeId);
-        var previousValue = componentType.Flag;
-        componentType.Flag = newValue; // optimistic UI update
+        _togglingIds.Add(component.MidhComponentId);
+        var previousValue = component.Flag;
+        component.Flag = newValue; // optimistic UI update
 
         try
         {
-            var result = await MIDHComponentTypeApiService.UpdateMIDHComponentTypeActiveFlagAsync(componentType.ComponentTypeId, newValue);
+            var result = await MIDHComponentApiService.UpdateMIDHComponentActiveFlagAsync(component.ComponentId, newValue);
             if (!result.IsSuccess)
             {
-                componentType.Flag = previousValue; // revert on failure
+                component.Flag = previousValue; // revert on failure
                 Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
-                await LoadMidhComponentsTypes();
+                await LoadMidhComponents();
             }
             else
             {
                 Snackbar.Add(
                     newValue
-                        ? Lang.Text("MIDH Component Type activated.", "MIDH घटक प्रकार सक्रिय किया गया।")
-                        : Lang.Text("MIDH Component Type deactivated.", "MIDH घटक प्रकार निष्क्रिय किया गया।"),
+                        ? Lang.Text("MIDH Component activated.", "MIDH घटक सक्रिय किया गया।")
+                        : Lang.Text("MIDH Component deactivated.", "MIDH घटक निष्क्रिय किया गया।"),
                     Severity.Success);
             }
         }
         catch
         {
-            componentType.Flag = previousValue;
+            component.Flag = previousValue;
             Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
         }
         finally
         {
-            _togglingIds.Remove(componentType.ComponentTypeId);
+            _togglingIds.Remove(component.ComponentId);
         }
     }
 
@@ -542,13 +613,14 @@
         _isEditMode = false;
         _selectedSchemeTypeId = null;
         _selectedMidhSchemeId = null;
+        _midhComponentId = null;
         _selectedMidhComponentTypeId = null;
         _midhSchemes.Clear();
-
-        _midhComponentTypeNameEn = null;
-        _midhComponentTypeNameHi = null;
-        _midhComponentTypeDescriptionEn = null;
-        _midhComponentTypeDescriptionHi = null;
+        _midhComponentsTypes.Clear();
+        _midhComponentNameEn = null;
+        _midhComponentNameHi = null;
+        _midhComponentDescriptionEn = null;
+        _midhComponentDescriptionHi = null;
 
 
         if (Form is not null)

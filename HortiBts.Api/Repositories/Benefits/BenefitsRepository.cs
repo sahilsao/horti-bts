@@ -26,7 +26,7 @@ namespace HortiBts.Api.Repositories.Benefits
                 SELECT 
                     mu.benefit_type_id AS BenefitTypeId,
                     mu.benefit_name_en AS BenefitNameEn,
-                    mu.benefit_name_hi AS BenefitNameHi,
+                    mu.benefit_name_hi AS BenefitNameHi
                 FROM mas_benefit_type mu
                 WHERE mu.flag=1
                 

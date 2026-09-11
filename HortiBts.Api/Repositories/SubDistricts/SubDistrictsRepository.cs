@@ -20,7 +20,7 @@ namespace HortiBts.Api.Repositories.SubDistricts
                 using var connection = dbFactory.CreateConnection(HortiDb.Bts);
                 const string sql = """
                 SELECT 
-                    rb.subdistrict_code AS SubdistrictCode,
+                    rb.subdistrict_code AS SubDistrictCode,
                     rb.BlockNameEng AS SubDistrictName,
                     rb.BlockNameHin AS SubDistrictNameHi
                 FROM rev_block rb

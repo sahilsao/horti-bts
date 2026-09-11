@@ -189,7 +189,13 @@
             <MudTd DataLabel="@Lang.Text("Component Name (Hindi)", "घटक का नाम (हिंदी)")">@context.ComponentNameHi</MudTd>
             <MudTd DataLabel="@Lang.Text("Component Description (English)", "घटक का विवरण (अंग्रेज़ी)")">@context.ComponentDescriptionEn</MudTd>
             <MudTd DataLabel="@Lang.Text("Component Description (Hindi)", "घटक का विवरण (हिंदी)")">@context.ComponentDescriptionHi</MudTd>
-
+            <MudTd DataLabel="@Lang.Text("Active Status", "एक्टिव स्टेटस")">
+                <MudSwitch T="bool"
+                           Value="@context.ComponentFlag"
+                           ValueChanged="@(newValue => ToggleFlag(context, newValue))"
+                           Color="Color.Success"
+                           Disabled="@_togglingIds.Contains(context.ComponentId)" />
+            </MudTd>
             <MudTd DataLabel="@Lang.Text("Edit", "संपादित करें")">
                 <MudStack Row="true" Spacing="1">
 
@@ -199,13 +205,7 @@
                                        Size="Size.Small"
                                        OnClick="@(() => OpenSchemeDialog(context))" />
                     </MudTooltip> *@
-                    <MudTd DataLabel="@Lang.Text("Active Status", "एक्टिव स्टेटस")">
-                        <MudSwitch T="bool"
-                                   Value="@context.ComponentFlag"
-                                   ValueChanged="@(newValue => ToggleFlag(context, newValue))"
-                                   Color="Color.Success"
-                                   Disabled="@_togglingIds.Contains(context.ComponentId)" />
-                    </MudTd>
+                   
                     <MudTooltip Text="@Lang.Text("Edit", "संपादित करें")">
                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                        Color="Color.Primary"

@@ -69,11 +69,11 @@ namespace HortiBts.Shared.Validation
 
             return Regex.IsMatch(
                 value,
-                @"^[a-zA-Z\u0900-\u097F0-9\s.\-()'/]+$")
+                @"^[a-zA-Z\u0900-\u097F0-9\s.\-(),'/]+$")
                 ? null
                 : text(
-                    "Only English, Hindi, numbers, spaces, dots, dashes, brackets, apostrophes and slashes are allowed.",
-                    "केवल अंग्रेज़ी, हिंदी, अंक, स्पेस, डॉट, डैश, ब्रैकेट, एपोस्ट्रोफ और स्लैश मान्य हैं।");
+                    "Only English, Hindi, numbers, spaces, dots, dashes, brackets, commas, apostrophes and slashes are allowed.",
+                    "केवल अंग्रेज़ी, हिंदी, अंक, स्पेस, डॉट, डैश, ब्रैकेट, कॉमा, एपोस्ट्रोफ और स्लैश मान्य हैं।");
         }
     }
 }

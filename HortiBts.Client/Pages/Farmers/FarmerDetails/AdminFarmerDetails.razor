@@ -127,7 +127,7 @@
                 <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerAddressDetails.IndexOf(a) + 1)</MudTd>
                 <MudTd DataLabel="@Lang.Text("Address", "पता")">@FormatAddress(a)</MudTd>
                 <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(a.VillageName)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(a.SubdistrictName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(a.SubDistrictName)</MudTd>
                 <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(a.DistrictName)</MudTd>
             </RowTemplate>
         </MudTable>
@@ -198,7 +198,7 @@
                                 <MudTd DataLabel="@Lang.Text("Owner Type", "स्वामी प्रकार")">@Or(context.Ownertype)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.Area</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(context.SubdistrictName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(context.SubDistrictName)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(context.DistrictName)</MudTd>
                             </RowTemplate>
                         </MudTable>

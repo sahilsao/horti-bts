@@ -40,7 +40,7 @@
         <MudAvatar Size="Size.Medium" Class="mr-2">
             <MudImage Src="images/icons/HortiLogo.jpg" Alt="Logo" Height="40" />
         </MudAvatar>
-       
+
         <MudHidden Breakpoint="Breakpoint.Lg" Invert="true">
             <MudText Typo="Typo.h6" Class="ml-3">
                 @Lang.Text(
@@ -48,9 +48,17 @@
                     "छत्तीसगढ़ हॉर्टिकल्चर बेनेफिशियरी ट्रैकिंग सिस्टम")
             </MudText>
         </MudHidden>
-
         <MudSpacer />
-
+        <MudChip T="string" Label="true" Size="Size.Large" Color="Color.Primary" Variant="Variant.Filled">
+            <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.body2">
+                    @GetUserRoleText()
+                </MudText>
+                <MudText Typo="Typo.caption">
+                    @GetUserNameText()
+                </MudText>
+            </MudStack>
+        </MudChip>
         <!-- Dark Mode -->
         <MudTooltip Text="@(_isDarkMode ? Lang.Text("Light Mode", "लाइट मोड") : Lang.Text("Dark Mode", "डार्क मोड"))">
             <MudToggleIconButton Toggled="@_isDarkMode"
@@ -95,22 +103,7 @@
                @bind-Open="_drawerOpen"
                ClipMode="DrawerClipMode.Always"
                Elevation="2">
-
         <NavMenu />
-
-        <MudSpacer />
-
-        <MudButton Class="mx-6 my-4"
-                   Color="Color.Primary"
-                   Size="Size.Small"
-                   Variant="Variant.Filled"
-                   DropShadow="false">
-            <MudStack Spacing="0" AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.body2">@GetUserRoleText()</MudText>
-                <MudText Typo="Typo.caption">@GetUserNameText()</MudText>
-            </MudStack>
-        </MudButton>
-
     </MudDrawer>
 
     <!-- Main Content -->
