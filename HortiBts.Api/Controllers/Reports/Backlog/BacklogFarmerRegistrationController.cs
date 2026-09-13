@@ -7,8 +7,8 @@ namespace HortiBts.Api.Controllers.Reports.Backlog
     [Route("api/reports/backlog")]
     [ApiController]
     public class BacklogFarmerRegistrationController(IBacklogFarmerRegistrationRepository repository,
-        ILogger<DistwiseFarmerRegistrationDto> logger,
-        ILogger<BlockwiseFarmerRegistrationDto> logger2) : ControllerBase
+        ILogger<DistWiseFarmerRegistrationDto> logger,
+        ILogger<BlockWiseFarmerRegistrationDto> logger2) : ControllerBase
     {
         [HttpGet("distwise-farmer-registration")]
         [EndpointSummary("Get backlog report of district-wise farmer registration")]

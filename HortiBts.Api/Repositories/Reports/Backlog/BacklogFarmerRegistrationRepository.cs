@@ -7,12 +7,12 @@ namespace HortiBts.Api.Repositories.Reports.Backlog
 {
     public interface IBacklogFarmerRegistrationRepository
     {
-        Task<Result<List<DistwiseFarmerRegistrationDto>>> GetBacklogRptOfDistwiseFarmerRegistrationAsync(int financialYear);
-        Task<Result<List<BlockwiseFarmerRegistrationDto>>> GetBacklogRptOfBlockwiseFarmerRegistrationAsync(int districtCode, int financialYear);
+        Task<Result<List<DistWiseFarmerRegistrationDto>>> GetBacklogRptOfDistwiseFarmerRegistrationAsync(int financialYear);
+        Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBacklogRptOfBlockwiseFarmerRegistrationAsync(int districtCode, int financialYear);
     }
     public class BacklogFarmerRegistrationRepository(IDbConnectionFactory connectionFactory) : IBacklogFarmerRegistrationRepository
     {
-        public async Task<Result<List<DistwiseFarmerRegistrationDto>>> GetBacklogRptOfDistwiseFarmerRegistrationAsync(int financialYear)
+        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetBacklogRptOfDistwiseFarmerRegistrationAsync(int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             string Sql = @"
@@ -63,11 +63,11 @@ namespace HortiBts.Api.Repositories.Reports.Backlog
             GROUP BY va.DistCodeCensus
             ORDER BY va.DistrictName";
 
-            var result = await connection.QueryAsync<DistwiseFarmerRegistrationDto>(Sql, new { FinancialYear = financialYear });
-            return Result<List<DistwiseFarmerRegistrationDto>>.Success(result.ToList());
+            var result = await connection.QueryAsync<DistWiseFarmerRegistrationDto>(Sql, new { FinancialYear = financialYear });
+            return Result<List<DistWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<BlockwiseFarmerRegistrationDto>>> GetBacklogRptOfBlockwiseFarmerRegistrationAsync(int districtCode, int financialYear)
+        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBacklogRptOfBlockwiseFarmerRegistrationAsync(int districtCode, int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             string Sql = @"
@@ -122,8 +122,8 @@ namespace HortiBts.Api.Repositories.Reports.Backlog
             GROUP BY va.subdistrict_code
             ORDER BY rb.BlockNameEng";
 
-            var result = await connection.QueryAsync<BlockwiseFarmerRegistrationDto>(Sql, new { DistrictCode = districtCode, FinancialYear = financialYear });
-            return Result<List<BlockwiseFarmerRegistrationDto>>.Success(result.ToList());
+            var result = await connection.QueryAsync<BlockWiseFarmerRegistrationDto>(Sql, new { DistrictCode = districtCode, FinancialYear = financialYear });
+            return Result<List<BlockWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
     }
 }

@@ -6,12 +6,13 @@
 @using HortiBts.Shared.Dtos.Reports
 @attribute [Authorize(Roles = "Admin")]
 
-@inject FinancialYearsApiService FinancialYearApiService
+@inject FinancialYearsApiService FinancialYearsApiService
 @inject YearlyFarmerRegistrationApiService YearlyFarmerRegistrationApiService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
-<PageTitle>@Lang.Text("District-wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")</PageTitle>
+<PageTitle>@Lang.Text("District-wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
     <MudIcon Icon="material-symbols-outlined/lab_profile" Color="Color.Primary" Size="Size.Large" />
@@ -23,10 +24,8 @@
 
 <MudGrid Spacing="3" Class="mb-4">
     <MudItem xs="12" sm="4">
-        <MudSelect T="int?"
-                   Label="@Lang.Text("Select Financial Year", "वित्त वर्ष चुने")"
-                   @bind-Value="_selectedFinancialYear"
-                   Variant="Variant.Outlined" FullWidth="true" Class="mb-3"
+        <MudSelect T="int?" Label="@Lang.Text("Select Financial Year", "वित्त वर्ष चुने")"
+                   @bind-Value="_selectedFinancialYear" Variant="Variant.Outlined" FullWidth="true" Class="mb-3"
                    Required="true">
             @foreach (var f in _finyears)
             {
@@ -56,12 +55,7 @@
 
 @if (_reportData.Any())
 {
-    <MudTable Items="_filteredReportData"
-              SortLabel="Sort By"
-              Dense="true"
-              Hover="true"
-              Elevation="1"
-              Class="mt-4">
+    <MudTable Items="_filteredReportData" SortLabel="Sort By" Dense="true" Hover="true" Elevation="1" Class="mt-4">
         <ToolBarContent>
             <MudText Typo="Typo.h6">
                 @Lang.Text("Distwise Farmer Registration Report (Yearly)", "जिलावार रिपोर्ट उद्यानिकी कृषक पंजीयन रिपोर्ट (वार्षिक)")
@@ -69,37 +63,55 @@
             </MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
-                          Immediate="true" />
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" />
         </ToolBarContent>
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DistwiseFarmerRegistrationDto, object>(x => Lang.Text(x.DistrictNameEn!, x.DistrictNameEn!))">@Lang.Text("District", "जिला")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DistwiseFarmerRegistrationDto, object>(x => x.Target!)">@Lang.Text("Target Count", "लक्ष्य (संख्या में)")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DistwiseFarmerRegistrationDto, object>(x => x.FarmerCount!)">@Lang.Text("Farmer Count", "कृषक संख्या")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DistwiseFarmerRegistrationDto, object>(x => x.SchemeCount!)">@Lang.Text("Applications Count", "आवेदन संख्या")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DistwiseFarmerRegistrationDto, object>(x => x.Area!)">@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<DistwiseFarmerRegistrationDto, object>(x => x.Subsidy!)">@Lang.Text("Subsidy Amount", "अनुदान राशि")</MudTableSortLabel></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
-            <MudTd DataLabel="@Lang.Text("District", "जिला")">
-                <MudLink Href="javascript:void(0)" Color="Color.Info"
-                         OnClick="@(() => LoadBlockWiseReport(context.DistrictCode , _selectedFinancialYear!.Value))">
-                    @Lang.Text(context.DistrictNameEn!, context.DistrictNameHi!)
-                </MudLink>
-            </MudTd>
-            <MudTd DataLabel="@Lang.Text("Target Count", "लक्ष्य (संख्या में)")">@context.Target</MudTd>
-            <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>
-            <MudTd DataLabel="@Lang.Text("Applications Count", "आवेदन संख्या")">@context.SchemeCount</MudTd>
-            <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area</MudTd>
-            <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.Subsidy</MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
-        </PagerContent>
-    </MudTable>
-}
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => Lang.Text(x.DistrictNameEn!, x.DistrictNameEn!))">
+                    @Lang.Text("District", "जिला")</MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Target!)">
+                        @Lang.Text("Target Count", "लक्ष्य (संख्या में)")</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.FarmerCount!)">
+                            @Lang.Text("Farmer Count", "कृषक संख्या")</MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.SchemeCount!)">
+                                @Lang.Text("Applications Count", "आवेदन संख्या")</MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>
+                                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Area!)">@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")</MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>
+                                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Subsidy!)">
+                                    @Lang.Text("Subsidy Amount", "अनुदान राशि")</MudTableSortLabel>
+                                </MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("District", "जिला")">
+                                    <MudLink Href="javascript:void(0)" Color="Color.Info"
+                                             OnClick="@(() => LoadBlockWiseReport(context.DistrictCode , _selectedFinancialYear!.Value))">
+                                        @Lang.Text(context.DistrictNameEn!, context.DistrictNameHi!)
+                                    </MudLink>
+                                </MudTd>
+                                <MudTd DataLabel="@Lang.Text("Target Count", "लक्ष्य (संख्या में)")">@context.Target</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Applications Count", "आवेदन संख्या")">@context.SchemeCount</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.Subsidy</MudTd>
+                            </RowTemplate>
+                            <PagerContent>
+                                <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+                            </PagerContent>
+                        </MudTable>
+                    }
+
 @code {
 
     private List<FinancialYearDto> _finyears = [];
@@ -108,7 +120,7 @@
     private CurrentUserInfo _currentUser = new("", "", "", 0);
     private bool _isLoading = false;
 
-    private List<DistwiseFarmerRegistrationDto> _reportData = new();
+    private List<DistWiseFarmerRegistrationDto> _reportData = new();
 
     private string _searchString = string.Empty;
 
@@ -119,7 +131,7 @@
 
     private async Task LoadFinancialYearsAsync()
     {
-        var result = await FinancialYearApiService.GetFinancialYearsForReportAsync();
+        var result = await FinancialYearsApiService.GetFinancialYearsForReportAsync();
 
         if (result.IsSuccess && result.Data is not null)
             _finyears = result.Data;
@@ -136,34 +148,23 @@
             return;
         }
         _isLoading = true;
-        var result = await YearlyFarmerRegistrationApiService.GetDistwiseFarmerRegistrationListAsync(_selectedFinancialYear!.Value);
+        var result = await
+YearlyFarmerRegistrationApiService.GetDistWiseFarmerRegistrationListAsync(_selectedFinancialYear!.Value);
         if (result.IsSuccess && result.Data is not null)
+        {
             _reportData = result.Data;
+        }
         else
+        {
             Snackbar.Add(Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"), Severity.Warning);
-        _isLoading = false;
+            _isLoading = false;
+        }
     }
-
     private async Task LoadBlockWiseReport(int? districtCode, int? financialYear)
     {
-        if (districtCode is null)
-        {
-            Snackbar.Add(
-                Lang.Text("Please select a district.", "कृपया एक जिला चुनें।"),
-                Severity.Warning);
-            return;
-        }
-
-        if (financialYear is null)
-        {
-            Snackbar.Add(
-                Lang.Text("Please select a financial year.", "कृपया एक वित्तीय वर्ष चुनें।"),
-                Severity.Warning);
-            return;
-        }
 
         Navigation.NavigateTo(
-            $"/reports/yearly/blockwise-farmer-registration-report/{districtCode.Value}/{financialYear.Value}");
+        $"/reports/yearly/blockwise-farmer-registration-report/{districtCode!.Value}/{financialYear!.Value}");
     }
 
     private async Task Reset()
@@ -172,14 +173,14 @@
         _reportData.Clear();
     }
 
-    private IEnumerable<DistwiseFarmerRegistrationDto> _filteredReportData =>
-            _reportData.Where(t =>
-                string.IsNullOrWhiteSpace(_searchString)
-                || (t.DistrictNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (t.DistrictNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (t.Target?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (t.FarmerCount?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (t.SchemeCount?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (t.Subsidy?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (t.Area?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+    private IEnumerable<DistWiseFarmerRegistrationDto> _filteredReportData =>
+    _reportData.Where(t =>
+    string.IsNullOrWhiteSpace(_searchString)
+    || (t.DistrictNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.DistrictNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.Target?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.FarmerCount?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.SchemeCount?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.Subsidy?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.Area?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HortiBts.Shared.Dtos.Reports
 {
-    public class DistwiseFarmerRegistrationDto
+    public class DistWiseFarmerRegistrationDto
     {
         public int? Target { get; set; } // total_target
         public decimal? FarmerCount { get; set; } // farmer_count

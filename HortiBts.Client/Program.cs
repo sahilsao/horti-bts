@@ -11,6 +11,7 @@ using HortiBts.Client.Services.FinancialYears;
 using HortiBts.Client.Services.Girdawari;
 using HortiBts.Client.Services.MIDHComponents;
 using HortiBts.Client.Services.MIDHSchemes;
+using HortiBts.Client.Services.Officers;
 using HortiBts.Client.Services.Reports.Backlog;
 using HortiBts.Client.Services.Reports.Yearly;
 using HortiBts.Client.Services.Schemes;
@@ -62,6 +63,7 @@ builder.Services.AddScoped<DistrictsApiService>();
 builder.Services.AddScoped<SubDistrictsApiService>();
 builder.Services.AddScoped<VillagesApiService>();
 builder.Services.AddScoped<FinancialYearsApiService>();
+builder.Services.AddScoped<OfficersApiService>();
 
 // Dashboard Related
 builder.Services.AddScoped<DashboardApiService>();

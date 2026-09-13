@@ -1,6 +1,6 @@
 ﻿namespace HortiBts.Shared.Dtos.Reports
 {
-    public class BlockwiseFarmerRegistrationDto
+    public class BlockWiseFarmerRegistrationDto
     {
         public decimal? FarmerCount { get; set; } // farmer_count
         public decimal? SchemeCount { get; set; } // application_count

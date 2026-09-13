@@ -10,6 +10,7 @@ using HortiBts.Api.Repositories.Girdawari;
 using HortiBts.Api.Repositories.MIDHComponents;
 using HortiBts.Api.Repositories.MIDHSchemes;
 using HortiBts.Api.Repositories.Notices;
+using HortiBts.Api.Repositories.Officers;
 using HortiBts.Api.Repositories.Reports.Backlog;
 using HortiBts.Api.Repositories.Reports.Yearly;
 using HortiBts.Api.Repositories.Schemes;
@@ -50,6 +51,7 @@ builder.Services.AddScoped<IDistrictsRepository, DistrictsRepository>();
 builder.Services.AddScoped<ISubDistrictsRepository, SubDistrictsRepository>();
 builder.Services.AddScoped<IVillagesRepository, VillagesRepository>();
 builder.Services.AddScoped<IFinancialYearsRepository, FinancialYearsRepository>();
+builder.Services.AddScoped<IOfficersRepository, OfficersRepository>();
 
 // Dashboard Related
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
@@ -131,7 +133,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference(); // default route: /scalar/v1
+    app.MapScalarApiReference("/docs/bts/v1", options =>
+{
+    options.Title = "Beneficiary Tracking System API";
+}); // default route: /scalar/v1
 }
 
 app.UseHttpsRedirection();
