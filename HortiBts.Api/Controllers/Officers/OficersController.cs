@@ -27,5 +27,26 @@ namespace HortiBts.Api.Controllers.Officers
                 return Problem(detail: "An unexpected error occurred while processing your request.", statusCode: 500);
             }
         }
+
+        [HttpGet("get-rheo-officer-mapped-villages")]
+        [EndpointSummary("Get all mapped villages of rheo officer")]
+        [EndpointDescription("Retrieves the list of all mapped villages of rheo officer available in the system.")]
+        public async Task<IActionResult> GetRheoOfficerMappedVillages([FromQuery] int departmentCode, [FromQuery] int officerCode)
+        {
+            try
+            {
+                var result = await officersRepository.GetRheoOfficerMappedVillagesListAsync(departmentCode, officerCode);
+
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving mapped villages of rheo officer: {officerCode}", officerCode);
+                return Problem(detail: "An unexpected error occurred while processing your request.", statusCode: 500);
+            }
+        }
     }
 }

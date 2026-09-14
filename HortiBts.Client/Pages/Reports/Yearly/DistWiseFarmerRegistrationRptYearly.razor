@@ -11,15 +11,16 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
-<PageTitle>@Lang.Text("District-wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+<PageTitle>
+    @Lang.Text("District-Wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
 </PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
     <MudIcon Icon="material-symbols-outlined/lab_profile" Color="Color.Primary" Size="Size.Large" />
-    @Lang.Text("District-wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+    @Lang.Text("District-Wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
-    @Lang.Text("Report for District-wise Farmer Registration (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+    @Lang.Text("Report for District-Wise Farmer Registration (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
 </MudText>
 
 <MudGrid Spacing="3" Class="mb-4">
@@ -68,49 +69,63 @@
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
             <MudTh>
-                <MudTableSortLabel
-                    SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => Lang.Text(x.DistrictNameEn!, x.DistrictNameEn!))">
-                    @Lang.Text("District", "जिला")</MudTableSortLabel>
-                </MudTh>
-                <MudTh>
-                    <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Target!)">
-                        @Lang.Text("Target Count", "लक्ष्य (संख्या में)")</MudTableSortLabel>
-                    </MudTh>
-                    <MudTh>
-                        <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.FarmerCount!)">
-                            @Lang.Text("Farmer Count", "कृषक संख्या")</MudTableSortLabel>
-                        </MudTh>
-                        <MudTh>
-                            <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.SchemeCount!)">
-                                @Lang.Text("Applications Count", "आवेदन संख्या")</MudTableSortLabel>
-                            </MudTh>
-                            <MudTh>
-                                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Area!)">@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")</MudTableSortLabel>
-                            </MudTh>
-                            <MudTh>
-                                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Subsidy!)">
-                                    @Lang.Text("Subsidy Amount", "अनुदान राशि")</MudTableSortLabel>
-                                </MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
-                                <MudTd DataLabel="@Lang.Text("District", "जिला")">
-                                    <MudLink Href="javascript:void(0)" Color="Color.Info"
-                                             OnClick="@(() => LoadBlockWiseReport(context.DistrictCode , _selectedFinancialYear!.Value))">
-                                        @Lang.Text(context.DistrictNameEn!, context.DistrictNameHi!)
-                                    </MudLink>
-                                </MudTd>
-                                <MudTd DataLabel="@Lang.Text("Target Count", "लक्ष्य (संख्या में)")">@context.Target</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Applications Count", "आवेदन संख्या")">@context.SchemeCount</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.Subsidy</MudTd>
-                            </RowTemplate>
-                            <PagerContent>
-                                <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
-                            </PagerContent>
-                        </MudTable>
-                    }
+                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => Lang.Text(x.DistrictNameEn!, x.DistrictNameEn!))">
+                    @Lang.Text("District", "जिला")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Target!)">
+                    @Lang.Text("Target Count", "लक्ष्य (संख्या में)")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.FarmerCount!)">
+                    @Lang.Text("Farmer Count", "कृषक संख्या")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.SchemeCount!)">
+                    @Lang.Text("Applications Count", "आवेदन संख्या")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Area!)">@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.Subsidy!)">
+                    @Lang.Text("Subsidy Amount", "अनुदान राशि")
+                </MudTableSortLabel>
+            </MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("District", "जिला")">
+                <MudLink Href="@( $"/reports/yearly/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
+                           Underline
+                           Color="Color.Info">
+                    @Lang.Text(context.DistrictNameEn!, context.DistrictNameHi!)
+                </MudLink>
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Target Count", "लक्ष्य (संख्या में)")">@context.Target</MudTd>
+            <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>
+            <MudTd DataLabel="@Lang.Text("Applications Count", "आवेदन संख्या")">@context.SchemeCount</MudTd>
+            <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area?.ToString("N2")</MudTd>
+            <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.Subsidy?.ToString("N2")</MudTd>
+        </RowTemplate>
+        <FooterContent>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+            <MudTd></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.Target ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.FarmerCount ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.SchemeCount ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.Area ?? 0).ToString("N2") @Lang.Text("(Hect.)", "(हेक्ट.)")</b></MudTd>
+            <MudTd><b>₹@_filteredReportData.Sum(x => x.Subsidy ?? 0).ToString("N2")</b></MudTd>
+        </FooterContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
 
 @code {
 
@@ -148,29 +163,44 @@
             return;
         }
         _isLoading = true;
-        var result = await
+        try
+        {
+            var result = await
 YearlyFarmerRegistrationApiService.GetDistWiseFarmerRegistrationListAsync(_selectedFinancialYear!.Value);
-        if (result.IsSuccess && result.Data is not null)
-        {
-            _reportData = result.Data;
+            if (result.IsSuccess && result.Data is not null)
+            {
+                _reportData = result.Data;
+
+            }
+            else
+            {
+                Snackbar.Add(Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"), Severity.Warning);
+                _isLoading = false;
+            }
         }
-        else
+        catch (Exception)
         {
-            Snackbar.Add(Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"), Severity.Warning);
+            Snackbar.Add(
+                Lang.Text(
+                    "An error occurred while loading the report.",
+                    "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
+        }
+        finally
+        {
             _isLoading = false;
         }
     }
-    private async Task LoadBlockWiseReport(int? districtCode, int? financialYear)
-    {
 
-        Navigation.NavigateTo(
-        $"/reports/yearly/blockwise-farmer-registration-report/{districtCode!.Value}/{financialYear!.Value}");
-    }
-
+    
     private async Task Reset()
     {
         _selectedFinancialYear = null;
         _reportData.Clear();
+
+        Navigation.NavigateTo(
+                "/reports/yearly/distwise-farmer-registration-report",
+                replace: true);
     }
 
     private IEnumerable<DistWiseFarmerRegistrationDto> _filteredReportData =>

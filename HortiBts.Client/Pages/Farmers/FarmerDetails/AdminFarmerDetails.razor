@@ -1,4 +1,5 @@
 ﻿@page "/admin/farmer-details"
+@page "/report/farmer-details/{Ufid:int}"
 @using HortiBts.Shared.Dtos.Farmers
 @using HortiBts.Shared.Dtos.FinancialYear
 @using HortiBts.Client.Services.Farmers
@@ -54,6 +55,7 @@
         </MudPaper>
     </MudItem>
 </MudGrid>
+
 @* ---------- Loading ---------- *@
 @if (_isLoading)
 {
@@ -184,8 +186,9 @@
                             <HeaderContent>
                                 <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
                                 <MudTh>@Lang.Text("Khasra No.", "खसरा क्रमांक")</MudTh>
-                                <MudTh>@Lang.Text("Owner", "स्वामी")</MudTh>
-                                <MudTh>@Lang.Text("Owner Type", "स्वामी प्रकार")</MudTh>
+                                <MudTh>@Lang.Text("Land Owner Name", "भू-स्वामी")</MudTh>
+                                <MudTh>@Lang.Text("Land Owner Type", "भू-स्वामी प्रकार")</MudTh>
+                                <MudTh>@Lang.Text("Patwari Halka No.", "पटवारी हल्का क्रमांक")</MudTh>
                                 <MudTh>@Lang.Text("Area", "रकबा")</MudTh>
                                 <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
                                 <MudTh>@Lang.Text("Block", "विकासखण्ड")</MudTh>
@@ -194,9 +197,10 @@
                             <RowTemplate>
                                 <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(yearRows.IndexOf(context) + 1)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(context.KhasraNo)</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Owner", "स्वामी")">@Or(context.OwnerName)</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Owner Type", "स्वामी प्रकार")">@Or(context.Ownertype)</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.Area</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Land Owner Name", "भू-स्वामी का नाम")">@Or(context.OwnerName)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Land Owner Type", "भू-स्वामी प्रकार")">@Or(context.Ownertype)</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Patwari Halka No.", "पटवारी हल्का क्रमांक")">@Or(context.PatwariHalka?.ToString())</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.Area?.ToString("N2")</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(context.SubDistrictName)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(context.DistrictName)</MudTd>
@@ -247,9 +251,9 @@
                                 <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Scheme Name", "योजना का नाम")">@Or(context.SchemeName)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Benefit", "लाभ")">@FormatBenefit(context)</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Grant Amount", "अनुदान राशि")">@Or(context.Cash.ToString())</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Grant Amount", "अनुदान राशि")">@Or(context.Cash?.ToString("N2"))</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(context.KhasraNo)</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.Area</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.Area.ToString("N2")</MudTd>
                             </RowTemplate>
                         </MudTable>
                     }
@@ -301,7 +305,7 @@
                                 <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(context.CropVariety)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(context.CropSeasonName)</MudTd>
                                 <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(context.KhasraNo)</MudTd>
-                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.CropArea</MudTd>
+                                <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@context.CropArea.ToString("N2")</MudTd>
                             </RowTemplate>
                         </MudTable>
                     }
@@ -329,6 +333,18 @@
     private List<FarmerCropDetailsDto> _farmerCropDetails = new();
     private bool _isLoading;
     private bool _hasSearched;
+
+    [Parameter]
+    public int Ufid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Ufid > 0)
+        {
+            _searchUfId = Ufid.ToString().Trim();
+            await SearchAsync();
+        }
+    }
 
     private async Task SearchAsync()
     {

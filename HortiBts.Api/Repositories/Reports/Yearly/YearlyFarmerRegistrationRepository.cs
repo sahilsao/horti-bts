@@ -294,7 +294,7 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
                         IFNULL(s.area, 0) AS Area,
                         SUM( IFNULL(s.subsidy, 0) ) AS Subsidy,
                         va.distcodecensus AS DistrictCode,
-                        va.subdistrict_code AS BlockCode,
+                        va.subdistrict_code AS SubDistrictCode,
                         va.village_code as VillageCode,
                         va.village_name AS VillageName,
                         ovd.officer_code as OfficerCode,
@@ -336,7 +336,21 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
                         v.subdistrict_code,
                         fd.village_code,
                         v.village_name,
-                        ovd.officer_code
+
+                        -- FIX: scalar subquery instead of LEFT JOIN, so this can never
+                        -- produce more than one row per fd_id/village.
+                        (
+                            SELECT ovd2.officer_code
+                            FROM officer_village_details ovd2
+                            WHERE ovd2.village_code = v.village_code
+                            AND (
+                                    @OfficerCode IS NULL
+                                    OR @OfficerCode = 0
+                                    OR ovd2.officer_code = @OfficerCode
+                                )
+                            LIMIT 1
+                        ) AS officer_code
+
                     FROM view_all_villages v
 
                     INNER JOIN farmer_detail_horti fd
@@ -344,9 +358,6 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
 
                     INNER JOIN mas_farmer_horti mf
                         ON mf.hf_id = fd.hf_id
-
-                    LEFT JOIN officer_village_details ovd 
-                        ON ovd.village_code = v.village_code
 
                     WHERE
                         (@DistrictCode IS NULL OR @DistrictCode = 0
@@ -363,7 +374,6 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
                         OR v.village_code = @VillageCode)
 
                         AND
-
                         (
                             @OfficerCode IS NULL
                             OR @OfficerCode = 0

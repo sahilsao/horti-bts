@@ -21,6 +21,19 @@ namespace HortiBts.Client.Services.Components
             }
         }
 
+        public async Task<Result<List<ComponentDto>>> GetComponentsListBySchemeIdAsync(int schemeID)
+        {
+            try
+            {
+                var response = await http.GetAsync($"api/components/components-list-by-scheme-id?schemeId={schemeID}");
+                return await ApiResultHelper.ReadResultAsync<List<ComponentDto>>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<ComponentDto>>.Failure($"Failed to fetch components: {ex.Message}");
+            }
+        }
+
         public async Task<Result<int>> SaveComponentAsync(AddComponentDto dto)
         {
             try

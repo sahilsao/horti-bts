@@ -21,7 +21,7 @@
 <PageTitle>@Lang.Text("RHEO-wise Farmer Registration Report (Yearly)", "आर.एच.ई.ओ. वार कृषक पंजीयन रिपोर्ट (वार्षिक)")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="material-symbols-outlined/assignment" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="material-symbols-outlined/clinical_notes" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("RHEO-wise Farmer Registration Report (Yearly)", "आर.एच.ई.ओ. वार कृषक पंजीयन रिपोर्ट (वार्षिक)")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -143,16 +143,27 @@
                 @Lang.Text(context.SubDistrictNameEn!, context.SubDistrictNameHi!)
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Officer Name", "अधिकारी का नाम")">
-                <MudLink Href="javascript:void(0)" Color="Color.Info"
-                         OnClick="@(() => LoadVillageWiseReport(context.DistrictCode!.Value, context.SubDistrictCode!.Value , context.OfficerCode!.Value ,_selectedFinancialYear!.Value))">
+                <MudButton Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}")"
+                           Underline
+                           Color="Color.Info">
                     @context.OfficerName
-                </MudLink>
+                </MudButton>
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>
             <MudTd DataLabel="@Lang.Text("Applications Count", "आवेदन संख्या")">@context.SchemeCount</MudTd>
-            <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area</MudTd>
-            <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.Subsidy</MudTd>
+            <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area?.ToString("N2")</MudTd>
+            <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.Subsidy?.ToString("N2")</MudTd>
         </RowTemplate>
+        <FooterContent>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+            <MudTd></MudTd>
+            <MudTd></MudTd>
+            <MudTd></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.FarmerCount ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.SchemeCount ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.Area ?? 0).ToString("N2") @Lang.Text("(Hect.)", "(हेक्ट.)")</b></MudTd>
+            <MudTd><b>₹@_filteredReportData.Sum(x => x.Subsidy ?? 0).ToString("N2")</b></MudTd>
+        </FooterContent>
         <PagerContent>
             <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
         </PagerContent>
@@ -291,10 +302,6 @@
             if (result.IsSuccess && result.Data is not null)
             {
                 _reportData = result.Data;
-                 // Remove route parameters from browser URL
-                Navigation.NavigateTo(
-                "/reports/yearly/rheowise-farmer-registration-report",
-                replace: true);
             }
             else
             {
@@ -304,6 +311,14 @@
                         "रिपोर्ट डेटा लोड करने में विफल।"),
                     Severity.Warning);
             }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "An error occurred while loading the report.",
+                    "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
         }
         finally
         {
@@ -316,7 +331,7 @@
 
         Navigation.NavigateTo(
             $"/reports/yearly/villagewise-farmer-registration-report/{districtCode!.Value}/{subDistrictCode!.Value}/{officerCode!.Value}/{financialYear!.Value}");
-   
+
     }
 
     private async Task Reset()
@@ -326,6 +341,10 @@
         _selectedSubDistrictCode = 0; // back to "All"
         _subdistricts.Clear();
         _reportData.Clear();
+
+        Navigation.NavigateTo(
+               "/reports/yearly/rheowise-farmer-registration-report",
+               replace: true);
     }
 
     private IEnumerable<RheoWiseFarmerRegistrationDto> _filteredReportData =>

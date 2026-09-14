@@ -37,6 +37,28 @@ namespace HortiBts.Api.Controllers.Components
             }
         }
 
+        [HttpGet("components-list-by-scheme-id")]
+        [EndpointSummary("Get components list by scheme id")]
+        [EndpointDescription("Retrieves the list of available components by scheme id.")]
+        public async Task<ActionResult<IEnumerable<ComponentDto>>> GetComponentsListBySchemeId([FromQuery ]int schemeId)
+        {
+            try
+            {
+                var result = await repository.GetComponentListBySchemeIdAsync(schemeId);
+
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to load components.");
+
+                return Problem("Failed to load components.", statusCode: 500);
+            }
+        }
+
         [HttpPost("save-component-data")]
         [EndpointSummary("Save a new component")]
         [EndpointDescription("Inserts a new component record.")]

@@ -133,10 +133,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference("/docs/bts/v1", options =>
-{
-    options.Title = "Beneficiary Tracking System API";
-}); // default route: /scalar/v1
+    app.MapScalarApiReference(); // default route: /scalar/v1
 }
 
 app.UseHttpsRedirection();

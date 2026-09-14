@@ -15,6 +15,7 @@ namespace HortiBts.Api.Repositories.Components
     public interface IComponentRepository
     {
         Task<Result<List<ComponentDto>>> GetComponentListAsync();
+        Task<Result<List<ComponentDto>>> GetComponentListBySchemeIdAsync(int schemeId);
         Task<Result<int>> SaveComponentAsync(AddComponentDto dto, string userId, string clientIp);
         Task<Result<int>> UpdateComponentAsync(AddComponentDto dto, string userId, string clientIp);
         Task<Result<bool>> UpdateComponentActiveFlagAsync(int componentId, bool flag, string userId, string clientIp);
@@ -51,7 +52,37 @@ namespace HortiBts.Api.Repositories.Components
                 return Result<List<ComponentDto>>.Failure($"Failed to fetch components: {ex.Message}");
             }
         }
-
+        
+ public async Task<Result<List<ComponentDto>>> GetComponentListBySchemeIdAsync(int schemeId)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT 
+                    mc.c_id AS ComponentId,
+                    mc.cname AS ComponentName,
+                    mc.cname_hi  AS ComponentNameHi,
+                    mc.description_en AS ComponentDescriptionEn,
+                    mc.description_hi AS ComponentDescriptionHi,
+                    mc.unit_id AS ComponentUnitId,
+                    mc.s_id AS SchemeId,
+                    ms.scheme_name AS SchemeName,
+                    ms.scheme_name_en AS SchemeNameEn,
+                    ms.st_id  AS SchemeTypeId,
+                    CASE WHEN mc.flag = 'Y' THEN 1 ELSE 0 END AS ComponentFlag
+                FROM mas_component_horti mc
+                INNER JOIN mas_scheme_horti ms ON ms.s_id=mc.s_id
+                WHERE mc.flag='Y' and mc.s_id = @SchemeId
+                """;
+                var result = await connection.QueryAsync<ComponentDto>(sql, new {SchemeId = schemeId});
+                return Result<List<ComponentDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<ComponentDto>>.Failure($"Failed to fetch components: {ex.Message}");
+            }
+        }
         public async Task<Result<int>> SaveComponentAsync(AddComponentDto dto, string userId, string clientIp)
         {
             using var connection = dbFactory.CreateConnection(HortiDb.Bts);

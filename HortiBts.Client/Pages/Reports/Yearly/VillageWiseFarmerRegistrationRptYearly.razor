@@ -24,7 +24,7 @@
 <PageTitle>@Lang.Text("Village-wise Farmer Registration Report (Yearly)", "ग्राम-वार कृषक पंजीयन रिपोर्ट (वार्षिक)")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="material-symbols-outlined/assignment" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="material-symbols-outlined/clarify" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Village-wise Farmer Registration Report (Yearly)", "ग्राम-वार कृषक पंजीयन रिपोर्ट (वार्षिक)")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -73,7 +73,7 @@
             @foreach (var o in _officers)
             {
                 <MudSelectItem T="int?" Value="@((int?)o.OfficerCode)">
-                     @o.OfficerName
+                    @o.OfficerName
                 </MudSelectItem>
             }
         </MudSelect>
@@ -144,14 +144,29 @@
             <MudTh><MudTableSortLabel SortBy="new Func<VillageWiseFarmerRegistrationDto, object>(x => x.Subsidy!)">@Lang.Text("Subsidy Amount", "अनुदान राशि")</MudTableSortLabel></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>            
-            <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")">@context.VillageName</MudTd>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")">
+                <MudButton Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"
+                           Underline
+                           Color="Color.Info">
+                    @context.VillageName
+                </MudButton>
+            </MudTd>
             <MudTd DataLabel="@Lang.Text("Officer Name", "अधिकारी का नाम")">@context.OfficerName</MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>
             <MudTd DataLabel="@Lang.Text("Applications Count", "आवेदन संख्या")">@context.SchemeCount</MudTd>
-            <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area</MudTd>
-            <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.Subsidy</MudTd>
+            <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area?.ToString("N2")</MudTd>
+            <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.Subsidy?.ToString("N2")</MudTd>
         </RowTemplate>
+        <FooterContent>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+            <MudTd></MudTd>
+            <MudTd></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.FarmerCount ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.SchemeCount ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.Area ?? 0).ToString("N2") @Lang.Text("(Hect.)", "(हेक्ट.)")</b></MudTd>
+            <MudTd><b>₹@_filteredReportData.Sum(x => x.Subsidy ?? 0).ToString("N2")</b></MudTd>
+        </FooterContent>
         <PagerContent>
             <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
         </PagerContent>
@@ -164,10 +179,10 @@
     private List<FinancialYearDto> _finyears = [];
     private List<RheoOfficersDto> _officers = [];
     private int? _selectedFinancialYear;
-    private int? _selectedDistrictCensus ;
-    private int? _selectedSubDistrictCode ;
-    private int? _selectedOfficerCode ;
-    
+    private int? _selectedDistrictCensus;
+    private int? _selectedSubDistrictCode;
+    private int? _selectedOfficerCode;
+
     [Parameter]
     public int DistrictCode { get; set; }
     [Parameter]
@@ -191,14 +206,18 @@
 
         if (DistrictCode > 0 && SubDistrictCode > 0 && OfficerCode > 0 && FinancialYear > 0)
         {
-            
+
             _selectedDistrictCensus = DistrictCode;
             await OnDistrictChanged(_selectedDistrictCensus);
-            
-            _selectedSubDistrictCode = SubDistrictCode; 
-             await OnSubDistrictChanged(_selectedSubDistrictCode);
 
-            _selectedOfficerCode = OfficerCode; 
+            _selectedSubDistrictCode = SubDistrictCode;
+
+            _selectedOfficerCode = OfficerCode;
+
+            await OnSubDistrictChanged(_selectedSubDistrictCode);
+
+            _selectedOfficerCode = OfficerCode;
+
             _selectedFinancialYear = FinancialYear;
 
             await LoadReport();
@@ -215,11 +234,20 @@
     }
 
     private async Task OnDistrictChanged(int? districtId)
-    {      
+    {
+        _selectedDistrictCensus = districtId;
+
+        // reset everything that depends on district
+        _selectedSubDistrictCode = null;
+        _selectedOfficerCode = null;
+        _subdistricts.Clear();
+        _officers.Clear();
+
+        if (districtId is null) return;
 
         try
         {
-            var result = await SubDistrictsApiService.GetSubDistrictsAsync(districtId!.Value);
+            var result = await SubDistrictsApiService.GetSubDistrictsAsync(districtId.Value);
             if (result.IsSuccess && result.Data is not null)
                 _subdistricts = result.Data;
         }
@@ -229,13 +257,20 @@
         }
     }
 
-     private async Task OnSubDistrictChanged(int? subDistrictCode)
-    {      
+    private async Task OnSubDistrictChanged(int? subDistrictCode)
+    {
+        _selectedSubDistrictCode = subDistrictCode;
+
+        // reset everything that depends on sub-district
+        _selectedOfficerCode = null;
+        _officers.Clear();
+
+        if (subDistrictCode is null) return;
 
         try
         {
             int departmentCode = 3;
-            var result = await OfficersApiService.GetRheoOfficersListFromSubdistrictCodeAsync(departmentCode, subDistrictCode!.Value);
+            var result = await OfficersApiService.GetRheoOfficersListFromSubdistrictCodeAsync(departmentCode, subDistrictCode.Value);
             if (result.IsSuccess && result.Data is not null)
                 _officers = result.Data;
         }
@@ -244,7 +279,6 @@
             Snackbar.Add(Lang.Text("Failed to load officers.", "अधिकारियों को लोड करने में विफल।"), Severity.Error);
         }
     }
-
 
     private async Task LoadFinancialYearsAsync()
     {
@@ -258,8 +292,8 @@
     }
 
     private async Task LoadReport()
-    {    
-         if (_selectedDistrictCensus is null)
+    {
+        if (_selectedDistrictCensus is null)
         {
             Snackbar.Add(
                 Lang.Text(
@@ -268,7 +302,7 @@
                 Severity.Warning);
             return;
         }
-         if (_selectedSubDistrictCode is null)
+        if (_selectedSubDistrictCode is null)
         {
             Snackbar.Add(
                 Lang.Text(
@@ -276,8 +310,8 @@
                     "कृपया एक ब्लॉक चुनें।"),
                 Severity.Warning);
             return;
-        }     
-         if (_selectedSubDistrictCode is null)
+        }
+        if (_selectedSubDistrictCode is null)
         {
             Snackbar.Add(
                 Lang.Text(
@@ -285,8 +319,8 @@
                     "कृपया एक ब्लॉक चुनें।"),
                 Severity.Warning);
             return;
-        }    
-         if (_selectedOfficerCode is null)
+        }
+        if (_selectedOfficerCode is null)
         {
             Snackbar.Add(
                 Lang.Text(
@@ -296,7 +330,7 @@
             return;
         }
 
-         if (_selectedFinancialYear is null)
+        if (_selectedFinancialYear is null)
         {
             Snackbar.Add(
                 Lang.Text(
@@ -319,10 +353,6 @@
             if (result.IsSuccess && result.Data is not null)
             {
                 _reportData = result.Data;
-                 // Remove route parameters from browser URL
-                Navigation.NavigateTo(
-                "/reports/yearly/villagewise-farmer-registration-report",
-                replace: true);
             }
             else
             {
@@ -333,29 +363,33 @@
                     Severity.Warning);
             }
         }
+        catch (Exception)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "An error occurred while loading the report.",
+                    "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
+        }
         finally
         {
             _isLoading = false;
         }
-    }
-
-    private async Task LoadVillageWiseReport(int? districtCode, int? subDistrictCode, int? officerCode, int? financialYear)
-    {
-
-        Navigation.NavigateTo(
-            $"/reports/yearly/villagewise-farmer-registration-report/{districtCode!.Value}/{subDistrictCode!.Value}/{officerCode!.Value}/{financialYear!.Value}");
-   
-    }
+    }     
 
     private async Task Reset()
     {
         _selectedFinancialYear = null;
-        _selectedDistrictCensus = null; 
-        _selectedSubDistrictCode = null; 
-        _selectedOfficerCode = null; 
+        _selectedDistrictCensus = null;
+        _selectedSubDistrictCode = null;
+        _selectedOfficerCode = null;
         _subdistricts.Clear();
         _officers.Clear();
         _reportData.Clear();
+
+        Navigation.NavigateTo(
+                "/reports/yearly/villagewise-farmer-registration-report",
+                replace: true);
     }
 
     private IEnumerable<VillageWiseFarmerRegistrationDto> _filteredReportData =>
