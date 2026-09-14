@@ -146,11 +146,10 @@
         <RowTemplate>
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
             <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")">
-                <MudButton Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"
-                           Underline
+                <MudLink Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"                         
                            Color="Color.Info">
                     @context.VillageName
-                </MudButton>
+                </MudLink>
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Officer Name", "अधिकारी का नाम")">@context.OfficerName</MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>

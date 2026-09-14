@@ -100,7 +100,7 @@
         <RowTemplate>
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
             <MudTd DataLabel="@Lang.Text("District", "जिला")">
-                <MudLink Href="@( $"/reports/yearly/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
+                <MudLink Href="@($"/reports/yearly/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
                            Underline
                            Color="Color.Info">
                     @Lang.Text(context.DistrictNameEn!, context.DistrictNameHi!)

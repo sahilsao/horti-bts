@@ -143,11 +143,10 @@
                 @Lang.Text(context.SubDistrictNameEn!, context.SubDistrictNameHi!)
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Officer Name", "अधिकारी का नाम")">
-                <MudButton Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}")"
-                           Underline
+                <MudLink Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}")"
                            Color="Color.Info">
                     @context.OfficerName
-                </MudButton>
+                </MudLink>
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>
             <MudTd DataLabel="@Lang.Text("Applications Count", "आवेदन संख्या")">@context.SchemeCount</MudTd>
