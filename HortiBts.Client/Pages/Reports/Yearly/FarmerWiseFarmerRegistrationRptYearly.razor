@@ -543,7 +543,7 @@
         _selectedComponentId = null;
         _components.Clear();
 
-        if (!schemeTypeId.HasValue)
+        if (!schemeTypeId.HasValue || schemeTypeId.Value == 0)
             return;
 
         var result =
@@ -570,7 +570,7 @@
         _selectedComponentId = null;
         _components.Clear();
 
-        if (!schemeId.HasValue)
+        if (!schemeId.HasValue || schemeId.Value == 0)
             return;
 
         var result =
