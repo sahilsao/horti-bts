@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/HortiBts.Api/appsettings.Development.json
+/HortiBts.Api/appsettings.json
