@@ -1,4 +1,4 @@
-﻿window.downloadFileFromBytes = async (fileName, contentStreamReference) => {
+﻿window.downloadFileFromStream = async (fileName, contentStreamReference) => {
     const arrayBuffer = await contentStreamReference.arrayBuffer();
     const blob = new Blob([arrayBuffer]);
     const url = URL.createObjectURL(blob);

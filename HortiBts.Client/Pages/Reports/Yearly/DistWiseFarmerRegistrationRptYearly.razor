@@ -10,6 +10,7 @@
 @inject YearlyFarmerRegistrationApiService YearlyFarmerRegistrationApiService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>
     @Lang.Text("District-Wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
@@ -64,7 +65,11 @@
             </MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" />
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true"
+                          Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
@@ -164,11 +169,18 @@
         _isLoading = true;
         try
         {
-            var result = await
-YearlyFarmerRegistrationApiService.GetDistWiseFarmerRegistrationListAsync(_selectedFinancialYear!.Value);
+            var result = await YearlyFarmerRegistrationApiService.GetDistWiseFarmerRegistrationListAsync(_selectedFinancialYear!.Value);
             if (result.IsSuccess && result.Data is not null)
             {
-                _reportData = result.Data;
+                if (result.Data.Any())
+                {
+                    _reportData = result.Data;
+                }
+                else
+                {
+                    _reportData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
 
             }
             else
@@ -196,10 +208,6 @@ YearlyFarmerRegistrationApiService.GetDistWiseFarmerRegistrationListAsync(_selec
     {
         _selectedFinancialYear = null;
         _reportData.Clear();
-
-        Navigation.NavigateTo(
-                "/reports/yearly/distwise-farmer-registration-report",
-                replace: true);
     }
 
     private IEnumerable<DistWiseFarmerRegistrationDto> _filteredReportData =>
@@ -212,4 +220,61 @@ YearlyFarmerRegistrationApiService.GetDistWiseFarmerRegistrationListAsync(_selec
     || (t.SchemeCount?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
     || (t.Subsidy?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
     || (t.Area?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private async Task ExportToExcel()
+    {
+        using var workbook = new ClosedXML.Excel.XLWorkbook();
+        var worksheet = workbook.Worksheets.Add(
+            Lang.Text("Farmer Registration Report", "कृषक पंजीयन रिपोर्ट"));
+
+        // Header
+        var headers = new[]
+        {
+        Lang.Text("S.No.", "क्रमाँक"),
+        Lang.Text("District", "जिला"),
+        Lang.Text("Target Count", "लक्ष्य (संख्या में)"),
+        Lang.Text("Farmer Count", "कृषक संख्या"),
+        Lang.Text("Applications Count", "आवेदन संख्या"),
+        Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)"),
+        Lang.Text("Subsidy Amount", "अनुदान राशि")
+    };
+        for (int i = 0; i < headers.Length; i++)
+        {
+            worksheet.Cell(1, i + 1).Value = headers[i];
+            worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+        }
+
+        // Rows
+        var data = _filteredReportData.ToList();
+        for (int row = 0; row < data.Count; row++)
+        {
+            var item = data[row];
+            worksheet.Cell(row + 2, 1).Value = row + 1;
+            worksheet.Cell(row + 2, 2).Value = Lang.Text(item.DistrictNameEn!, item.DistrictNameHi!);
+            worksheet.Cell(row + 2, 3).Value = item.Target ?? 0;
+            worksheet.Cell(row + 2, 4).Value = item.FarmerCount ?? 0;
+            worksheet.Cell(row + 2, 5).Value = item.SchemeCount ?? 0;
+            worksheet.Cell(row + 2, 6).Value = item.Area ?? 0;
+            worksheet.Cell(row + 2, 7).Value = item.Subsidy ?? 0;
+        }
+
+        // Totals row
+        int totalRow = data.Count + 2;
+        worksheet.Cell(totalRow, 1).Value = Lang.Text("Total", "योग");
+        worksheet.Cell(totalRow, 3).Value = data.Sum(x => x.Target ?? 0);
+        worksheet.Cell(totalRow, 4).Value = data.Sum(x => x.FarmerCount ?? 0);
+        worksheet.Cell(totalRow, 5).Value = data.Sum(x => x.SchemeCount ?? 0);
+        worksheet.Cell(totalRow, 6).Value = data.Sum(x => x.Area ?? 0);
+        worksheet.Cell(totalRow, 7).Value = data.Sum(x => x.Subsidy ?? 0);
+        worksheet.Row(totalRow).Style.Font.Bold = true;
+
+        worksheet.Columns().AdjustToContents();
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        stream.Position = 0;
+
+        using var streamRef = new DotNetStreamReference(stream);
+        await JS.InvokeVoidAsync("downloadFileFromStream", "FarmerRegistrationReport.xlsx", streamRef);
+    }
 }

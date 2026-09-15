@@ -495,7 +495,7 @@
             var downloadName = Path.GetFileName(fileName.Replace('\\', '/'));
 
             await JS.InvokeVoidAsync(
-                "downloadFileFromBytes",
+                "downloadFileFromStream",
                 downloadName,   // now just "139_CCF_000120_New.pdf"
                 streamRef);
         }

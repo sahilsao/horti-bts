@@ -300,7 +300,15 @@
 
             if (result.IsSuccess && result.Data is not null)
             {
-                _reportData = result.Data;
+                if (result.Data.Any())
+                {
+                    _reportData = result.Data;
+                }
+                else
+                {
+                    _reportData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
             }
             else
             {
