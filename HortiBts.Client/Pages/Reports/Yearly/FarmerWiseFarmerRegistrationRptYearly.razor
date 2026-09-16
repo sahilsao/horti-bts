@@ -1,20 +1,21 @@
 ﻿@page "/reports/yearly/farmerwise-farmer-registration-report"
 @page "/reports/yearly/farmerwise-farmer-registration-report/{DepartmentCode:int}/{DistrictCode:int}/{SubDistrictCode:int}/{VillageCode:int}/{OfficerCode:int}/{FinancialYear:int}/{SchemeTypeId:int}/{SchemeId:int}/{ComponentId:int}"
 @using HortiBts.Client.Services.Auth
-@using HortiBts.Client.Services.Districts
-@using HortiBts.Client.Services.SubDistricts
-@using HortiBts.Client.Services.Officers
-@using HortiBts.Client.Services.FinancialYears
-@using HortiBts.Client.Services.Schemes
 @using HortiBts.Client.Services.Components
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Officers
+@using HortiBts.Client.Services.Reports
 @using HortiBts.Client.Services.Reports.Yearly
+@using HortiBts.Client.Services.Schemes
+@using HortiBts.Client.Services.SubDistricts
+@using HortiBts.Shared.Dtos.Components
 @using HortiBts.Shared.Dtos.Districts
 @using HortiBts.Shared.Dtos.FinancialYear
-@using HortiBts.Shared.Dtos.Reports
-@using HortiBts.Shared.Dtos.SubDistricts
 @using HortiBts.Shared.Dtos.Officers
-@using HortiBts.Shared.Dtos.Components
+@using HortiBts.Shared.Dtos.Reports
 @using HortiBts.Shared.Dtos.Schemes
+@using HortiBts.Shared.Dtos.SubDistricts
 @using HortiBts.Shared.Dtos.Units
 @attribute [Authorize(Roles = "Admin")]
 
@@ -27,6 +28,7 @@
 @inject YearlyFarmerRegistrationApiService YearlyFarmerRegistrationApiService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject ExcelExportService ExcelExport
 
 <PageTitle>@Lang.Text("Farmer-wise Farmer Registration Report (Yearly)", "कृषकवार कृषक पंजीयन रिपोर्ट (वार्षिक)")</PageTitle>
 
@@ -267,7 +269,10 @@
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
-                          Immediate="true" />
+                          Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
@@ -738,5 +743,58 @@
                 || (t.Cash.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (t.TotalLandArea.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
 
-                
+    private List<ExcelColumn<FarmerWiseFarmerRegistrationDto>> GetColumns() => new()
+    {
+        new() { HeaderEn = "Village Name", HeaderHi = "ग्राम का नाम",
+                ValueSelector = x => x.VillageName! },
+
+        new() { HeaderEn = "UFID", HeaderHi = "यू.एफ.आईडी",
+                ValueSelector = x => x.Ufid! },
+
+        new() { HeaderEn = "Farmer Name", HeaderHi = "किसान का नाम",
+                ValueSelector = x => Lang.Text(x.FarmerNameEng!, x.FarmerNameHi!) },
+
+        new() { HeaderEn = "Farmer Father Name", HeaderHi = "पिता का नाम",
+                ValueSelector = x => x.FarmerFatherName! },
+
+        new() { HeaderEn = "Mobile No", HeaderHi = "मोबाइल नंबर",
+                ValueSelector = x => x.MobileNo! },
+
+        new() { HeaderEn = "Scheme", HeaderHi = "योजना",
+                ValueSelector = x => $"{x.SchemeName!} - {x.ComponentName!}" },
+
+        new() { HeaderEn = "Beneficiary Khasra", HeaderHi = "लाभान्वित खसरा",
+                ValueSelector = x => x.KhasraNo! },
+
+        new() { HeaderEn = "Benefit Name", HeaderHi = "लाभ",
+                ValueSelector = x => $"{x.BenefitTypeName!} - {x.BenefitName!}" },
+
+        new() { HeaderEn = "Subsidy amount (in Rupees)", HeaderHi = "अनुदान राशि (रुपए में)",
+                ValueSelector = x => x.Cash!,
+                TotalSelector = list => list.Sum(x => x.Cash!) },
+
+        new() { HeaderEn = "Total Khasra", HeaderHi = "कुल खसरा",
+                ValueSelector = x => x.TotalLandKhasra! },
+
+        new() { HeaderEn = "Total area (in hectares)", HeaderHi = "कुल रकबा (हेक्टेयर में)",
+                ValueSelector = x => x.TotalLandArea!,
+                TotalSelector = list => list.Sum(x => x.TotalLandArea!) },
+
+        new() { HeaderEn = "Beneficiary area (in hectares)", HeaderHi = "लाभान्वित रकबा(हेक्टेयर में)",
+                ValueSelector = x => x.Area,
+                TotalSelector = list => list.Sum(x => x.Area!) },
+    };
+
+    private async Task ExportToExcel()
+    {
+        var finYear = (_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear!)
+                      .Replace("/", "-");
+
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("Farmer-Wise Farmer Registration Report (Yearly)", "कृषकवार कृषक पंजीयन रिपोर्ट (वार्षिक)"),
+            (en, hi) => Lang.Text(en, hi),
+            $"FarmerWise_FarmerRegistrationReport_{finYear}.xlsx");
+    }
 }

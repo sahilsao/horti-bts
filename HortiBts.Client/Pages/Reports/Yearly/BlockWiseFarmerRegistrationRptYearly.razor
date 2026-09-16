@@ -3,6 +3,7 @@
 @using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Districts
 @using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Reports
 @using HortiBts.Client.Services.Reports.Yearly
 @using HortiBts.Shared.Dtos.Districts
 @using HortiBts.Shared.Dtos.FinancialYear
@@ -14,7 +15,7 @@
 @inject YearlyFarmerRegistrationApiService YearlyFarmerRegistrationApiService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
-
+@inject ExcelExportService ExcelExport
 <PageTitle>
     @Lang.Text("Block-wise Farmer Registration Report (Yearly)", "विकासखंडवार कृषक पंजीयन रिपोर्ट (वार्षिक)")
 </PageTitle>
@@ -79,7 +80,10 @@
             </MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" />
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
@@ -120,8 +124,8 @@
                 @Lang.Text(context.DistrictNameEn!, context.DistrictNameHi!)
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Block", "विकासखंड")">
-                <MudLink Href="@($"/reports/yearly/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{_selectedFinancialYear!.Value}")"          
-                           Color="Color.Info">
+                <MudLink Href="@($"/reports/yearly/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
+                         Color="Color.Info">
                     @Lang.Text(context.SubDistrictNameEn!, context.SubDistrictNameHi!)
                 </MudLink>
             </MudTd>
@@ -226,7 +230,7 @@
     _selectedFinancialYear!.Value);
             if (result.IsSuccess && result.Data is not null)
             {
-                 if (result.Data.Any())
+                if (result.Data.Any())
                 {
                     _reportData = result.Data;
                 }
@@ -278,4 +282,37 @@
                 || (t.SchemeCount?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (t.Subsidy?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (t.Area?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private List<ExcelColumn<BlockWiseFarmerRegistrationDto>> GetColumns() => new()
+    {
+        new() { HeaderEn = "District", HeaderHi = "जिला",
+                ValueSelector = x => Lang.Text(x.DistrictNameEn!, x.DistrictNameHi!) },
+        new() { HeaderEn = "Block", HeaderHi = "विकासखंड",
+                ValueSelector = x => Lang.Text(x.SubDistrictNameEn!, x.SubDistrictNameHi!) },
+        new() { HeaderEn = "Farmer Count", HeaderHi = "कृषक संख्या",
+                ValueSelector = x => x.FarmerCount ?? 0,
+                TotalSelector = list => list.Sum(x => x.FarmerCount ?? 0) },
+        new() { HeaderEn = "Applications Count", HeaderHi = "आवेदन संख्या",
+                ValueSelector = x => x.SchemeCount ?? 0,
+                TotalSelector = list => list.Sum(x => x.SchemeCount ?? 0) },
+        new() { HeaderEn = "Target Area (Hectares)", HeaderHi = "लक्षित रकबा (हेक्टेयर में)",
+                ValueSelector = x => x.Area ?? 0,
+                TotalSelector = list => list.Sum(x => x.Area ?? 0) },
+        new() { HeaderEn = "Subsidy Amount", HeaderHi = "अनुदान राशि",
+                ValueSelector = x => x.Subsidy ?? 0,
+                TotalSelector = list => list.Sum(x => x.Subsidy ?? 0) },
+    };
+
+    private async Task ExportToExcel()
+    {
+        var finYear = (_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear!)
+                      .Replace("/", "-");
+
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("Block-Wise Farmer Registration Report (Yearly)", "विकासखंडवार कृषक पंजीयन रिपोर्ट (वार्षिक)"),
+            (en, hi) => Lang.Text(en, hi),
+            $"BlockWise_FarmerRegistrationReport_{finYear}.xlsx");
+    }
 }

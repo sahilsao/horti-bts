@@ -65,6 +65,7 @@ builder.Services.AddScoped<SubDistrictsApiService>();
 builder.Services.AddScoped<VillagesApiService>();
 builder.Services.AddScoped<FinancialYearsApiService>();
 builder.Services.AddScoped<OfficersApiService>();
+builder.Services.AddScoped<ExcelExportService>();
 
 // Dashboard Related
 builder.Services.AddScoped<DashboardApiService>();

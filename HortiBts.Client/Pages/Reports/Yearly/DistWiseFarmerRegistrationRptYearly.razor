@@ -1,6 +1,7 @@
 ﻿@page "/reports/yearly/districtwise-farmer-registration-report"
 @using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Reports
 @using HortiBts.Client.Services.Reports.Yearly
 @using HortiBts.Shared.Dtos.FinancialYear
 @using HortiBts.Shared.Dtos.Reports
@@ -11,6 +12,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@inject ExcelExportService ExcelExport
 
 <PageTitle>
     @Lang.Text("District-Wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
@@ -106,7 +108,7 @@
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
             <MudTd DataLabel="@Lang.Text("District", "जिला")">
                 <MudLink Href="@($"/reports/yearly/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
-                           Color="Color.Info">
+                         Color="Color.Info">
                     @Lang.Text(context.DistrictNameEn!, context.DistrictNameHi!)
                 </MudLink>
             </MudTd>
@@ -203,7 +205,7 @@
         }
     }
 
-    
+
     private async Task Reset()
     {
         _selectedFinancialYear = null;
@@ -221,60 +223,37 @@
     || (t.Subsidy?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
     || (t.Area?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
 
+    private List<ExcelColumn<DistWiseFarmerRegistrationDto>> GetColumns() => new()
+    {
+        new() { HeaderEn = "District", HeaderHi = "जिला",
+                ValueSelector = x => Lang.Text(x.DistrictNameEn!, x.DistrictNameHi!) },
+        new() { HeaderEn = "Target Count", HeaderHi = "लक्ष्य (संख्या में)",
+                ValueSelector = x => x.Target ?? 0,
+                TotalSelector = list => list.Sum(x => x.Target ?? 0) },
+        new() { HeaderEn = "Farmer Count", HeaderHi = "कृषक संख्या",
+                ValueSelector = x => x.FarmerCount ?? 0,
+                TotalSelector = list => list.Sum(x => x.FarmerCount ?? 0) },
+        new() { HeaderEn = "Applications Count", HeaderHi = "आवेदन संख्या",
+                ValueSelector = x => x.SchemeCount ?? 0,
+                TotalSelector = list => list.Sum(x => x.SchemeCount ?? 0) },
+        new() { HeaderEn = "Target Area (Hectares)", HeaderHi = "लक्षित रकबा (हेक्टेयर में)",
+                ValueSelector = x => x.Area ?? 0,
+                TotalSelector = list => list.Sum(x => x.Area ?? 0) },
+        new() { HeaderEn = "Subsidy Amount", HeaderHi = "अनुदान राशि",
+                ValueSelector = x => x.Subsidy ?? 0,
+                TotalSelector = list => list.Sum(x => x.Subsidy ?? 0) },
+    };
+
     private async Task ExportToExcel()
     {
-        using var workbook = new ClosedXML.Excel.XLWorkbook();
-        var worksheet = workbook.Worksheets.Add(
-            Lang.Text("Farmer Registration Report", "कृषक पंजीयन रिपोर्ट"));
+        var finYear = (_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear!)
+                      .Replace("/", "-");
 
-        // Header
-        var headers = new[]
-        {
-        Lang.Text("S.No.", "क्रमाँक"),
-        Lang.Text("District", "जिला"),
-        Lang.Text("Target Count", "लक्ष्य (संख्या में)"),
-        Lang.Text("Farmer Count", "कृषक संख्या"),
-        Lang.Text("Applications Count", "आवेदन संख्या"),
-        Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)"),
-        Lang.Text("Subsidy Amount", "अनुदान राशि")
-    };
-        for (int i = 0; i < headers.Length; i++)
-        {
-            worksheet.Cell(1, i + 1).Value = headers[i];
-            worksheet.Cell(1, i + 1).Style.Font.Bold = true;
-        }
-
-        // Rows
-        var data = _filteredReportData.ToList();
-        for (int row = 0; row < data.Count; row++)
-        {
-            var item = data[row];
-            worksheet.Cell(row + 2, 1).Value = row + 1;
-            worksheet.Cell(row + 2, 2).Value = Lang.Text(item.DistrictNameEn!, item.DistrictNameHi!);
-            worksheet.Cell(row + 2, 3).Value = item.Target ?? 0;
-            worksheet.Cell(row + 2, 4).Value = item.FarmerCount ?? 0;
-            worksheet.Cell(row + 2, 5).Value = item.SchemeCount ?? 0;
-            worksheet.Cell(row + 2, 6).Value = item.Area ?? 0;
-            worksheet.Cell(row + 2, 7).Value = item.Subsidy ?? 0;
-        }
-
-        // Totals row
-        int totalRow = data.Count + 2;
-        worksheet.Cell(totalRow, 1).Value = Lang.Text("Total", "योग");
-        worksheet.Cell(totalRow, 3).Value = data.Sum(x => x.Target ?? 0);
-        worksheet.Cell(totalRow, 4).Value = data.Sum(x => x.FarmerCount ?? 0);
-        worksheet.Cell(totalRow, 5).Value = data.Sum(x => x.SchemeCount ?? 0);
-        worksheet.Cell(totalRow, 6).Value = data.Sum(x => x.Area ?? 0);
-        worksheet.Cell(totalRow, 7).Value = data.Sum(x => x.Subsidy ?? 0);
-        worksheet.Row(totalRow).Style.Font.Bold = true;
-
-        worksheet.Columns().AdjustToContents();
-
-        using var stream = new MemoryStream();
-        workbook.SaveAs(stream);
-        stream.Position = 0;
-
-        using var streamRef = new DotNetStreamReference(stream);
-        await JS.InvokeVoidAsync("downloadFileFromStream", "FarmerRegistrationReport.xlsx", streamRef);
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("District-Wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)"),
+            (en, hi) => Lang.Text(en, hi),
+            $"DistrictWise_FarmerRegistrationReport_{finYear}.xlsx");
     }
 }

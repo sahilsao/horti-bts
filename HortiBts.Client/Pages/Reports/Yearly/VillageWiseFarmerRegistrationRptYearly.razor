@@ -2,15 +2,16 @@
 @page "/reports/yearly/villagewise-farmer-registration-report/{DistrictCode:int}/{SubDistrictCode:int}/{OfficerCode:int}/{FinancialYear:int}"
 @using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Districts
-@using HortiBts.Client.Services.SubDistricts
-@using HortiBts.Client.Services.Officers
 @using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Officers
+@using HortiBts.Client.Services.Reports
 @using HortiBts.Client.Services.Reports.Yearly
+@using HortiBts.Client.Services.SubDistricts
 @using HortiBts.Shared.Dtos.Districts
 @using HortiBts.Shared.Dtos.FinancialYear
+@using HortiBts.Shared.Dtos.Officers
 @using HortiBts.Shared.Dtos.Reports
 @using HortiBts.Shared.Dtos.SubDistricts
-@using HortiBts.Shared.Dtos.Officers
 @attribute [Authorize(Roles = "Admin")]
 
 @inject DistrictsApiService DistrictsApiService
@@ -20,6 +21,7 @@
 @inject YearlyFarmerRegistrationApiService YearlyFarmerRegistrationApiService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject ExcelExportService ExcelExport
 
 <PageTitle>@Lang.Text("Village-wise Farmer Registration Report (Yearly)", "ग्राम-वार कृषक पंजीयन रिपोर्ट (वार्षिक)")</PageTitle>
 
@@ -132,7 +134,10 @@
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
                           Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
-                          Immediate="true" />
+                          Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
@@ -407,4 +412,36 @@
                 || (t.SchemeCount.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (t.Subsidy.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
                 || (t.Area.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private List<ExcelColumn<VillageWiseFarmerRegistrationDto>> GetColumns() => new()
+    {
+   
+        new() { HeaderEn = "Village", HeaderHi = "ग्राम",
+                ValueSelector = x => x.VillageName! },
+        new() { HeaderEn = "Farmer Count", HeaderHi = "कृषक संख्या",
+                ValueSelector = x => x.FarmerCount ?? 0,
+                TotalSelector = list => list.Sum(x => x.FarmerCount ?? 0) },
+        new() { HeaderEn = "Applications Count", HeaderHi = "आवेदन संख्या",
+                ValueSelector = x => x.SchemeCount ?? 0,
+                TotalSelector = list => list.Sum(x => x.SchemeCount ?? 0) },
+        new() { HeaderEn = "Target Area (Hectares)", HeaderHi = "लक्षित रकबा (हेक्टेयर में)",
+                ValueSelector = x => x.Area ?? 0,
+                TotalSelector = list => list.Sum(x => x.Area ?? 0) },
+        new() { HeaderEn = "Subsidy Amount", HeaderHi = "अनुदान राशि",
+                ValueSelector = x => x.Subsidy ?? 0,
+                TotalSelector = list => list.Sum(x => x.Subsidy ?? 0) },
+    };
+
+    private async Task ExportToExcel()
+    {
+        var finYear = (_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear!)
+                      .Replace("/", "-");
+
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("Village-Wise Farmer Registration Report (Yearly)", "ग्रामवार कृषक पंजीयन रिपोर्ट (वार्षिक)"),
+            (en, hi) => Lang.Text(en, hi),
+            $"VillageWise_FarmerRegistrationReport_{finYear}.xlsx");
+    }
 }
