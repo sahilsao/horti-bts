@@ -152,7 +152,9 @@
                     @Lang.Text("S.No.", "क्रमाँक")
                 </MudTh>
                 <MudTh RowSpan="2">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.OfficerName)">
                     @Lang.Text("Officer Name", "अधिकारी का नाम")
+                    </MudTableSortLabel>
                 </MudTh>
                 @{
                     var y4 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear;
@@ -185,85 +187,85 @@
 
                 @* Back Year 4 *@
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb4!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb4!)">
                         @Lang.Text("Registered Farmer Count", "पंजीकृत कृषकों की सँख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.TotalApplicationCountFyb4!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalApplicationCountFyb4!)">
                         @Lang.Text("Applications Count", "आवेदन संख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto, object>(x => x.TotalAreaCoveredFyb4!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalAreaCoveredFyb4!)">
                         @Lang.Text("Area (Hectares)", "रकबा (हेक्टेयर में)")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalCashDisbursedFyb4!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalCashDisbursedFyb4!)">
                         @Lang.Text("Subsidy Amount (in rupees)", "अनुदान राशि (रुपए में)")
                     </MudTableSortLabel>
                 </MudTh>
                 @* Back Year 3 *@
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb3!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb3!)">
                         @Lang.Text("Registered Farmer Count", "पंजीकृत कृषकों की सँख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalApplicationCountFyb3!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalApplicationCountFyb3!)">
                         @Lang.Text("Applications Count", "आवेदन संख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalAreaCoveredFyb3!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalAreaCoveredFyb3!)">
                         @Lang.Text("Area (Hectares)", "रकबा (हेक्टेयर में)")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalCashDisbursedFyb3!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalCashDisbursedFyb3!)">
                         @Lang.Text("Subsidy Amount (in rupees)", "अनुदान राशि (रुपए में)")
                     </MudTableSortLabel>
                 </MudTh>
                 @* Back Year 2 *@
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb2!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb2!)">
                         @Lang.Text("Registered Farmer Count", "पंजीकृत कृषकों की सँख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalApplicationCountFyb2!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalApplicationCountFyb2!)">
                         @Lang.Text("Applications Count", "आवेदन संख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalAreaCoveredFyb2!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalAreaCoveredFyb2!)">
                         @Lang.Text("Area (Hectares)", "रकबा (हेक्टेयर में)")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalCashDisbursedFyb2!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalCashDisbursedFyb2!)">
                         @Lang.Text("Subsidy Amount (in rupees)", "अनुदान राशि (रुपए में)")
                     </MudTableSortLabel>
                 </MudTh>
                 @* Back Year 1 *@
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb1!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb1!)">
                         @Lang.Text("Registered Farmer Count", "पंजीकृत कृषकों की सँख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalApplicationCountFyb1!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalApplicationCountFyb1!)">
                         @Lang.Text("Applications Count", "आवेदन संख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalAreaCoveredFyb1!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalAreaCoveredFyb1!)">
                         @Lang.Text("Area (Hectares)", "रकबा (हेक्टेयर में)")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<BlockWiseFarmerRegistrationDto, object>(x => x.TotalCashDisbursedFyb1!)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.TotalCashDisbursedFyb1!)">
                         @Lang.Text("Subsidy Amount (in rupees)", "अनुदान राशि (रुपए में)")
                     </MudTableSortLabel>
                 </MudTh>

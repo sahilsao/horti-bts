@@ -66,6 +66,11 @@
                         @Lang.Text("Village-wise Farmer Registration Backlog Report (Yearly)", "ग्रामवार कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
                     </MudNavLink>
                 </MudNavGroup>
+                <MudNavGroup Title="@Lang.Text("Comparative Reports", "तुलनात्मक रिपोर्ट्स")" Ripple Icon="@Icons.Material.Filled.DocumentScanner">
+                    <MudNavLink Href="/reports/comparative/districtwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
+                        @Lang.Text("District-wise Farmer Registration Comparative Report (Yearly)", "जिलावार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
+                    </MudNavLink>
+                </MudNavGroup>
             </MudNavGroup>
         </Authorized>
     </AuthorizeView>

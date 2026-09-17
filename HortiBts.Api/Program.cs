@@ -13,6 +13,7 @@ using HortiBts.Api.Repositories.MIDHSchemes;
 using HortiBts.Api.Repositories.Notices;
 using HortiBts.Api.Repositories.Officers;
 using HortiBts.Api.Repositories.Reports.BacklogYearly;
+using HortiBts.Api.Repositories.Reports.Comparative;
 using HortiBts.Api.Repositories.Reports.Yearly;
 using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Api.Repositories.SubDistricts;
@@ -83,6 +84,7 @@ builder.Services.AddScoped<IMIDHSubComponentRepository, MIDHSubComponentReposito
 // Reports Related
 builder.Services.AddScoped<IYearlyFarmerRegistrationRepository, YearlyFarmerRegistrationRepository>();
 builder.Services.AddScoped<IBacklogFarmerRegistrationRepository, BacklogYearlyFarmerRegistrationRepository>();
+builder.Services.AddScoped<IComparativeFarmerRegistrationRepository, ComparativeFarmerRegistrationRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.

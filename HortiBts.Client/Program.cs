@@ -14,6 +14,7 @@ using HortiBts.Client.Services.MIDHSchemes;
 using HortiBts.Client.Services.Officers;
 using HortiBts.Client.Services.Reports;
 using HortiBts.Client.Services.Reports.BacklogYearly;
+using HortiBts.Client.Services.Reports.Comparative;
 using HortiBts.Client.Services.Reports.Yearly;
 using HortiBts.Client.Services.Schemes;
 using HortiBts.Client.Services.SubDistricts;
@@ -87,5 +88,6 @@ builder.Services.AddScoped<MIDHSubComponentApiService>();
 // Reports Related
 builder.Services.AddScoped<YearlyFarmerRegistrationApiService>();
 builder.Services.AddScoped<BacklogYearlyFarmerRegistrationApiService>();
+builder.Services.AddScoped<ComparativeFarmerRegistrationApiService>();
 
 await builder.Build().RunAsync();

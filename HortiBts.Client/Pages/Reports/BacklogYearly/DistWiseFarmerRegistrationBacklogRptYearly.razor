@@ -90,7 +90,9 @@
                     @Lang.Text("S.No.", "क्रमाँक")
                 </MudTh>
                 <MudTh RowSpan="2">
+                     <MudTableSortLabel SortBy="new Func<DistWiseFarmerRegistrationDto,  object>(x => Lang.Text(x.DistrictNameEn!, x.DistrictNameEn!))">
                     @Lang.Text("District", "जिला")
+                     </MudTableSortLabel>
                 </MudTh>
                 @{
                     var y4 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear;
