@@ -4,7 +4,7 @@
 @using HortiBts.Client.Services.Reports
 @using HortiBts.Client.Services.Reports.Yearly
 @using HortiBts.Shared.Dtos.FinancialYear
-@using HortiBts.Shared.Dtos.Reports
+@using HortiBts.Shared.Dtos.Reports.Yearly
 @attribute [Authorize(Roles = "Admin")]
 
 @inject FinancialYearsApiService FinancialYearsApiService
@@ -13,6 +13,17 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @inject ExcelExportService ExcelExport
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
 
 <PageTitle>
     @Lang.Text("District-Wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
@@ -58,8 +69,8 @@
 </MudStack>
 
 @if (_reportData.Any())
-{
-    <MudTable Items="_filteredReportData" SortLabel="Sort By" Dense="true" Hover="true" Elevation="1" Class="mt-4">
+{   
+    <MudTable Items="_filteredReportData" SortLabel="Sort By" Bordered="true" HeaderClass="report-header-row" Dense="true" Hover="true" Elevation="1" Class="mt-4">
         <ToolBarContent>
             <MudText Typo="Typo.h6">
                 @Lang.Text("Distwise Farmer Registration Report (Yearly)", "जिलावार रिपोर्ट उद्यानिकी कृषक पंजीयन रिपोर्ट (वार्षिक)")

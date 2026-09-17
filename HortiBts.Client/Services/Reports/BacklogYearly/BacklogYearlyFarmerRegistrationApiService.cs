@@ -1,15 +1,15 @@
 ﻿using HortiBts.Shared.Common;
-using HortiBts.Shared.Dtos.Reports.Yearly;
+using HortiBts.Shared.Dtos.Reports.BacklogYearly;
 
-namespace HortiBts.Client.Services.Reports.Yearly
+namespace HortiBts.Client.Services.Reports.BacklogYearly
 {
-    public class YearlyFarmerRegistrationApiService(HttpClient http)
+    public class BacklogYearlyFarmerRegistrationApiService(HttpClient http)
     {
-        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetDistWiseFarmerRegistrationListAsync(int financialYear)
+        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetDistwiseFarmerRegistrationListAsync(int financialYear)
         {
             try
             {
-                var response = await http.GetAsync("api/reports/yearly/distwise-farmer-registration?financialYear=" + financialYear);
+                var response = await http.GetAsync("api/reports/backlog/distwise-farmer-registration?financialYear=" + financialYear);
                 return await ApiResultHelper.ReadResultAsync<List<DistWiseFarmerRegistrationDto>>(response);
             }
             catch (Exception ex)
@@ -18,11 +18,11 @@ namespace HortiBts.Client.Services.Reports.Yearly
             }
         }
 
-        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBlockWiseFarmerRegistrationListAsync(int districtCode, int financialYear)
+        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBlockwiseFarmerRegistrationListAsync(int districtCode, int financialYear)
         {
             try
             {
-                var response = await http.GetAsync($"api/reports/yearly/blockwise-farmer-registration?districtCode={districtCode}&financialYear={financialYear}");
+                var response = await http.GetAsync($"api/reports/backlog/blockwise-farmer-registration?districtCode={districtCode}&financialYear={financialYear}");
                 return await ApiResultHelper.ReadResultAsync<List<BlockWiseFarmerRegistrationDto>>(response);
             }
             catch (Exception ex)
@@ -32,11 +32,11 @@ namespace HortiBts.Client.Services.Reports.Yearly
         }
 
         public async Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetRheoWiseFarmerRegistrationListAsync
-            (int departmentCode, int districtCode, int subDistrictCode, int financialYear)
+           (int departmentCode, int districtCode, int subDistrictCode, int financialYear)
         {
             try
             {
-                var response = await http.GetAsync($"api/reports/yearly/rheowise-farmer-registration?" +
+                var response = await http.GetAsync($"api/reports/backlog/rheowise-farmer-registration?" +
                     $"departmentCode={departmentCode}&districtCode={districtCode}&subDistrictCode={subDistrictCode}&financialYear={financialYear}");
                 return await ApiResultHelper.ReadResultAsync<List<RheoWiseFarmerRegistrationDto>>(response);
             }
@@ -51,7 +51,7 @@ namespace HortiBts.Client.Services.Reports.Yearly
         {
             try
             {
-                var response = await http.GetAsync($"api/reports/yearly/villagewise-farmer-registration?" +
+                var response = await http.GetAsync($"api/reports/backlog/villagewise-farmer-registration?" +
                     $"officerCode={officerCode}&financialYear={financialYear}");
                 return await ApiResultHelper.ReadResultAsync<List<VillageWiseFarmerRegistrationDto>>(response);
             }
@@ -74,8 +74,10 @@ namespace HortiBts.Client.Services.Reports.Yearly
         {
             try
             {
+                // for single year result here for farmer wise
+
                 var response = await http.GetAsync(
-                    $"api/reports/yearly/farmerwise-farmer-registration?" +
+                    $"api/reports/backlog/farmerwise-farmer-registration?" +
                     $"departmentCode={departmentCode}" +
                     $"&districtCode={districtCode}" +
                     $"&subDistrictCode={subDistrictCode}" +

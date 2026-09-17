@@ -1,5 +1,5 @@
 ﻿using HortiBts.Api.Repositories.Reports.Yearly;
-using HortiBts.Shared.Dtos.Reports;
+using HortiBts.Shared.Dtos.Reports.Yearly;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.Reports.Yearly
@@ -9,7 +9,9 @@ namespace HortiBts.Api.Controllers.Reports.Yearly
     public class YearlyFarmerRegistrationController(IYearlyFarmerRegistrationRepository repository,
         ILogger<DistWiseFarmerRegistrationDto> logger,
         ILogger<BlockWiseFarmerRegistrationDto> logger2,
-        ILogger<VillageWiseFarmerRegistrationDto> logger3
+        ILogger<RheoWiseFarmerRegistrationDto> logger3,
+        ILogger<VillageWiseFarmerRegistrationDto> logger4,
+        ILogger<FarmerWiseFarmerRegistrationDto> logger5
         ) : ControllerBase
     {
         [HttpGet("distwise-farmer-registration")]
@@ -70,7 +72,7 @@ namespace HortiBts.Api.Controllers.Reports.Yearly
             }
             catch (Exception ex)
             {
-                logger2.LogError(ex, "Failed to load yearly report of rheo-wise farmer registration.");
+                logger3.LogError(ex, "Failed to load yearly report of rheo-wise farmer registration.");
                 return Problem(detail: "Failed to load yearly report of rheo-wise farmer registration.", statusCode: 500);
             }
         }
@@ -89,7 +91,7 @@ namespace HortiBts.Api.Controllers.Reports.Yearly
             }
             catch (Exception ex)
             {
-                logger3.LogError(ex, "Failed to load yearly report of village-wise farmer registration.");
+                logger4.LogError(ex, "Failed to load yearly report of village-wise farmer registration.");
                 return Problem(detail: "Failed to load yearly report of village-wise farmer registration.", statusCode: 500);
             }
         }
@@ -98,11 +100,11 @@ namespace HortiBts.Api.Controllers.Reports.Yearly
         [EndpointSummary("Get yearly report of farmer-wise farmer registration")]
         [EndpointDescription("Retrieves the yearly report of farmer-wise farmer registration for a specified financial year.")]
         public async Task<IActionResult> GetYearlyRptOfFarmerwiseFarmerRegistrationAsync(
-            [FromQuery] int departmentCode, 
-            [FromQuery] int districtCode, 
-            [FromQuery] int subDistrictCode, 
-            [FromQuery] int villageCode, 
-            [FromQuery] int officerCode, 
+            [FromQuery] int departmentCode,
+            [FromQuery] int districtCode,
+            [FromQuery] int subDistrictCode,
+            [FromQuery] int villageCode,
+            [FromQuery] int officerCode,
             [FromQuery] int financialYear,
             [FromQuery] int schemeTypeId,
             [FromQuery] int schemeId,
@@ -129,7 +131,7 @@ namespace HortiBts.Api.Controllers.Reports.Yearly
             }
             catch (Exception ex)
             {
-                logger3.LogError(ex, "Failed to load yearly report of farmer-wise farmer registration.");
+                logger5.LogError(ex, "Failed to load yearly report of farmer-wise farmer registration.");
                 return Problem(detail: "Failed to load yearly report of farmer-wise farmer registration.", statusCode: 500);
             }
         }

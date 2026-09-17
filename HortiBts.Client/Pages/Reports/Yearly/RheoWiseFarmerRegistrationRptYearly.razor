@@ -8,7 +8,7 @@
 @using HortiBts.Client.Services.SubDistricts
 @using HortiBts.Shared.Dtos.Districts
 @using HortiBts.Shared.Dtos.FinancialYear
-@using HortiBts.Shared.Dtos.Reports
+@using HortiBts.Shared.Dtos.Reports.Yearly
 @using HortiBts.Shared.Dtos.SubDistricts
 @attribute [Authorize(Roles = "Admin")]
 
@@ -19,6 +19,17 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject ExcelExportService ExcelExport
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
 
 <PageTitle>@Lang.Text("RHEO-wise Farmer Registration Report (Yearly)", "आर.एच.ई.ओ. वार कृषक पंजीयन रिपोर्ट (वार्षिक)")</PageTitle>
 
@@ -110,10 +121,25 @@
 
 @if (_reportData.Any())
 {
+    <MudStack class="mt-2">
+        @{
+            var firstRow = _filteredReportData.FirstOrDefault();
+        }
+        @if (firstRow != null)
+        {
+            <MudText Typo="Typo.body2" Class="mt-1">
+                @Lang.Text("District", "जिला"): <b>@Lang.Text(firstRow.DistrictNameEn!, firstRow.DistrictNameHi!)</b>
+                &nbsp;|&nbsp;
+                @Lang.Text("Block", "विकासखंड"): <b>@Lang.Text(firstRow.SubDistrictNameEn!, firstRow.SubDistrictNameHi!)</b>
+                </MudText>
+        }
+    </MudStack>
     <MudTable Items="_filteredReportData"
               SortLabel="Sort By"
               Dense="true"
               Hover="true"
+              Bordered="true"
+              HeaderClass="report-header-row"
               Elevation="1"
               Class="mt-4">
         <ToolBarContent>
@@ -131,8 +157,6 @@
         </ToolBarContent>
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => Lang.Text(x.DistrictNameEn!, x.DistrictNameHi!))">@Lang.Text("District", "जिला")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => Lang.Text(x.SubDistrictNameEn!, x.SubDistrictNameHi!))">@Lang.Text("Block", "विकासखंड")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.OfficerName!)">@Lang.Text("Officer Name", "अधिकारी का नाम")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.FarmerCount!)">@Lang.Text("Farmer Count", "कृषक संख्या")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.SchemeCount!)">@Lang.Text("Applications Count", "आवेदन संख्या")</MudTableSortLabel></MudTh>
@@ -141,15 +165,9 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
-            <MudTd DataLabel="@Lang.Text("District", "जिला")">
-                @Lang.Text(context.DistrictNameEn!, context.DistrictNameHi!)
-            </MudTd>
-            <MudTd DataLabel="@Lang.Text("Block", "विकासखंड")">
-                @Lang.Text(context.SubDistrictNameEn!, context.SubDistrictNameHi!)
-            </MudTd>
             <MudTd DataLabel="@Lang.Text("Officer Name", "अधिकारी का नाम")">
                 <MudLink Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}")"
-                           Color="Color.Info">
+                         Color="Color.Info">
                     @context.OfficerName
                 </MudLink>
             </MudTd>
@@ -160,8 +178,6 @@
         </RowTemplate>
         <FooterContent>
             <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
-            <MudTd></MudTd>
-            <MudTd></MudTd>
             <MudTd></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.FarmerCount ?? 0)</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.SchemeCount ?? 0)</b></MudTd>
@@ -336,14 +352,6 @@
         {
             _isLoading = false;
         }
-    }
-
-    private async Task LoadVillageWiseReport(int? districtCode, int? subDistrictCode, int? officerCode, int? financialYear)
-    {
-
-        Navigation.NavigateTo(
-            $"/reports/yearly/villagewise-farmer-registration-report/{districtCode!.Value}/{subDistrictCode!.Value}/{officerCode!.Value}/{financialYear!.Value}");
-
     }
 
     private async Task Reset()

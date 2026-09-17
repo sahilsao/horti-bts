@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HortiBts.Shared.Dtos.Reports
+namespace HortiBts.Shared.Dtos.Reports.Yearly
 {
     public class DistWiseFarmerRegistrationDto
     {

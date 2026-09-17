@@ -1,4 +1,4 @@
-﻿namespace HortiBts.Shared.Dtos.Reports
+﻿namespace HortiBts.Shared.Dtos.Reports.Yearly
 {
     public class BlockWiseFarmerRegistrationDto
     {

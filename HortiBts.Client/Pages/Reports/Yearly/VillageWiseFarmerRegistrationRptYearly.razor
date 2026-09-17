@@ -10,7 +10,7 @@
 @using HortiBts.Shared.Dtos.Districts
 @using HortiBts.Shared.Dtos.FinancialYear
 @using HortiBts.Shared.Dtos.Officers
-@using HortiBts.Shared.Dtos.Reports
+@using HortiBts.Shared.Dtos.Reports.Yearly
 @using HortiBts.Shared.Dtos.SubDistricts
 @attribute [Authorize(Roles = "Admin")]
 
@@ -22,6 +22,17 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject ExcelExportService ExcelExport
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
 
 <PageTitle>@Lang.Text("Village-wise Farmer Registration Report (Yearly)", "ग्राम-वार कृषक पंजीयन रिपोर्ट (वार्षिक)")</PageTitle>
 
@@ -120,15 +131,34 @@
 
 @if (_reportData.Any())
 {
+    <MudStack class="mt-2">
+        @{
+            var firstRow = _filteredReportData.FirstOrDefault();
+        }
+        @if (firstRow != null)
+        {
+            <MudText Typo="Typo.body2" Class="mt-1">
+                @Lang.Text("District", "जिला"): <b>@Lang.Text(firstRow.DistrictNameEn!, firstRow.DistrictNameHi!)</b>
+                &nbsp;|&nbsp;
+                @Lang.Text("Block", "विकासखंड"): <b>@Lang.Text(firstRow.SubDistrictNameEn!, firstRow.SubDistrictNameHi!)</b>
+                &nbsp;|&nbsp;
+                @Lang.Text("Officer Name", "अधिकारी का नाम"): <b>@firstRow.OfficerName</b>
+                &nbsp;|&nbsp;
+                @Lang.Text("Officer Mob No.", "अधिकारी का मोबाइल नंबर"): <b>@firstRow.MobileNo</b>
+            </MudText>
+        }
+    </MudStack>
     <MudTable Items="_filteredReportData"
               SortLabel="Sort By"
               Dense="true"
               Hover="true"
+              Bordered=" true"
+              HeaderClass="report-header-row"
               Elevation="1"
               Class="mt-4">
         <ToolBarContent>
             <MudText Typo="Typo.h6">
-                @Lang.Text("Village-wise Farmer Registration Report (Yearly)", "ग्राम-वार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+                @Lang.Text("Villagewise Farmer Registration Backlog Report (Yearly)", "ग्राम रिपोर्ट उद्यानिकी कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
                 (@_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear)
             </MudText>
             <MudSpacer />
@@ -142,7 +172,6 @@
         <HeaderContent>
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<VillageWiseFarmerRegistrationDto, object>(x => x.VillageName!)">@Lang.Text("Village Name", "ग्राम का नाम")</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<VillageWiseFarmerRegistrationDto, object>(x => x.OfficerName!)">@Lang.Text("Officer Name", "अधिकारी का नाम")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<VillageWiseFarmerRegistrationDto, object>(x => x.FarmerCount!)">@Lang.Text("Farmer Count", "कृषक संख्या")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<VillageWiseFarmerRegistrationDto, object>(x => x.SchemeCount!)">@Lang.Text("Applications Count", "आवेदन संख्या")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<VillageWiseFarmerRegistrationDto, object>(x => x.Area!)">@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")</MudTableSortLabel></MudTh>
@@ -151,12 +180,11 @@
         <RowTemplate>
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
             <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")">
-                <MudLink Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"                         
-                           Color="Color.Info">
+                <MudLink Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"
+                         Color="Color.Info">
                     @context.VillageName
                 </MudLink>
             </MudTd>
-            <MudTd DataLabel="@Lang.Text("Officer Name", "अधिकारी का नाम")">@context.OfficerName</MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">@context.FarmerCount</MudTd>
             <MudTd DataLabel="@Lang.Text("Applications Count", "आवेदन संख्या")">@context.SchemeCount</MudTd>
             <MudTd DataLabel="@Lang.Text("Target Area (Hectares)", "लक्षित रकबा (हेक्टेयर में)")">@context.Area?.ToString("N2")</MudTd>
@@ -164,7 +192,6 @@
         </RowTemplate>
         <FooterContent>
             <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
-            <MudTd></MudTd>
             <MudTd></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.FarmerCount ?? 0)</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.SchemeCount ?? 0)</b></MudTd>
@@ -387,7 +414,7 @@
         {
             _isLoading = false;
         }
-    }     
+    }
 
     private async Task Reset()
     {
@@ -415,8 +442,8 @@
 
     private List<ExcelColumn<VillageWiseFarmerRegistrationDto>> GetColumns() => new()
     {
-   
-        new() { HeaderEn = "Village", HeaderHi = "ग्राम",
+
+new() { HeaderEn = "Village", HeaderHi = "ग्राम",
                 ValueSelector = x => x.VillageName! },
         new() { HeaderEn = "Farmer Count", HeaderHi = "कृषक संख्या",
                 ValueSelector = x => x.FarmerCount ?? 0,

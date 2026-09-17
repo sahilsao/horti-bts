@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
-using HortiBts.Shared.Dtos.Reports;
+using HortiBts.Shared.Dtos.Reports.Yearly;
 
 namespace HortiBts.Api.Repositories.Reports.Yearly
 {
@@ -293,16 +293,26 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
                         IFNULL(s.s_count, 0) AS SchemeCount,
                         IFNULL(s.area, 0) AS Area,
                         SUM( IFNULL(s.subsidy, 0) ) AS Subsidy,
-                        va.distcodecensus AS DistrictCode,
-                        va.subdistrict_code AS SubDistrictCode,
-                        va.village_code as VillageCode,
-                        va.village_name AS VillageName,
-                        ovd.officer_code as OfficerCode,
-                        m.name AS OfficerName,
-                        m.mobile_no as MobileNo
+                           va.village_code AS VillageCode,
+                           va.village_name AS VillageName,
+                
+                           rb.BlockNameEng AS SubDistrictNameEn,
+                           va.subdistrict_code AS SubDistrictCode,
+                           rb.BlockNameHin AS SubDistrictNameHi,
+                
+                           va.DistCodeCensus AS DistrictCode,
+                           rd.DistrictNameHindi AS DistrictNameHi,
+                           rd.DistrictName AS DistrictNameEn,
+                           ovd.officer_code as OfficerCode,
+                           m.name AS OfficerName,
+                           m.mobile_no as MobileNo
                     FROM view_all_villages va
                     INNER
                     JOIN villages ovd ON ovd.village_code = va.village_code
+                    INNER JOIN rev_block rb
+                            ON rb.subdistrict_code = va.subdistrict_code
+                    INNER JOIN rev_district rd
+                            ON rd.DistrictCensus = va.DistCodeCensus
                     INNER
                     JOIN mas_raeo m ON m.officer_code = ovd.officer_code
                     LEFT
@@ -541,8 +551,13 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
                     bd.fd_id AS FDID,
                     bd.hf_id AS HFID,
                     bd.officer_code AS OfficerCode,
-                    bd.subdistrict_code AS SubDistrictCode,
+                    m.name AS OfficerName,
                     bd.distcodecensus AS DistrictCode,
+                    rd.DistrictName AS DistrictNameEn,
+                    rd.DistrictNameHindi AS DistrictNameHi,
+                    bd.subdistrict_code AS SubDistrictCode,
+                    rb.BlockNameEng AS SubDistrictNameEn,
+                    rb.BlockNameHin AS SubDistrictNameHi,
                     bd.village_code AS VillageCode,
                     bd.village_name AS VillageName,
                     bd.farmer_name_eng AS FarmerNameEng,
@@ -570,6 +585,15 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
                     ld1.total_land_area AS TotalLandArea
 
                 FROM basic_detail bd
+
+                INNER JOIN rev_block rb
+                    ON rb.subdistrict_code = bd.subdistrict_code
+
+                INNER JOIN rev_district rd
+                    ON rd.DistrictCensus = bd.DistCodeCensus
+
+                INNER JOIN mas_raeo m
+                ON m.officer_code = bd.officer_code
 
                 INNER JOIN gov_scheme gsc
                     ON gsc.fd_id = bd.fd_id
@@ -616,26 +640,25 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
             return Result<List<FarmerWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
     }
+    public class RheoWiseFarmerFilterDto
+    {
+        public int DepartmentCode { get; set; }
+        public int? DistrictCode { get; set; }
+        public int? SubDistrictCode { get; set; }
+        public int? FinancialYear { get; set; }
+    }
+    public class FarmerWiseReportFilterDto
+    {
+        public int DepartmentCode { get; set; }
+        public int? DistrictCode { get; set; }
+        public int? SubDistrictCode { get; set; }
+        public int? VillageCode { get; set; }
+        public int? OfficerCode { get; set; }
+        public int FinancialYear { get; set; }
+        public int? SchemeType { get; set; }
+        public int? SchemeId { get; set; }
+        public int? ComponentId { get; set; }
+    }
 }
 
 
-public class RheoWiseFarmerFilterDto
-{
-    public int DepartmentCode { get; set; }
-    public int? DistrictCode { get; set; }
-    public int? SubDistrictCode { get; set; }
-    public int? FinancialYear { get; set; }
-}
-
-public class FarmerWiseReportFilterDto
-{
-    public int DepartmentCode { get; set; }
-    public int? DistrictCode { get; set; }
-    public int? SubDistrictCode { get; set; }
-    public int? VillageCode { get; set; }
-    public int? OfficerCode { get; set; }
-    public int FinancialYear { get; set; }
-    public int? SchemeType { get; set; }
-    public int? SchemeId { get; set; }
-    public int? ComponentId { get; set; }
-}

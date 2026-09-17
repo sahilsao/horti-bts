@@ -1,3 +1,4 @@
+using Dapper;
 using HortiBts.Api.Data;
 using HortiBts.Api.Repositories.Auth;
 using HortiBts.Api.Repositories.Benefits;
@@ -11,7 +12,7 @@ using HortiBts.Api.Repositories.MIDHComponents;
 using HortiBts.Api.Repositories.MIDHSchemes;
 using HortiBts.Api.Repositories.Notices;
 using HortiBts.Api.Repositories.Officers;
-using HortiBts.Api.Repositories.Reports.Backlog;
+using HortiBts.Api.Repositories.Reports.BacklogYearly;
 using HortiBts.Api.Repositories.Reports.Yearly;
 using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Api.Repositories.SubDistricts;
@@ -24,6 +25,9 @@ using Scalar.AspNetCore;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Dapper configuration
+DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 // Add services to the container.
 
@@ -78,7 +82,7 @@ builder.Services.AddScoped<IMIDHSubComponentRepository, MIDHSubComponentReposito
 
 // Reports Related
 builder.Services.AddScoped<IYearlyFarmerRegistrationRepository, YearlyFarmerRegistrationRepository>();
-builder.Services.AddScoped<IBacklogFarmerRegistrationRepository, BacklogFarmerRegistrationRepository>();
+builder.Services.AddScoped<IBacklogFarmerRegistrationRepository, BacklogYearlyFarmerRegistrationRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.

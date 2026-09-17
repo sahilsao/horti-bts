@@ -1,6 +1,6 @@
 using System;
 
-namespace HortiBts.Shared.Dtos.Reports;
+namespace HortiBts.Shared.Dtos.Reports.Yearly;
 
 public class FarmerWiseFarmerRegistrationDto
 {
@@ -9,8 +9,13 @@ public class FarmerWiseFarmerRegistrationDto
 	public int? Fdid { get; set; } // FDID
 	public int? Hfid { get; set; } // HFID
     public int? OfficerCode { get; set; }
+    public string? OfficerName { get; set; }
     public int? DistrictCode { get; set; }
+    public string? DistrictNameEn { get; set; }
+    public string? DistrictNameHi { get; set; }
     public int? SubDistrictCode { get; set; }
+    public string? SubDistrictNameEn { get; set; }
+    public string? SubDistrictNameHi { get; set; }
 	public int? VillageCode { get; set; }
 	public string? VillageName { get; set; }
 	public string? FarmerNameEng { get; set; }
