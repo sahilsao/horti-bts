@@ -1,5 +1,5 @@
 @using Microsoft.AspNetCore.Components.Authorization
-<MudNavMenu Bordered="true" Margin="Margin.Normal">
+<MudNavMenu Bordered="true" Margin="Margin.Normal" Color="Color.Primary">
     <AuthorizeView Roles="Admin">
         <Authorized>
             <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.Dashboard">
@@ -66,9 +66,15 @@
                         @Lang.Text("Village-wise Farmer Registration Backlog Report (Yearly)", "ग्रामवार कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
                     </MudNavLink>
                 </MudNavGroup>
-                <MudNavGroup Title="@Lang.Text("Comparative Reports", "तुलनात्मक रिपोर्ट्स")" Ripple Icon="@Icons.Material.Filled.DocumentScanner">
+                <MudNavGroup Title="@Lang.Text("Comparative Reports (Upto 4 Years Back)", "तुलनात्मक रिपोर्ट्स (4 वर्ष पूर्व तक)")" Ripple Icon="@Icons.Material.Filled.DocumentScanner">
                     <MudNavLink Href="/reports/comparative/districtwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
                         @Lang.Text("District-wise Farmer Registration Comparative Report (Yearly)", "जिलावार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
+                    </MudNavLink>
+                     <MudNavLink Href="/reports/comparative/blockwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
+                        @Lang.Text("Block-wise Farmer Registration Backlog Comparative Report (Yearly)", "विकासखंडवार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
+                    </MudNavLink>
+                    <MudNavLink Href="/reports/comparative/villagewise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clarify">
+                        @Lang.Text("Village-wise Farmer Registration Backlog Comparative Report (Yearly)", "ग्रामवार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
                     </MudNavLink>
                 </MudNavGroup>
             </MudNavGroup>

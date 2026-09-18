@@ -1,0 +1,503 @@
+﻿@page "/reports/comparative/rheowise-farmer-registration-report"
+@page "/reports/comparative/rheowise-farmer-registration-report/{DepartmentCode:int}/{DistrictCode:int}/{SubDistrictCode:int}/{FinancialYear:int}"
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Reports
+@using HortiBts.Client.Services.Reports.Comparative
+@using HortiBts.Client.Services.SubDistricts
+@using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Shared.Dtos.FinancialYear
+@using HortiBts.Shared.Dtos.Reports.Comparative
+@using HortiBts.Shared.Dtos.SubDistricts
+@attribute [Authorize(Roles = "Admin")]
+
+@inject DistrictsApiService DistrictsService
+@inject SubDistrictsApiService SubDistrictsApiService
+@inject FinancialYearsApiService FinancialYearsApiService
+@inject ComparativeFarmerRegistrationApiService ComparativeFarmerRegistrationApiService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject ExcelExportService ExcelExport
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
+
+<PageTitle>
+    @Lang.Text("Rheo-Wise Comparative Farmer Registration Report (Yearly)", "आर.एच.ई.ओ. तुलनात्मक कृषक पंजीयन रिपोर्ट (वार्षिक)")
+</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="material-symbols-outlined/lab_profile" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Rheo-Wise Comparative Farmer Registration Report (Yearly)", "आर.एच.ई.ओ. तुलनात्मक कृषक पंजीयन रिपोर्ट (वार्षिक)")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("Report for Rheo-Wise Comparative Farmer Registration (Yearly)", "आर.एच.ई.ओ. तुलनात्मक कृषक पंजीयन रिपोर्ट (वार्षिक)")
+</MudText>
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?"
+                   Value="_selectedDistrictCensus"
+                   Label="@Lang.Text("District", "जिला")"
+                   Variant="Variant.Outlined"
+                   ValueChanged="OnDistrictChanged">
+
+            <MudSelectItem T="int?" Value="0">
+                @Lang.Text("All", "सभी")
+            </MudSelectItem>
+
+            @foreach (var d in _districts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                    @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?"
+                   @bind-Value="_selectedSubDistrictCode"
+                   Label="@Lang.Text("Block", "विकासखण्ड")"
+                   Variant="Variant.Outlined"
+                   FullWidth="true">
+
+            <MudSelectItem T="int?" Value="0">
+                @Lang.Text("All", "सभी")
+            </MudSelectItem>
+
+            @foreach (var s in _subdistricts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)s.SubDistrictCode)">
+                    @(Lang.IsHindi ? s.SubDistrictNameHi : s.SubDistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?"
+                   Label="@Lang.Text("Select Financial Year", "वित्त वर्ष चुने")"
+                   @bind-Value="_selectedFinancialYear"
+                   Variant="Variant.Outlined" FullWidth="true" Class="mb-3"
+                   Required="true">
+            @foreach (var f in _finyears)
+            {
+                <MudSelectItem T="int?" Value="@((int?)f.Id)">
+                    @f.FinancialYear
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
+<MudStack Row="true" Spacing="1">
+    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="LoadReport" Disabled="_isLoading">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            <span>@Lang.Text("Loading...", "लोड हो रहा है...")</span>
+        }
+        else
+        {
+            <span>@Lang.Text("Search", "खोज करे")</span>
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+        @Lang.Text("Reset", "रीसेट")
+    </MudButton>
+</MudStack>
+
+@{
+    var y4 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear;
+    var y3 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear - 1)?.FinancialYear;
+    var y2 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear - 2)?.FinancialYear;
+    var y1 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear - 3)?.FinancialYear;
+}
+@if (_reportData.Any())
+{
+    <MudStack class="mt-2">
+        @{
+            var firstRow = _filteredReportData.FirstOrDefault();
+        }
+        @if (firstRow != null)
+        {
+           <MudText Typo="Typo.body2" Class="mt-1">
+                @Lang.Text("District", "जिला"): <b>@Lang.Text(firstRow.DistrictNameEn!, firstRow.DistrictNameHi!)</b>
+                &nbsp;|&nbsp;
+                @Lang.Text("Block", "विकासखंड"): <b>@Lang.Text(firstRow.SubDistrictNameEn!, firstRow.SubDistrictNameHi!)</b>
+            </MudText>
+        }
+    </MudStack>
+    <MudTable Items="_filteredReportData" SortLabel="Sort By" Bordered="true" CustomHeader="true" Dense="true" Hover="true"
+              Elevation="1" Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">
+                @Lang.Text("Rheowise Farmer Comparative Registration Report (Yearly)", "आर.एच.ई.ओ. तुलनात्मक रिपोर्ट उद्यानिकी कृषक पंजीयन रिपोर्ट (वार्षिक)")
+                (@_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear)
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTHeadRow Class="report-header-row">
+
+                <MudTh RowSpan="2">
+                    @Lang.Text("S.No.", "क्रमाँक")
+                </MudTh>
+
+                <MudTh RowSpan="2">
+                    <MudTableSortLabel
+                        SortBy="new Func<RheowiseComparativeFarmerRegistrationDto, object>(x => x.OfficerName!)">
+                         @Lang.Text("Officer Name", "अधिकारी का नाम")
+                    </MudTableSortLabel>
+                </MudTh>
+
+                <MudTh ColSpan="4" Style="text-align:center;">
+                    @Lang.Text(
+                        "Registered Farmer Count",
+                        "पंजीकृत कृषकों की सँख्या")
+                </MudTh>
+            </MudTHeadRow>
+            <MudTHeadRow Class="report-header-row">
+
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<RheowiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb4!)">
+                        @Lang.Text($"Year {y4}", $"वर्ष {y4}")
+                    </MudTableSortLabel>
+                </MudTh>
+
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<RheowiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb3!)">
+                        @Lang.Text($"Year {y3}", $"वर्ष {y3}")
+                    </MudTableSortLabel>
+                </MudTh>
+
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<BlockwiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb2!)">
+                        @Lang.Text($"Year {y2}", $"वर्ष {y2}")
+                    </MudTableSortLabel>
+                </MudTh>
+
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<RheowiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb1!)">
+                        @Lang.Text($"Year {y1}", $"वर्ष {y1}")
+                    </MudTableSortLabel>
+                </MudTh>
+
+            </MudTHeadRow>
+
+        </HeaderContent>
+        <RowTemplate>
+            @{
+                var officerName = context.OfficerName!;
+                var finYearLabel4 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear;
+                var finYearLabel3 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear - 1)?.FinancialYear;
+                var finYearLabel2 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear - 2)?.FinancialYear;
+                var finYearLabel1 = _finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear - 3)?.FinancialYear;
+                var reportWord = Lang.Text("Report", "रिपोर्ट");
+                var tooltipText4 = $"{officerName} - {finYearLabel4} - {reportWord}";
+                var tooltipText3 = $"{officerName} - {finYearLabel3} - {reportWord}";
+                var tooltipText2 = $"{officerName} - {finYearLabel2} - {reportWord}";
+                var tooltipText1 = $"{officerName} - {finYearLabel1} - {reportWord}";
+            }
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+             <MudTd DataLabel="@Lang.Text("Officer Name", "अधिकारी का नाम")">
+                <MudTooltip Text="@tooltipText4" Color="Color.Info" Placement="Placement.Top">
+                    <MudLink Href="@($"/reports/comparative/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}")"
+                             Color="Color.Info">
+                        @context.OfficerName
+                    </MudLink>
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text($"Year {y4}", $"वर्ष {y4}")">
+                <MudTooltip Text="@tooltipText4" Color="Color.Info" Disabled="@(context.TotalFarmerCountFyb4 == 0)"
+                            Placement="Placement.Top">
+                    <MudLink
+                        Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}")"
+                        Disabled="@(context.TotalFarmerCountFyb4 == 0)" Color="Color.Info">
+                        @context.TotalFarmerCountFyb4
+                    </MudLink>
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text($"Year {y3}", $"वर्ष {y3}")">
+                <MudTooltip Text="@tooltipText3" Color="Color.Info" Disabled="@(context.TotalFarmerCountFyb3 == 0)"
+                            Placement="Placement.Top">
+                    <MudLink
+                        Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 1)!.Value}")"
+                        Disabled="@(context.TotalFarmerCountFyb3 == 0)" Color="Color.Info">
+                        @context.TotalFarmerCountFyb3
+                    </MudLink>
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text($"Year {y2}", $"वर्ष {y2}")">
+                <MudTooltip Text="@tooltipText2" Color="Color.Info" Disabled="@(context.TotalFarmerCountFyb2 == 0)"
+                            Placement="Placement.Top">
+                    <MudLink
+                        Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 2)!.Value}")"
+                        Disabled="@(context.TotalFarmerCountFyb2 == 0)" Color="Color.Info">
+                        @context.TotalFarmerCountFyb2
+                    </MudLink>
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text($"Year {y1}", $"वर्ष {y1}")">
+                <MudTooltip Text="@tooltipText1" Color="Color.Info" Disabled="@(context.TotalFarmerCountFyb1 == 0)"
+                            Placement="Placement.Top">
+                    <MudLink
+                        Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 3)!.Value}")"
+                        Disabled="@(context.TotalFarmerCountFyb1 == 0)" Color="Color.Info">
+                        @context.TotalFarmerCountFyb1
+                    </MudLink>
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+        <FooterContent>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+            <MudTd></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.TotalFarmerCountFyb4 ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.TotalFarmerCountFyb3 ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.TotalFarmerCountFyb2 ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.TotalFarmerCountFyb1 ?? 0)</b></MudTd>
+        </FooterContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+
+    private List<DistrictsDto> _districts = [];
+    private List<FinancialYearDto> _finyears = [];
+    private List<SubDistrictsDto> _subdistricts = [];
+    private int? _selectedFinancialYear;
+
+    // Default both to 0 = "All" rather than null, so the "All" option is pre-selected on first load
+    private int? _selectedDistrictCensus = 0;
+    private int? _selectedSubDistrictCode = 0;
+
+    private int? _selectedDepartmentCode;
+
+    [Parameter]
+    public int DepartmentCode { get; set; }
+    [Parameter]
+    public int DistrictCode { get; set; }
+    [Parameter]
+    public int SubDistrictCode { get; set; }
+    [Parameter]
+    public int FinancialYear { get; set; }
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+
+    private List<RheowiseComparativeFarmerRegistrationDto> _reportData = new();
+    private string _searchString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDistrictsAsync();
+        await LoadFinancialYearsAsync();
+
+        // FinancialYear is the only truly required deep-link param now;
+        // DistrictCode / SubDistrictCode of 0 mean "All" and are valid
+        if (DepartmentCode > 0 && FinancialYear > 0)
+        {
+            _selectedDepartmentCode = 3;
+
+            if (DistrictCode > 0)
+            {
+                _selectedDistrictCensus = DistrictCode;
+                await OnDistrictChanged(_selectedDistrictCensus);
+            }
+            else
+            {
+                _selectedDistrictCensus = 0; // All
+                _subdistricts.Clear();
+            }
+
+            _selectedSubDistrictCode = SubDistrictCode; // 0 = All, or a real code
+            _selectedFinancialYear = FinancialYear;
+
+            await LoadReport();
+        }
+    }
+
+    private async Task LoadDistrictsAsync()
+    {
+        var result = await DistrictsService.GetDistrictsAsync();
+        if (result.IsSuccess)
+            _districts = result.Data!;
+        else
+            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+    }
+
+    private async Task OnDistrictChanged(int? districtId)
+    {
+        _selectedDistrictCensus = districtId;
+        _selectedSubDistrictCode = 0; // reset block to "All" whenever district changes
+        _subdistricts = new();
+
+        // 0 (or null) means "All districts" — there's no single district to load blocks for
+        if (districtId is null || districtId == 0)
+            return;
+
+        try
+        {
+            var result = await SubDistrictsApiService.GetSubDistrictsAsync(districtId.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _subdistricts = result.Data;
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load subdistricts.", "उपजिलों को लोड करने में विफल।"), Severity.Error);
+        }
+    }
+
+    private async Task LoadFinancialYearsAsync()
+    {
+        var result = await FinancialYearsApiService.GetFinancialYearsForReportAsync();
+
+        if (result.IsSuccess && result.Data is not null)
+        {
+            _finyears = result.Data;
+        }
+        else
+        {
+            Snackbar.Add(Lang.Text("Failed to load financial years.", "वित्त वर्ष लोड करने में विफल।"), Severity.Warning);
+        }
+    }
+
+    private async Task LoadReport()
+    {
+        // District and Block are optional now — 0 ("All") is a valid, deliberate selection.
+        // Only financial year remains mandatory.
+        if (_selectedFinancialYear is null)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Please select a financial year.",
+                    "कृपया एक वित्त वर्ष चुनें।"),
+                Severity.Warning);
+            return;
+        }
+
+        var districtCode = _selectedDistrictCensus ?? 0; // 0 means "All"
+        var subDistrictCode = _selectedSubDistrictCode ?? 0; // 0 means
+        _selectedDepartmentCode = 3; // Assuming department code is fixed as 3 for this report
+
+        _isLoading = true;
+
+        try
+        {
+            var result = await
+    ComparativeFarmerRegistrationApiService.GetComparativeRheoWiseFarmerRegistrationListAsync(
+                        _selectedDepartmentCode!.Value,
+                        districtCode,
+                        subDistrictCode,
+                        _selectedFinancialYear!.Value);
+            if (result.IsSuccess && result.Data is not null)
+            {
+                if (result.Data.Any())
+                {
+                    _reportData = result.Data;
+                }
+                else
+                {
+                    _reportData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
+            }
+            else
+            {
+                Snackbar.Add(Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"), Severity.Warning);
+                _isLoading = false;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "An error occurred while loading the report.",
+                    "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task Reset()
+    {
+         _selectedFinancialYear = null;
+        _selectedDistrictCensus = 0; // back to "All"
+        _selectedSubDistrictCode = 0; // back to "All"
+        _subdistricts.Clear();
+        _reportData.Clear();
+
+        Navigation.NavigateTo(
+           "/reports/comparative/rheowise-farmer-registration-report",
+           replace: true);
+    }
+
+    private IEnumerable<RheowiseComparativeFarmerRegistrationDto> _filteredReportData =>
+            _reportData.Where(t =>
+               string.IsNullOrWhiteSpace(_searchString)
+    || (t.OfficerName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.TotalFarmerCountFyb1?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.TotalFarmerCountFyb2?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.TotalFarmerCountFyb3?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.TotalFarmerCountFyb4?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private List<ExcelColumn<RheowiseComparativeFarmerRegistrationDto>> GetColumns() => new()
+    {
+        new() { HeaderEn = "Officer Name", HeaderHi = "अधिकारी का नाम",
+                ValueSelector = x => x.OfficerName! },
+
+        new() { HeaderEn = "Year-"+_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear,
+                HeaderHi = "वर्ष-"+_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear,
+                ValueSelector = x => x.TotalFarmerCountFyb4 ?? 0,
+                TotalSelector = list => list.Sum(x => x.TotalFarmerCountFyb4 ?? 0) },
+        new() { HeaderEn = "Year-"+_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear-1)?.FinancialYear,
+                HeaderHi = "वर्ष-"+_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear-1)?.FinancialYear,
+                ValueSelector = x => x.TotalFarmerCountFyb3 ?? 0,
+                TotalSelector = list => list.Sum(x => x.TotalFarmerCountFyb3 ?? 0) },
+        new() { HeaderEn = "Year-"+_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear-2)?.FinancialYear,
+                HeaderHi = "वर्ष-"+_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear-2)?.FinancialYear,
+                ValueSelector = x => x.TotalFarmerCountFyb2 ?? 0,
+                TotalSelector = list => list.Sum(x => x.TotalFarmerCountFyb2 ?? 0) },
+        new() { HeaderEn = "Year-"+_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear-3)?.FinancialYear,
+                HeaderHi = "वर्ष-"+_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear-3)?.FinancialYear,
+                ValueSelector = x => x.TotalFarmerCountFyb1 ?? 0,
+                TotalSelector = list => list.Sum(x => x.TotalFarmerCountFyb1 ?? 0) }
+    };
+
+    private async Task ExportToExcel()
+    {
+        var finYear = (_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear!)
+                      .Replace("/", "-");
+
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("Rheo-Wise Farmer Comparative Registration Report (Yearly)", "आर.एच.ई.ओ. तुलनात्मक कृषक पंजीयन रिपोर्ट (वार्षिक)"),
+            (en, hi) => Lang.Text(en, hi),
+            $"RheoWiseComparative_FarmerRegistrationReport_{finYear}.xlsx");
+    }
+}

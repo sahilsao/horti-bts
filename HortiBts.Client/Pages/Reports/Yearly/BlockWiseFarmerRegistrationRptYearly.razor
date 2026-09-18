@@ -300,8 +300,6 @@
 
     private List<ExcelColumn<BlockWiseFarmerRegistrationDto>> GetColumns() => new()
     {
-        new() { HeaderEn = "District", HeaderHi = "जिला",
-                ValueSelector = x => Lang.Text(x.DistrictNameEn!, x.DistrictNameHi!) },
         new() { HeaderEn = "Block", HeaderHi = "विकासखंड",
                 ValueSelector = x => Lang.Text(x.SubDistrictNameEn!, x.SubDistrictNameHi!) },
         new() { HeaderEn = "Farmer Count", HeaderHi = "कृषक संख्या",

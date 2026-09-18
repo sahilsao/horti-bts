@@ -255,7 +255,7 @@
             <MudTd DataLabel="@Lang.Text("Target Count", "लक्ष्य (संख्या में)")">@context.TargetFyb4</MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText4" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/Backlog/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb4
                     </MudLink>
@@ -268,7 +268,7 @@
             <MudTd DataLabel="@Lang.Text("Target Count", "लक्ष्य (संख्या में)")">@context.TargetFyb3</MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText3" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/Backlog/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{(_selectedFinancialYear - 1)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{(_selectedFinancialYear - 1)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb3
                     </MudLink>
@@ -281,7 +281,7 @@
             <MudTd DataLabel="@Lang.Text("Target Count", "लक्ष्य (संख्या में)")">@context.TargetFyb2</MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText2" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/Backlog/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{(_selectedFinancialYear - 2)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{(_selectedFinancialYear - 2)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb2
                     </MudLink>
@@ -294,7 +294,7 @@
             <MudTd DataLabel="@Lang.Text("Target Count", "लक्ष्य (संख्या में)")">@context.TargetFyb1</MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText1" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/Backlog/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{(_selectedFinancialYear - 3)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/blockwise-farmer-registration-report/{context.DistrictCode!.Value}/{(_selectedFinancialYear - 3)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb1
                     </MudLink>

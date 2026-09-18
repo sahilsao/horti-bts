@@ -29,8 +29,7 @@
     <!-- App Bar -->
     <MudAppBar Elevation="1">
 
-        <MudToggleIconButton @bind-Toggled="_drawerOpen"
-                             Icon="@Icons.Material.Filled.Menu"
+        <MudToggleIconButton @bind-Toggled="_drawerOpen" Icon="@Icons.Material.Filled.Menu"
                              ToggledIcon="@Icons.Material.Filled.Menu" />
 
         <MudAvatar Size="Size.Medium" Class="mr-2">
@@ -61,36 +60,25 @@
         </MudChip>
         <!-- Dark Mode -->
         <MudTooltip Text="@(_isDarkMode ? Lang.Text("Light Mode", "लाइट मोड") : Lang.Text("Dark Mode", "डार्क मोड"))">
-            <MudToggleIconButton Toggled="@_isDarkMode"
-                                 ToggledChanged="ToggleDarkMode"
-                                 Color="Color.Primary"
-                                 Icon="@Icons.Material.Filled.ModeNight"
-                                 ToggledIcon="@Icons.Material.Filled.LightMode" />
+            <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode" Color="Color.Primary"
+                                 Icon="@Icons.Material.Filled.ModeNight" ToggledIcon="@Icons.Material.Filled.LightMode" />
         </MudTooltip>
 
         <!-- Language -->
         <MudTooltip Text="@Lang.Text("Change to Hindi", "अंग्रेजी मे बदले")">
-            <MudToggleIconButton Toggled="@_isHindi"
-                                 ToggledChanged="ToggleLanguage"
-                                 Color="Color.Primary"
+            <MudToggleIconButton Toggled="@_isHindi" ToggledChanged="ToggleLanguage" Color="Color.Primary"
                                  Icon="material-symbols-outlined/translate_indic"
                                  ToggledIcon="material-symbols-outlined/translate_indic" />
         </MudTooltip>
 
         <!-- Settings -->
         <MudTooltip Text="@Lang.Text("Open Settings", "सेटिंग्स खोले")">
-            <MudMenu Icon="@Icons.Material.Filled.Settings"
-                     Color="Color.Primary"
-                     AriaLabel="Open user menu">
+            <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" AriaLabel="Open user menu">
 
-                <MudMenuItem Icon="@Icons.Material.Filled.DisplaySettings"
-                             IconColor="Color.Primary"
-                             Href="update-password"
-                             Label="@Lang.Text("Update Password", "पासवर्ड अपडेट")" />
+                <MudMenuItem Icon="@Icons.Material.Filled.DisplaySettings" IconColor="Color.Primary"
+                             Href="update-password" Label="@Lang.Text("Update Password", "पासवर्ड अपडेट")" />
 
-                <MudMenuItem Icon="@Icons.Material.Filled.Logout"
-                             IconColor="Color.Primary"
-                             OnClick="Logout"
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Primary" OnClick="Logout"
                              Label="@Lang.Text("Log Out", "लॉग आउट")" />
 
             </MudMenu>
@@ -99,16 +87,13 @@
     </MudAppBar>
 
     <!-- Drawer -->
-    <MudDrawer id="nav-drawer"
-               @bind-Open="_drawerOpen"
-               ClipMode="DrawerClipMode.Always"
-               Elevation="2">
+    <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
 
     <!-- Main Content -->
-    <MudMainContent Class="pt-16 pa-4 mt-4">
-        @Body
+    <MudMainContent Class="pt-16 pa-4">
+            @Body
     </MudMainContent>
 
     <!-- Footer -->

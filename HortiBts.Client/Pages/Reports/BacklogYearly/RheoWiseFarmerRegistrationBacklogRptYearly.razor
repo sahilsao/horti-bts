@@ -152,7 +152,7 @@
                     @Lang.Text("S.No.", "क्रमाँक")
                 </MudTh>
                 <MudTh RowSpan="2">
-                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.OfficerName)">
+                    <MudTableSortLabel SortBy="new Func<RheoWiseFarmerRegistrationDto, object>(x => x.OfficerName!)">
                     @Lang.Text("Officer Name", "अधिकारी का नाम")
                     </MudTableSortLabel>
                 </MudTh>
@@ -296,7 +296,7 @@
             @* Back Year 4 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText4" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/backlog/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb4
                     </MudLink>
@@ -308,7 +308,7 @@
             @* Back Year 3 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText3" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/backlog/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 1)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 1)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb3
                     </MudLink>
@@ -320,7 +320,7 @@
             @* Back Year 2 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText2" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/backlog/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 2)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 2)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb2
                     </MudLink>
@@ -332,7 +332,7 @@
             @* Back Year 1 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText1" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/backlog/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 3)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/villagewise-farmer-registration-report/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 3)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb1
                     </MudLink>
@@ -558,8 +558,7 @@
     private IEnumerable<RheoWiseFarmerRegistrationDto> _filteredReportData =>
     _reportData.Where(t =>
     string.IsNullOrWhiteSpace(_searchString)
-    || (t.DistrictNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-    || (t.DistrictNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.OfficerName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
     || (t.TotalFarmerCountFyb1?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
     || (t.TotalFarmerCountFyb2?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
     || (t.TotalFarmerCountFyb3?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
@@ -579,12 +578,6 @@
 
     private List<ExcelColumn<RheoWiseFarmerRegistrationDto>> GetColumns() => new()
     {
-        new() { HeaderEn = "District", HeaderHi = "जिला",
-                ValueSelector = x => Lang.Text(x.DistrictNameEn!, x.DistrictNameHi!) },
-
-        new() { HeaderEn = "Block", HeaderHi = "विकासखंड",
-                ValueSelector = x => Lang.Text(x.SubDistrictNameEn!, x.SubDistrictNameHi!) },
-
         new() { HeaderEn = "Officer Name", HeaderHi = "अधिकारी का नाम",
                 ValueSelector = x => x.OfficerName! },
 
