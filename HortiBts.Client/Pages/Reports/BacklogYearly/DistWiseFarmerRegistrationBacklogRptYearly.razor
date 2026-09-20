@@ -379,7 +379,7 @@
         _isLoading = true;
         try
         {
-            var result = await BacklogYearlyFarmerRegistrationApiService.GetDistwiseFarmerRegistrationListAsync(_selectedFinancialYear!.Value);
+            var result = await BacklogYearlyFarmerRegistrationApiService.GetDistWiseFarmerRegistrationListAsync(_selectedFinancialYear!.Value);
             if (result.IsSuccess && result.Data is not null)
             {
                 if (result.Data.Any())

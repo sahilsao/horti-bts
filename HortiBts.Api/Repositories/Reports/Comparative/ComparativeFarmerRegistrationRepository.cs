@@ -8,14 +8,14 @@ namespace HortiBts.Api.Repositories.Reports.Comparative
 {
     public interface IComparativeFarmerRegistrationRepository
     {
-        Task<Result<List<DistwiseComparativeFarmerRegistrationDto>>> GetRptOfDistwiseComparativeFarmerRegistrationAsync(int financialYear);
-        Task<Result<List<BlockwiseComparativeFarmerRegistrationDto>>> GetRptOfBlockwiseComparativeFarmerRegistrationAsync(int districtCode, int financialYear);
-        Task<Result<List<RheowiseComparativeFarmerRegistrationDto>>> GetRptOfRheowiseComparativeFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter);        
-        Task<Result<List<VillagewiseComparativeFarmerRegistrationDto>>> GetRptOfVillagewiseComparativeFarmerRegistrationAsync(int officerCode, int financialYear);
+        Task<Result<List<DistWiseComparativeFarmerRegistrationDto>>> GetRptOfDistWiseComparativeFarmerRegistrationAsync(int financialYear);
+        Task<Result<List<BlockWiseComparativeFarmerRegistrationDto>>> GetRptOfBlockWiseComparativeFarmerRegistrationAsync(int districtCode, int financialYear);
+        Task<Result<List<RheoWiseComparativeFarmerRegistrationDto>>> GetRptOfRheoWiseComparativeFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter);        
+        Task<Result<List<VillageWiseComparativeFarmerRegistrationDto>>> GetRptOfVillageWiseComparativeFarmerRegistrationAsync(int officerCode, int financialYear);
     }
     public class ComparativeFarmerRegistrationRepository(IDbConnectionFactory connectionFactory) : IComparativeFarmerRegistrationRepository
     {
-        public async Task<Result<List<DistwiseComparativeFarmerRegistrationDto>>> GetRptOfDistwiseComparativeFarmerRegistrationAsync(int financialYear)
+        public async Task<Result<List<DistWiseComparativeFarmerRegistrationDto>>> GetRptOfDistWiseComparativeFarmerRegistrationAsync(int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             string Sql = @"
@@ -61,11 +61,11 @@ namespace HortiBts.Api.Repositories.Reports.Comparative
             GROUP BY va.DistCodeCensus, rd.DistrictNameHindi
             ORDER BY DistrictNameEn;;";
 
-            var result = await connection.QueryAsync<DistwiseComparativeFarmerRegistrationDto>(Sql, new { FinancialYear = financialYear });
-            return Result<List<DistwiseComparativeFarmerRegistrationDto>>.Success(result.ToList());
+            var result = await connection.QueryAsync<DistWiseComparativeFarmerRegistrationDto>(Sql, new { FinancialYear = financialYear });
+            return Result<List<DistWiseComparativeFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<BlockwiseComparativeFarmerRegistrationDto>>> GetRptOfBlockwiseComparativeFarmerRegistrationAsync(int districtCode, int financialYear)
+        public async Task<Result<List<BlockWiseComparativeFarmerRegistrationDto>>> GetRptOfBlockWiseComparativeFarmerRegistrationAsync(int districtCode, int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             string Sql = @"
@@ -117,11 +117,11 @@ namespace HortiBts.Api.Repositories.Reports.Comparative
             GROUP BY va.subdistrict_code
             ORDER BY DistrictNameEn desc";
 
-            var result = await connection.QueryAsync<BlockwiseComparativeFarmerRegistrationDto>(Sql, new { DistrictCode = districtCode, FinancialYear = financialYear });
-            return Result<List<BlockwiseComparativeFarmerRegistrationDto>>.Success(result.ToList());
+            var result = await connection.QueryAsync<BlockWiseComparativeFarmerRegistrationDto>(Sql, new { DistrictCode = districtCode, FinancialYear = financialYear });
+            return Result<List<BlockWiseComparativeFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<RheowiseComparativeFarmerRegistrationDto>>> GetRptOfRheowiseComparativeFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter)
+        public async Task<Result<List<RheoWiseComparativeFarmerRegistrationDto>>> GetRptOfRheoWiseComparativeFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter)
         {
             using var connection = connectionFactory.CreateConnection();
 
@@ -199,11 +199,11 @@ namespace HortiBts.Api.Repositories.Reports.Comparative
                 FinancialYear = filter.FinancialYear
             };
 
-            var result = await connection.QueryAsync<RheowiseComparativeFarmerRegistrationDto>(sql, parameters);
-            return Result<List<RheowiseComparativeFarmerRegistrationDto>>.Success(result.ToList());
+            var result = await connection.QueryAsync<RheoWiseComparativeFarmerRegistrationDto>(sql, parameters);
+            return Result<List<RheoWiseComparativeFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<VillagewiseComparativeFarmerRegistrationDto>>> GetRptOfVillagewiseComparativeFarmerRegistrationAsync(int officerCode, int financialYear)
+        public async Task<Result<List<VillageWiseComparativeFarmerRegistrationDto>>> GetRptOfVillageWiseComparativeFarmerRegistrationAsync(int officerCode, int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             const string sql = """
@@ -292,8 +292,8 @@ namespace HortiBts.Api.Repositories.Reports.Comparative
                            va.village_name                       
                 """;
 
-            var result = await connection.QueryAsync<VillagewiseComparativeFarmerRegistrationDto>(sql, new { OfficerCode = officerCode, FinancialYear = financialYear });
-            return Result<List<VillagewiseComparativeFarmerRegistrationDto>>.Success(result.ToList());
+            var result = await connection.QueryAsync<VillageWiseComparativeFarmerRegistrationDto>(sql, new { OfficerCode = officerCode, FinancialYear = financialYear });
+            return Result<List<VillageWiseComparativeFarmerRegistrationDto>>.Success(result.ToList());
         }
 
     }

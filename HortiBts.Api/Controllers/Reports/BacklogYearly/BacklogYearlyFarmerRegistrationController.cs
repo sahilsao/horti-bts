@@ -16,11 +16,11 @@ namespace HortiBts.Api.Controllers.Reports.BacklogYearly
         [HttpGet("distwise-farmer-registration")]
         [EndpointSummary("Get backlog report of district-wise farmer registration")]
         [EndpointDescription("Retrieves the backlog report of district-wise farmer registration for a specified financial year.")]
-        public async Task<IActionResult> GetBacklogRptOfDistwiseFarmerRegistrationAsync([FromQuery] int financialYear)
+        public async Task<IActionResult> GetBacklogRptOfDistWiseFarmerRegistrationAsync([FromQuery] int financialYear)
         {
             try
             {
-                var result = await repository.GetBacklogRptOfDistwiseFarmerRegistrationAsync(financialYear);
+                var result = await repository.GetBacklogRptOfDistWiseFarmerRegistrationAsync(financialYear);
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
                 return Ok(result);
@@ -35,11 +35,11 @@ namespace HortiBts.Api.Controllers.Reports.BacklogYearly
         [HttpGet("blockwise-farmer-registration")]
         [EndpointSummary("Get backlog report of block-wise farmer registration")]
         [EndpointDescription("Retrieves the backlog report of block-wise farmer registration for a specified financial year.")]
-        public async Task<IActionResult> GetBacklogRptOfBlockwiseFarmerRegistrationAsync([FromQuery] int districtCode, [FromQuery] int financialYear)
+        public async Task<IActionResult> GetBacklogRptOfBlockWiseFarmerRegistrationAsync([FromQuery] int districtCode, [FromQuery] int financialYear)
         {
             try
             {
-                var result = await repository.GetBacklogRptOfBlockwiseFarmerRegistrationAsync(districtCode, financialYear);
+                var result = await repository.GetBacklogRptOfBlockWiseFarmerRegistrationAsync(districtCode, financialYear);
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
                 return Ok(result);
@@ -54,11 +54,11 @@ namespace HortiBts.Api.Controllers.Reports.BacklogYearly
         [HttpGet("rheowise-farmer-registration")]
         [EndpointSummary("Get backlog yearly report of rheo-wise farmer registration")]
         [EndpointDescription("Retrieves backlog the yearly report of rheo-wise farmer registration for a specified financial year.")]
-        public async Task<IActionResult> GetBacklogRptOfRheowiseFarmerRegistrationAsync([FromQuery] int departmentCode, [FromQuery] int districtCode, [FromQuery] int subDistrictCode, [FromQuery] int financialYear)
+        public async Task<IActionResult> GetBacklogRptOfRheoWiseFarmerRegistrationAsync([FromQuery] int departmentCode, [FromQuery] int districtCode, [FromQuery] int subDistrictCode, [FromQuery] int financialYear)
         {
             try
             {
-                var result = await repository.GetBacklogRptOfRheowiseFarmerRegistrationAsync(new RheoWiseFarmerFilterDto
+                var result = await repository.GetBacklogRptOfRheoWiseFarmerRegistrationAsync(new RheoWiseFarmerFilterDto
                 {
                     DepartmentCode = departmentCode,
                     DistrictCode = districtCode,
@@ -79,11 +79,11 @@ namespace HortiBts.Api.Controllers.Reports.BacklogYearly
         [HttpGet("villagewise-farmer-registration")]
         [EndpointSummary("Get backlog yearly report of village-wise farmer registration")]
         [EndpointDescription("Retrieves the backlog yearly report of village-wise farmer registration for a specified financial year.")]
-        public async Task<IActionResult> GetBacklogRptOfVillagewiseFarmerRegistrationAsync([FromQuery] int officerCode, [FromQuery] int financialYear)
+        public async Task<IActionResult> GetBacklogRptOfVillageWiseFarmerRegistrationAsync([FromQuery] int officerCode, [FromQuery] int financialYear)
         {
             try
             {
-                var result = await repository.GetBacklogRptOfVillagewiseFarmerRegistrationAsync(officerCode, financialYear);
+                var result = await repository.GetBacklogRptOfVillageWiseFarmerRegistrationAsync(officerCode, financialYear);
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
                 return Ok(result);
@@ -98,7 +98,7 @@ namespace HortiBts.Api.Controllers.Reports.BacklogYearly
         [HttpGet("farmerwise-farmer-registration")]
         [EndpointSummary("Get yearly backlog report of farmer-wise farmer registration")]
         [EndpointDescription("Retrieves the backlog yearly report of farmer-wise farmer registration for a specified financial year.")]
-        public async Task<IActionResult> GetBacklogRptOfFarmerwiseFarmerRegistrationAsync(
+        public async Task<IActionResult> GetBacklogRptOfFarmerWiseFarmerRegistrationAsync(
            [FromQuery] int departmentCode,
            [FromQuery] int districtCode,
            [FromQuery] int subDistrictCode,
@@ -112,7 +112,7 @@ namespace HortiBts.Api.Controllers.Reports.BacklogYearly
         {
             try
             {
-                var result = await repository.GetBacklogRptOfFarmerwiseFarmerRegistrationAsync(new FarmerWiseReportFilterDto
+                var result = await repository.GetBacklogRptOfFarmerWiseFarmerRegistrationAsync(new FarmerWiseReportFilterDto
                 {
                     DepartmentCode = departmentCode,
                     DistrictCode = districtCode,

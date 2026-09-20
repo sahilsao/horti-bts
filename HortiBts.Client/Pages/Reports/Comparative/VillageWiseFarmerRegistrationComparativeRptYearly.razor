@@ -173,7 +173,7 @@
                 </MudTh>
 
                 <MudTh RowSpan="2">
-                     <MudTableSortLabel SortBy="new Func<VillagewiseComparativeFarmerRegistrationDto, object>(x => x.VillageName!)">
+                     <MudTableSortLabel SortBy="new Func<VillageWiseComparativeFarmerRegistrationDto, object>(x => x.VillageName!)">
                          @Lang.Text("Village Name", "ग्राम का नाम")
                     </MudTableSortLabel>
                 </MudTh>
@@ -188,28 +188,28 @@
 
                 <MudTh>
                     <MudTableSortLabel
-                        SortBy="new Func<RheowiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb4!)">
+                        SortBy="new Func<RheoWiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb4!)">
                         @Lang.Text($"Year {y4}", $"वर्ष {y4}")
                     </MudTableSortLabel>
                 </MudTh>
 
                 <MudTh>
                     <MudTableSortLabel
-                        SortBy="new Func<RheowiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb3!)">
+                        SortBy="new Func<RheoWiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb3!)">
                         @Lang.Text($"Year {y3}", $"वर्ष {y3}")
                     </MudTableSortLabel>
                 </MudTh>
 
                 <MudTh>
                     <MudTableSortLabel
-                        SortBy="new Func<BlockwiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb2!)">
+                        SortBy="new Func<BlockWiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb2!)">
                         @Lang.Text($"Year {y2}", $"वर्ष {y2}")
                     </MudTableSortLabel>
                 </MudTh>
 
                 <MudTh>
                     <MudTableSortLabel
-                        SortBy="new Func<RheowiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb1!)">
+                        SortBy="new Func<RheoWiseComparativeFarmerRegistrationDto, object>(x => x.TotalFarmerCountFyb1!)">
                         @Lang.Text($"Year {y1}", $"वर्ष {y1}")
                     </MudTableSortLabel>
                 </MudTh>
@@ -317,7 +317,7 @@
     private CurrentUserInfo _currentUser = new("", "", "", 0);
     private bool _isLoading = false;
 
-    private List<VillagewiseComparativeFarmerRegistrationDto> _reportData = new();
+    private List<VillageWiseComparativeFarmerRegistrationDto> _reportData = new();
 
     private string _searchString = string.Empty;
 
@@ -518,7 +518,7 @@
            replace: true);
     }
 
-    private IEnumerable<VillagewiseComparativeFarmerRegistrationDto> _filteredReportData =>
+    private IEnumerable<VillageWiseComparativeFarmerRegistrationDto> _filteredReportData =>
             _reportData.Where(t =>
                string.IsNullOrWhiteSpace(_searchString)
     || (t.VillageName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
@@ -527,7 +527,7 @@
     || (t.TotalFarmerCountFyb3?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
     || (t.TotalFarmerCountFyb4?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
 
-    private List<ExcelColumn<VillagewiseComparativeFarmerRegistrationDto>> GetColumns() => new()
+    private List<ExcelColumn<VillageWiseComparativeFarmerRegistrationDto>> GetColumns() => new()
     {
         
         new() { HeaderEn = "Village", HeaderHi = "ग्राम",

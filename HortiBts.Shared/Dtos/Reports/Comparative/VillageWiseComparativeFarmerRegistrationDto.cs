@@ -1,6 +1,6 @@
 ﻿namespace HortiBts.Shared.Dtos.Reports.Comparative
 {
-    public class VillagewiseComparativeFarmerRegistrationDto
+    public class VillageWiseComparativeFarmerRegistrationDto
     {
         public int? TotalFarmerCountFyb4 { get; set; } // 
         public int? TotalFarmerCountFyb3 { get; set; } // 

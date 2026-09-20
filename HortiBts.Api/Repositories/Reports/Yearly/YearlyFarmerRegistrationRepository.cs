@@ -7,15 +7,15 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
 {
     public interface IYearlyFarmerRegistrationRepository
     {
-        Task<Result<List<DistWiseFarmerRegistrationDto>>> GetYearlyRptOfDistwiseFarmerRegistrationAsync(int financialYear);
-        Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetYearlyRptOfBlockwiseFarmerRegistrationAsync(int districtCode, int financialYear);
-        Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetYearlyRptOfRheowiseFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter);
-        Task<Result<List<VillageWiseFarmerRegistrationDto>>> GetYearlyRptOfVillagewiseFarmerRegistrationAsync(int officerCode, int financialYear);
-        Task<Result<List<FarmerWiseFarmerRegistrationDto>>> GetYearlyRptOfFarmerwiseFarmerRegistrationAsync(FarmerWiseReportFilterDto filter);
+        Task<Result<List<DistWiseFarmerRegistrationDto>>> GetYearlyRptOfDistWiseFarmerRegistrationAsync(int financialYear);
+        Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetYearlyRptOfBlockWiseFarmerRegistrationAsync(int districtCode, int financialYear);
+        Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetYearlyRptOfRheoWiseFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter);
+        Task<Result<List<VillageWiseFarmerRegistrationDto>>> GetYearlyRptOfVillageWiseFarmerRegistrationAsync(int officerCode, int financialYear);
+        Task<Result<List<FarmerWiseFarmerRegistrationDto>>> GetYearlyRptOfFarmerWiseFarmerRegistrationAsync(FarmerWiseReportFilterDto filter);
     }
     public class YearlyFarmerRegistrationRepository(IDbConnectionFactory connectionFactory) : IYearlyFarmerRegistrationRepository
     {
-        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetYearlyRptOfDistwiseFarmerRegistrationAsync(int financialYear)
+        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetYearlyRptOfDistWiseFarmerRegistrationAsync(int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             string Sql = @"
@@ -70,7 +70,7 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
             return Result<List<DistWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetYearlyRptOfBlockwiseFarmerRegistrationAsync(int districtCode, int financialYear)
+        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetYearlyRptOfBlockWiseFarmerRegistrationAsync(int districtCode, int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             string Sql = @"
@@ -130,7 +130,7 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
         }
 
 
-        public async Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetYearlyRptOfRheowiseFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter)
+        public async Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetYearlyRptOfRheoWiseFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter)
         {
             using var connection = connectionFactory.CreateConnection();
             const string sql = """
@@ -257,7 +257,7 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
             return Result<List<RheoWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<VillageWiseFarmerRegistrationDto>>> GetYearlyRptOfVillagewiseFarmerRegistrationAsync(int officerCode, int financialYear)
+        public async Task<Result<List<VillageWiseFarmerRegistrationDto>>> GetYearlyRptOfVillageWiseFarmerRegistrationAsync(int officerCode, int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             const string sql = """
@@ -326,7 +326,7 @@ namespace HortiBts.Api.Repositories.Reports.Yearly
             return Result<List<VillageWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<FarmerWiseFarmerRegistrationDto>>> GetYearlyRptOfFarmerwiseFarmerRegistrationAsync(FarmerWiseReportFilterDto filter)
+        public async Task<Result<List<FarmerWiseFarmerRegistrationDto>>> GetYearlyRptOfFarmerWiseFarmerRegistrationAsync(FarmerWiseReportFilterDto filter)
         {
             using var connection = connectionFactory.CreateConnection();
 

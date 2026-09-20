@@ -8,15 +8,15 @@ namespace HortiBts.Api.Repositories.Reports.BacklogYearly
 {
     public interface IBacklogFarmerRegistrationRepository
     {
-        Task<Result<List<DistWiseFarmerRegistrationDto>>> GetBacklogRptOfDistwiseFarmerRegistrationAsync(int financialYear);
-        Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBacklogRptOfBlockwiseFarmerRegistrationAsync(int districtCode, int financialYear);
-        Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetBacklogRptOfRheowiseFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter);
-        Task<Result<List<VillageWiseFarmerRegistrationDto>>> GetBacklogRptOfVillagewiseFarmerRegistrationAsync(int officerCode, int financialYear);
-        Task<Result<List<FarmerWiseFarmerRegistrationDto>>> GetBacklogRptOfFarmerwiseFarmerRegistrationAsync(FarmerWiseReportFilterDto filter);
+        Task<Result<List<DistWiseFarmerRegistrationDto>>> GetBacklogRptOfDistWiseFarmerRegistrationAsync(int financialYear);
+        Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBacklogRptOfBlockWiseFarmerRegistrationAsync(int districtCode, int financialYear);
+        Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetBacklogRptOfRheoWiseFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter);
+        Task<Result<List<VillageWiseFarmerRegistrationDto>>> GetBacklogRptOfVillageWiseFarmerRegistrationAsync(int officerCode, int financialYear);
+        Task<Result<List<FarmerWiseFarmerRegistrationDto>>> GetBacklogRptOfFarmerWiseFarmerRegistrationAsync(FarmerWiseReportFilterDto filter);
     }
     public class BacklogYearlyFarmerRegistrationRepository(IDbConnectionFactory connectionFactory) : IBacklogFarmerRegistrationRepository
     {
-        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetBacklogRptOfDistwiseFarmerRegistrationAsync(int financialYear)
+        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetBacklogRptOfDistWiseFarmerRegistrationAsync(int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             string Sql = @"
@@ -112,7 +112,7 @@ namespace HortiBts.Api.Repositories.Reports.BacklogYearly
             return Result<List<DistWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBacklogRptOfBlockwiseFarmerRegistrationAsync(int districtCode, int financialYear)
+        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBacklogRptOfBlockWiseFarmerRegistrationAsync(int districtCode, int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             string Sql = @"
@@ -192,7 +192,7 @@ namespace HortiBts.Api.Repositories.Reports.BacklogYearly
             return Result<List<BlockWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetBacklogRptOfRheowiseFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter)
+        public async Task<Result<List<RheoWiseFarmerRegistrationDto>>> GetBacklogRptOfRheoWiseFarmerRegistrationAsync(RheoWiseFarmerFilterDto filter)
         {
             using var connection = connectionFactory.CreateConnection();
 
@@ -349,7 +349,7 @@ namespace HortiBts.Api.Repositories.Reports.BacklogYearly
             return Result<List<RheoWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<VillageWiseFarmerRegistrationDto>>> GetBacklogRptOfVillagewiseFarmerRegistrationAsync(int officerCode, int financialYear)
+        public async Task<Result<List<VillageWiseFarmerRegistrationDto>>> GetBacklogRptOfVillageWiseFarmerRegistrationAsync(int officerCode, int financialYear)
         {
             using var connection = connectionFactory.CreateConnection();
             const string sql = """
@@ -485,7 +485,7 @@ namespace HortiBts.Api.Repositories.Reports.BacklogYearly
             return Result<List<VillageWiseFarmerRegistrationDto>>.Success(result.ToList());
         }
 
-        public async Task<Result<List<FarmerWiseFarmerRegistrationDto>>> GetBacklogRptOfFarmerwiseFarmerRegistrationAsync(FarmerWiseReportFilterDto filter)
+        public async Task<Result<List<FarmerWiseFarmerRegistrationDto>>> GetBacklogRptOfFarmerWiseFarmerRegistrationAsync(FarmerWiseReportFilterDto filter)
         {
             using var connection = connectionFactory.CreateConnection();
 

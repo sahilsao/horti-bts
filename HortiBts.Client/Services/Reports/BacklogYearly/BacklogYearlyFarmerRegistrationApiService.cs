@@ -5,7 +5,7 @@ namespace HortiBts.Client.Services.Reports.BacklogYearly
 {
     public class BacklogYearlyFarmerRegistrationApiService(HttpClient http)
     {
-        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetDistwiseFarmerRegistrationListAsync(int financialYear)
+        public async Task<Result<List<DistWiseFarmerRegistrationDto>>> GetDistWiseFarmerRegistrationListAsync(int financialYear)
         {
             try
             {
@@ -18,7 +18,7 @@ namespace HortiBts.Client.Services.Reports.BacklogYearly
             }
         }
 
-        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBlockwiseFarmerRegistrationListAsync(int districtCode, int financialYear)
+        public async Task<Result<List<BlockWiseFarmerRegistrationDto>>> GetBlockWiseFarmerRegistrationListAsync(int districtCode, int financialYear)
         {
             try
             {

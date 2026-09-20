@@ -412,7 +412,7 @@
         _isLoading = true;
         try
         {
-            var result = await BacklogYearlyFarmerRegistrationApiService.GetBlockwiseFarmerRegistrationListAsync(_selectedDistrictCensus!.Value,
+            var result = await BacklogYearlyFarmerRegistrationApiService.GetBlockWiseFarmerRegistrationListAsync(_selectedDistrictCensus!.Value,
     _selectedFinancialYear!.Value);
             if (result.IsSuccess && result.Data is not null)
             {
