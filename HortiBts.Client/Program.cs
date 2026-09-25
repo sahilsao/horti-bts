@@ -11,11 +11,14 @@ using HortiBts.Client.Services.FinancialYears;
 using HortiBts.Client.Services.Girdawari;
 using HortiBts.Client.Services.MIDHComponents;
 using HortiBts.Client.Services.MIDHSchemes;
+using HortiBts.Client.Services.Notices;
 using HortiBts.Client.Services.Officers;
 using HortiBts.Client.Services.Reports;
-using HortiBts.Client.Services.Reports.BacklogYearly;
-using HortiBts.Client.Services.Reports.Comparative;
-using HortiBts.Client.Services.Reports.Yearly;
+using HortiBts.Client.Services.Reports.CurrentFY.Applications;
+using HortiBts.Client.Services.Reports.PreviousFY.Applications;
+using HortiBts.Client.Services.Reports.PreviousFY.BacklogYearly;
+using HortiBts.Client.Services.Reports.PreviousFY.Comparative;
+using HortiBts.Client.Services.Reports.PreviousFY.Yearly;
 using HortiBts.Client.Services.Schemes;
 using HortiBts.Client.Services.SubDistricts;
 using HortiBts.Client.Services.Target;
@@ -61,6 +64,8 @@ builder.Services.AddSingleton<LanguageService>();
 builder.Services.AddScoped<LoginHistoryApiService>();
 
 // Common Related
+
+
 builder.Services.AddScoped<DistrictsApiService>();
 builder.Services.AddScoped<SubDistrictsApiService>();
 builder.Services.AddScoped<VillagesApiService>();
@@ -72,6 +77,7 @@ builder.Services.AddScoped<ExcelExportService>();
 builder.Services.AddScoped<DashboardApiService>();
 
 // Master Entry Related
+builder.Services.AddScoped<NoticesApiService>();
 builder.Services.AddScoped<SchemesApiService>();
 builder.Services.AddScoped<GirdawariApiService>();
 builder.Services.AddScoped<FarmersDetailsApiService>();
@@ -89,5 +95,8 @@ builder.Services.AddScoped<MIDHSubComponentApiService>();
 builder.Services.AddScoped<YearlyFarmerRegistrationApiService>();
 builder.Services.AddScoped<BacklogYearlyFarmerRegistrationApiService>();
 builder.Services.AddScoped<ComparativeFarmerRegistrationApiService>();
+builder.Services.AddScoped<FarmerBeneficiaryStatusApiService>();
+builder.Services.AddScoped<FarmerApplicationsListApiService>();
+builder.Services.AddScoped<NewFarmerApplicationsListApiService>();
 
 await builder.Build().RunAsync();

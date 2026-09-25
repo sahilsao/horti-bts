@@ -6,7 +6,8 @@ namespace HortiBts.Api.Data;
 public enum HortiDb
 {
     Bts,       // maps to "HortiDbConn"
-    NewUfp     // maps to "HortiDbNewUfpConn176"
+    NewUfp,     // maps to "HortiDbNewUfpConn176"
+    BtsLive     // maps to "HortiDbConnLive"
 }
 
 public interface IDbConnectionFactory
@@ -20,6 +21,7 @@ public class MySqlConnectionFactory(IConfiguration configuration) : IDbConnectio
     {
         [HortiDb.Bts] = "HortiDbConn",
         [HortiDb.NewUfp] = "HortiDbNewUfpConn176",
+        [HortiDb.BtsLive] = "HortiDbConnLive"
     };
 
     public MySqlConnection CreateConnection(HortiDb db = HortiDb.Bts)

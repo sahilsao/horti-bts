@@ -21,9 +21,9 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\HortiBts.Shared\HortiBts.Shared.csproj" />
 	</ItemGroup>
-
 	<ItemGroup>
-	  <Folder Include="Controllers\MIDHSchemes\" />
+		<Watch Remove="wwwroot\docs\**\*" />
+		<Content Remove="wwwroot\docs\**" />
+		<None Remove="wwwroot\docs\**" />
 	</ItemGroup>
-
 </Project>

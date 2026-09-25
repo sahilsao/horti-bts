@@ -12,9 +12,12 @@ using HortiBts.Api.Repositories.MIDHComponents;
 using HortiBts.Api.Repositories.MIDHSchemes;
 using HortiBts.Api.Repositories.Notices;
 using HortiBts.Api.Repositories.Officers;
-using HortiBts.Api.Repositories.Reports.BacklogYearly;
-using HortiBts.Api.Repositories.Reports.Comparative;
-using HortiBts.Api.Repositories.Reports.Yearly;
+using HortiBts.Api.Repositories.Reports.CurrentFY.Applications;
+using HortiBts.Api.Repositories.Reports.PreviousFY.Applications;
+using HortiBts.Api.Repositories.Reports.PreviousFY.BacklogYearly;
+using HortiBts.Api.Repositories.Reports.PreviousFY.BeneficiaryStatus;
+using HortiBts.Api.Repositories.Reports.PreviousFY.Comparative;
+using HortiBts.Api.Repositories.Reports.PreviousFY.Yearly;
 using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Api.Repositories.SubDistricts;
 using HortiBts.Api.Repositories.Target;
@@ -72,6 +75,7 @@ builder.Services.AddHttpClient<ICropDetailRepository, CropDetailRepository>(clie
 builder.Services.AddScoped<IFarmersVerificationRepository, FarmersVerificationRepository>();
 builder.Services.AddScoped<IBenefitsRepository, BenefitsRepository>();
 builder.Services.AddScoped<INoticeRepository, NoticeRepository>();
+builder.Services.AddScoped<INoticeDocRepository, NoticeDocRepository>();
 builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
 builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 builder.Services.AddScoped<ITargetRepository, TargetRepository>();
@@ -85,6 +89,9 @@ builder.Services.AddScoped<IMIDHSubComponentRepository, MIDHSubComponentReposito
 builder.Services.AddScoped<IYearlyFarmerRegistrationRepository, YearlyFarmerRegistrationRepository>();
 builder.Services.AddScoped<IBacklogFarmerRegistrationRepository, BacklogYearlyFarmerRegistrationRepository>();
 builder.Services.AddScoped<IComparativeFarmerRegistrationRepository, ComparativeFarmerRegistrationRepository>();
+builder.Services.AddScoped<IFarmerBeneficiaryStatusRepository, FarmerBeneficiaryStatusRepository>();
+builder.Services.AddScoped<IFarmerApplicationsRepository, FarmerApplicationsRepository>();
+builder.Services.AddScoped<INewFarmerApplicationsRepository, NewFarmerApplicationsRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.

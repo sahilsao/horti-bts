@@ -31,12 +31,12 @@ public class FilesController(
 
 
     // GET api/files/notification/{fileName}
-    // Files at: wwwroot/docs/notification_files/{fileName}
+    // Files at: wwwroot/docs/notifications_files/{fileName}
     [HttpGet("notification/{fileName}")]
     [EndpointSummary("Download notification file")]
     [EndpointDescription("Downloads a notification file from the notification files directory.")]
     public IActionResult GetNotificationFile(string fileName)
-        => ServeFile("notification_files", fileName);
+        => ServeFile("notifications_files", fileName);
 
     // GET api/files/manual/{fileName}
     // Files at: wwwroot/docs/manual_files/{fileName}
@@ -44,7 +44,7 @@ public class FilesController(
     [EndpointSummary("Download manual file")]
     [EndpointDescription("Downloads a manual or user guide file from the manual files directory.")]
     public IActionResult GetManualFile(string fileName)
-        => ServeFile("manual_files", fileName);    
+        => ServeFile("manual_files", fileName);
     private IActionResult ServeFile(string subfolder, string fileName)
     {
         if (string.IsNullOrWhiteSpace(fileName))

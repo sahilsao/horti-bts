@@ -1,0 +1,318 @@
+﻿@page "/reports/beneficiary/previous/villagewise-farmer-status-report"
+@page "/reports/beneficiary/previous/villagewise-farmer-status-report/{DistrictCode:int}/{SubDistrictCode:int}"
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Reports
+@using HortiBts.Client.Services.Reports.PreviousFY.Comparative
+@using HortiBts.Client.Services.SubDistricts
+@using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Shared.Dtos.Reports.PreviousFY.BeneficiaryStatus
+@using HortiBts.Shared.Dtos.SubDistricts
+@attribute [Authorize(Roles = "Admin")]
+
+@inject DistrictsApiService DistrictsApiService
+@inject SubDistrictsApiService SubDistrictsApiService
+@inject FinancialYearsApiService FinancialYearsApiService
+@inject FarmerBeneficiaryStatusApiService FarmerBeneficiaryStatusApiService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject ExcelExportService ExcelExport
+
+<PageTitle>
+    @Lang.Text("Village-Wise Horticulture Farmer Beneficiary Status Report", "ग्रामवार बागवानी किसान लाभार्थी स्थिति रिपोर्ट")
+</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="material-symbols-outlined/format_list_bulleted" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Village-Wise Horticulture Farmer Beneficiary Status Report", "ग्रामवार बागवानी किसान लाभार्थी स्थिति रिपोर्ट")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("Report for Village-Wise Horticulture Farmer Beneficiary Status", "ग्रामवार बागवानी किसान लाभार्थी स्थिति रिपोर्ट")
+</MudText>
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_selectedDistrictCensus" Label="@Lang.Text("District", "जिला")"
+                   Variant="Variant.Outlined" ValueChanged="OnDistrictChanged">
+
+            @foreach (var d in _districts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                    @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" @bind-Value="_selectedSubDistrictCode" Label="@Lang.Text("Block", "विकासखण्ड")"
+                   Variant="Variant.Outlined">
+
+            @foreach (var s in _subdistricts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)s.SubDistrictCode)">
+                    @(Lang.IsHindi ? s.SubDistrictNameHi : s.SubDistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
+<MudStack Row="true" Spacing="1">
+    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="LoadReport" Disabled="_isLoading">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            <span>@Lang.Text("Loading...", "लोड हो रहा है...")</span>
+        }
+        else
+        {
+            <span>@Lang.Text("Search", "खोज करें")</span>
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+        @Lang.Text("Reset", "रीसेट")
+    </MudButton>
+</MudStack>
+@if (_reportData.Any())
+{
+    <MudTable Items="_filteredReportData" SortLabel="Sort By" Dense="true" Hover="true" Elevation="1" Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">
+                @Lang.Text("Village-Wise Horticulture Farmer Beneficiary Status Report", "ग्रामवार बागवानी किसान लाभार्थी स्थिति रिपोर्ट")
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>
+                @Lang.Text("S.No.", "क्रमाँक")
+            </MudTh>
+
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<VillageWiseFarmerBeneficiaryStatusDto, object>(x => Lang.Text(x.VillageNameEn!, x.VillageNameHi!))">
+                    @Lang.Text("Village", "ग्राम")
+                </MudTableSortLabel>
+            </MudTh>
+
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<VillageWiseFarmerBeneficiaryStatusDto, object>(x => x.Approved!)">
+                    @Lang.Text("Approved Farmer Count", "स्वीकृत कृषकों की सँख्या")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<VillageWiseFarmerBeneficiaryStatusDto, object>(x => x.Rejected!)">
+                    @Lang.Text("Rejected Farmer Count", "निरस्त कृषकों की सँख्या")
+                </MudTableSortLabel>
+            </MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">
+                <MudLink Href="@($"/reports/beneficiary/previous/farmerwise-farmer-status-report/{_selectedDistrictCensus}/{_selectedSubDistrictCode}/{context.VillageCode}")"
+                         Color="Color.Info">
+                    @Lang.Text(context.VillageNameEn!, context.VillageNameHi!)
+                </MudLink>
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Approved Farmer Count", "स्वीकृत कृषकों की सँख्या")">
+                <MudTooltip Text="@Lang.Text("Approved farmers list", "स्वीकृत कृषकों की सूची")" Color="Color.Info"
+                            Disabled="@(context.Approved == 0)" Placement="Placement.Top">
+                    <MudLink Href="@($"/reports/beneficiary/previous/farmerwise-farmer-status-report/{_selectedDistrictCensus}/{_selectedSubDistrictCode}/{context.VillageCode}/{1}")"
+                             Disabled="@(context.Approved == 0)" Color="Color.Info">
+                        @context.Approved
+                    </MudLink>
+                </MudTooltip>
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Rejected Farmer Count", "निरस्त कृषकों की सँख्या")">
+                <MudTooltip Text="@Lang.Text("Rejected farmers list", "निरस्त कृषकों की सूची")" Color="Color.Info"
+                            Disabled="@(context.Rejected == 0)" Placement="Placement.Top">
+                    <MudLink Href="@($"/reports/beneficiary/previous/farmerwise-farmer-status-report/{_selectedDistrictCensus}/{_selectedSubDistrictCode}/{context.VillageCode}/{0}")"
+                             Disabled="@(context.Rejected == 0)" Color="Color.Info">
+                        @context.Rejected
+                    </MudLink>
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+        <FooterContent>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+            <MudTd></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.Approved ?? 0)</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.Rejected ?? 0)</b></MudTd>
+        </FooterContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    [Parameter]
+    public int DistrictCode { get; set; }
+    [Parameter]
+    public int SubDistrictCode { get; set; }
+    private List<DistrictsDto> _districts = [];
+    private List<SubDistrictsDto> _subdistricts = [];
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+    private int? _selectedDistrictCensus;
+    private int? _selectedSubDistrictCode;
+    private List<VillageWiseFarmerBeneficiaryStatusDto> _reportData = new();
+
+    private string _searchString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDistrictsAsync();
+        
+        if (DistrictCode > 0 && SubDistrictCode > 0)
+        {
+
+            _selectedDistrictCensus = DistrictCode;
+            await OnDistrictChanged(_selectedDistrictCensus);
+
+            _selectedSubDistrictCode = SubDistrictCode;
+
+            await LoadReport();
+        }
+    }
+
+    private async Task LoadDistrictsAsync()
+    {
+        var result = await DistrictsApiService.GetDistrictsAsync();
+        if (result.IsSuccess)
+            _districts = result.Data!;
+        else
+            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+    }
+
+    private async Task OnDistrictChanged(int? districtId)
+    {
+        _selectedDistrictCensus = districtId;
+
+        // reset everything that depends on district
+        _selectedSubDistrictCode = null;
+        _subdistricts.Clear();
+
+        if (districtId is null) return;
+
+        try
+        {
+            var result = await SubDistrictsApiService.GetSubDistrictsAsync(districtId.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _subdistricts = result.Data;
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load subdistricts.", "उपजिलों को लोड करने में विफल।"), Severity.Error);
+        }
+    }
+    private async Task LoadReport()
+    {
+        if (_selectedDistrictCensus is null)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Please select a district.",
+                    "कृपया एक जिला चुनें।"),
+                Severity.Warning);
+            return;
+        }
+        if (_selectedSubDistrictCode is null)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Please select a block.",
+                    "कृपया एक ब्लॉक चुनें।"),
+                Severity.Warning);
+            return;
+        }
+        _isLoading = true;
+        try
+        {
+            var result = await
+FarmerBeneficiaryStatusApiService.GetRptOfVillageWiseFarmerBeneficiaryStatusListAsync(_selectedSubDistrictCode!.Value);
+            if (result.IsSuccess && result.Data is not null)
+            {
+                if (result.Data.Any())
+                {
+                    _reportData = result.Data;
+                }
+                else
+                {
+                    _reportData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
+
+            }
+            else
+            {
+                Snackbar.Add(Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"), Severity.Warning);
+                _isLoading = false;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "An error occurred while loading the report.",
+                    "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task Reset()
+    {
+        _selectedDistrictCensus = null;
+        _selectedSubDistrictCode = null;
+        _subdistricts.Clear();
+        _reportData.Clear();
+
+        Navigation.NavigateTo(
+                "/reports/beneficiary/previous/villagewise-farmer-status-report",
+                replace: true);
+    }
+
+
+    private IEnumerable<VillageWiseFarmerBeneficiaryStatusDto> _filteredReportData =>
+    _reportData.Where(t =>
+    string.IsNullOrWhiteSpace(_searchString)
+    || (t.VillageNameEn?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.VillageNameHi?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.Approved?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.Rejected?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+     
+    private List<ExcelColumn<VillageWiseFarmerBeneficiaryStatusDto>> GetColumns() => new()
+    {
+        new() { HeaderEn = "Village", HeaderHi = "ग्राम",
+                ValueSelector = x => Lang.Text(x.VillageNameEn!, x.VillageNameHi!) },
+
+        new() { HeaderEn = "Approved Farmer Count",
+                HeaderHi = "स्वीकृत कृषकों की सँख्या",
+                ValueSelector = x => x.Approved ?? 0,
+                TotalSelector = list => list.Sum(x => x.Approved ?? 0) },
+        new() { HeaderEn = "Reject Farmer Count",
+                HeaderHi = "निरस्त कृषकों की सँख्या",
+                ValueSelector = x => x.Rejected ?? 0,
+                TotalSelector = list => list.Sum(x => x.Approved ?? 0) }
+    };
+
+    private async Task ExportToExcel()
+    {
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("Village-Wise Horticulture Farmer Beneficiary Status Report", "ग्रामवार बागवानी किसान लाभार्थी स्थिति रिपोर्ट"),
+            (en, hi) => Lang.Text(en, hi),
+            $"VillageWise_FarmerBeneficiaryStatusReport.xlsx");
+    }
+}

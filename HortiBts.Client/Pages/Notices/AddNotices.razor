@@ -1,0 +1,515 @@
+﻿@page "/admin/add-notices"
+@attribute [Authorize(Roles = "Admin")]
+@using System.Text.RegularExpressions
+@using HortiBts.Client.Pages.Home
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Notices
+@using HortiBts.Shared.Dtos.Notices
+@using HortiBts.Shared.Validation
+@using Microsoft.AspNetCore.Components.Forms;
+@inject HttpClient Http
+@inject NoticesApiService NoticesApiService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+
+<PageTitle>@Lang.Text("Add Notices", "नोटिस जोड़ें")</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="@Icons.Material.Filled.EditNotifications" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Add Notices", "नोटिस जोड़ें")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("Fill in the field below and save it to add a new notice to the notice board.", "नोटिस बोर्ड पर नया नोटिस जोड़ने के लिए नीचे दिए गए फ़ील्ड को भरें और उसे सेव करें।")
+</MudText>
+
+<MudForm @ref="Form" Model="@this">
+    <div @ref="_formTopRef">
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="_noticeSubject" @ref="_noticeSubjectField"
+                              Label="@Lang.Text("Subject", "विषय")" Variant="Variant.Outlined" Required="true"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiWithSpecialCharsName(value, Lang.Text)))"
+                              Immediate="true" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudSelect T="string" @bind-Value="_selectedNoticePriorityType" Label="@Lang.Text("Priority", "वरीयता")"
+                           Variant="Variant.Outlined" Required="true">
+                    @foreach (var pt in _priorityList)
+                    {
+                        <MudSelectItem T="string" Value="@pt.Key">@pt.Value</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudSelect T="string" @bind-Value="_selectedNoticeType"
+                           Label="@Lang.Text("Notice Type", "नोटिस प्रकार")" Variant="Variant.Outlined" Required="true">
+                    @foreach (var nt in _noticeTypeList)
+                    {
+                        <MudSelectItem T="string" Value="@nt.Key">@nt.Value</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudDatePicker Label="@Lang.Text("Start Date", "आरंभ तिथि")" Variant="Variant.Outlined" Required="true"
+                               DateFormat="dd/MM/yyyy" Editable="true" Date="_startDate" DateChanged="OnStartDateChanged" />
+            </MudItem>
+
+            <MudItem xs="12" sm="4">
+                <MudDatePicker Label="@Lang.Text("End Date", "समाप्ति तिथि")" Variant="Variant.Outlined" Required="true"
+                               DateFormat="dd/MM/yyyy" Editable="true" MinDate="_startDate" @bind-Date="_endDate" />
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudTextField @bind-Value="_noticeDescription" Label="@Lang.Text("Description", "विवरण")"
+                              Variant="Variant.Outlined" Lines="3" Required="true"
+                              Validation="@(new Func<string, string?>(value => FieldValidators.EnglishHindiWithSpecialCharsName(value, Lang.Text)))"
+                              Immediate="true" />
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Spacing="3" Class="mb-4">
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2" Class="mb-2">
+                    @Lang.Text("Upload PDF", "पीडीएफ अपलोड करें")
+                    <MudText Typo="Typo.caption" Color="Color.Error" Class="d-inline">*</MudText>
+                </MudText>
+
+                <MudFileUpload @ref="_fileUploadPDF" T="IBrowserFile" Accept=".pdf" Required="true"
+                               Validation="@(new Func<IBrowserFile, string?>(ValidatePDF))" @bind-Files="_filesPDF">
+                    <CustomContent Context="uploader">
+                        <MudPaper Outlined="true"
+                                  Class="pa-6 d-flex flex-column align-center justify-center gap-2 rounded-lg"
+                                  Style="border-style:dashed; border-width:2px; cursor:pointer; min-height:140px;"
+                                  @onclick="@uploader.OpenFilePickerAsync">
+                            <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large"
+                                     Color="Color.Primary" />
+                            <MudText Typo="Typo.body2" Align="Align.Center">
+                                @Lang.Text("Click or drag a PDF here to upload", "अपलोड हेतु यहाँ पीडीएफ खींचें या क्लिक करें")
+                            </MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @Lang.Text("PDF only · Max 2MB", "केवल पीडीएफ · अधिकतम 2MB")
+                            </MudText>
+                        </MudPaper>
+                    </CustomContent>
+                    <SelectedTemplate Context="selectedFile">
+                        @if (selectedFile is not null)
+                        {
+                            <MudPaper Outlined="true" Class="pa-3 mt-2 d-flex align-center gap-3 rounded-lg">
+                                <MudIcon Icon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Error" Size="Size.Large" />
+                                <MudStack Spacing="0" Class="flex-grow-1" Style="min-width:0;">
+                                    <MudText Typo="Typo.body2" Class="text-truncate">@selectedFile.Name</MudText>
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                        @FormatFileSize(selectedFile.Size)</MudText>
+                                    </MudStack>
+                                    <MudTooltip Text="@Lang.Text("Remove file", "फ़ाइल हटाएं")">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" Color="Color.Error"
+                                                       OnClick="@RemovePdf" />
+                                    </MudTooltip>
+                                </MudPaper>
+                            }
+                        </SelectedTemplate>
+                    </MudFileUpload>
+
+                    @{
+                        var pdfError = _filesPDF is not null ? ValidatePDF(_filesPDF) : null;
+                    }
+                    @if (pdfError is not null)
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Error" Class="mt-1 d-flex align-center gap-1">
+                            <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Size="Size.Small" />
+                            @pdfError
+                        </MudText>
+                    }
+                </MudItem>
+            </MudGrid>
+        </div>
+
+        <MudStack Row="true" Spacing="1">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveNotice" Disabled="_isLoading">
+                @if (_isLoading)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    <span>@Lang.Text("Saving...", "सुरक्षित हो रहा है...")</span>
+                }
+                else if (_selectedNoticeId is null)
+                {
+                    <span>@Lang.Text("Save", "सुरक्षित करे")</span>
+                }
+                else
+                {
+                    <span>@Lang.Text("Update", "अपडेट करे")</span>
+                }
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+                @Lang.Text("Reset", "रीसेट")
+            </MudButton>
+        </MudStack>
+    </MudForm>
+
+    @if (_notices.Any())
+    {
+        <MudTable Items="_filteredNotices" SortLabel="Sort By" Dense="true" Hover="true" Elevation="1" Class="mt-4">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">@Lang.Text("Notices", "नोटिस")</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" />
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortBy="new Func<NoticesDto, object>(x => x.NoticeType!)">@Lang.Text("Notice Type",
+                                                                                                                                                                "नोटिस का प्रकार")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortBy="new Func<NoticesDto, object>(x => x.Priority!)">@Lang.Text("Notice Priority",
+                                                                                                                                                                "नोटिस की वरीयता")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortBy="new Func<NoticesDto, object>(x => x.Subject!)">@Lang.Text("Subject", "विषय")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortBy="new Func<NoticesDto, object>(x => x.Description!)">@Lang.Text("Description",
+                                                                                                                "विवरण")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>@Lang.Text("Start Date", "आरंभ दिनाँक")</MudTh>
+                <MudTh>@Lang.Text("End Date", "अंतिम दिनाँक")</MudTh>
+                <MudTh>@Lang.Text("Status", " स्टेटस")</MudTh>
+                <MudTh>@Lang.Text("Edit", "संपादित करें")</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredNotices.ToList().IndexOf(context) + 1)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Notice Type", "नोटिस का प्रकार")">@context.NoticeType
+                </MudTd>
+                <MudTd DataLabel="@Lang.Text("Notice Priority", "नोटिस की वरीयता")">@context.Priority</MudTd>
+                <MudTd DataLabel="@Lang.Text("Subject", "विषय")">@context.Subject</MudTd>
+                <MudTd DataLabel="@Lang.Text("Description", "विवरण")">@context.Description</MudTd>
+                <MudTd DataLabel="@Lang.Text("Start Date", "आरंभ दिनाँक")">@context.StartDate.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd DataLabel="@Lang.Text("End Date", "अंतिम दिनाँक")">@context.EndDate.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd DataLabel="@Lang.Text("Status", " स्टेटस")">
+                    <MudSwitch T="bool" Value="@(context.Status == true)"
+                               ValueChanged="@(value => ToggleActiveFlag(context, value))" Color="Color.Success"
+                               Disabled="@_togglingActiveIds.Contains(context.NoticeId!)" />
+                </MudTd>
+                <MudTd DataLabel="@Lang.Text("Edit", "संपादित करें")">
+                    <MudStack Row="true" Spacing="1">
+
+                        <MudTooltip Text="@Lang.Text("View", "देखें")">
+                            <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small"
+                                           OnClick="@(() => OpenNoticeDialog(context))" />
+                        </MudTooltip>
+
+                        <MudTooltip Text="@Lang.Text("Edit", "संपादित करें")">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                                           OnClick="@(() => LoadForEdit(context))" />
+                        </MudTooltip>
+
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+            </PagerContent>
+        </MudTable>
+    }
+@* ---------- Benefits Type List Result ---------- *@
+
+@code {
+    private List<NoticesDto> _notices = new();
+    private string _searchString = string.Empty;
+
+    private int? _selectedNoticeId; // Were int? before; the keys are now strings ("GN", "H", ...)
+    private string? _selectedNoticeType;
+    private string? _selectedNoticePriorityType;
+    public string? _noticeSubject { get; set; }
+    public string? _noticeDescription { get; set; }
+    private DateTime? _startDate;
+    private DateTime? _endDate;
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+    private HashSet<int?> _togglingActiveIds = new();
+   
+    private ElementReference _formTopRef;
+    private MudTextField<string> _noticeSubjectField = default!;
+
+    private IBrowserFile? _filesPDF;
+    private MudFileUpload<IBrowserFile> _fileUploadPDF = default!;
+
+    // Key = value stored/sent to the API, Value = text shown in the dropdown
+    private record LookupItem(string Key, string Value);
+
+    private readonly List<LookupItem> _noticeTypeList = new()
+    {
+        new("GN", "General"),
+        new("EV", "Event"),
+        new("NW", "News"),
+        new("AN", "Announcement"),
+        new("AL", "Alert")
+    };
+
+    private readonly List<LookupItem> _priorityList = new()
+    {
+        new("L", "Low"),
+        new("M", "Medium"),
+        new("H", "High")
+    };
+    private void OnStartDateChanged(DateTime? newStart)
+    {
+        _startDate = newStart;
+
+        // If the end date is now before the start date, clear it
+        if (_endDate.HasValue && newStart.HasValue && _endDate < newStart)
+        {
+            _endDate = null;
+        }
+    }
+   
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNotices();
+    }
+    private async Task LoadNotices()
+    {
+        var result = await NoticesApiService.GetNoticesListAsync();
+        if (result.IsSuccess && result.Data is not null)
+            _notices = result.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load Notices list.", "नोटिस सूची लोड करने में विफल।"), Severity.Error);
+    }
+
+    private IEnumerable<NoticesDto> _filteredNotices =>
+    _notices.Where(s =>
+        string.IsNullOrWhiteSpace(_searchString)
+        || (s.Subject?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+        || (s.Description?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private async Task SaveNotice()
+    {
+        await Form!.ValidateAsync();
+
+        if (!Form.IsValid)
+            return;
+
+        if (_filesPDF is null)
+        {
+            Snackbar.Add(
+                Lang.Text("PDF file is required.", "PDF फ़ाइल आवश्यक है।"),
+                Severity.Error);
+
+            return;
+        }
+
+        _isLoading = true;
+
+        try
+        {
+            var dto = new AddNoticesDto
+            {
+                NoticeId = _selectedNoticeId! ?? 0,
+                Subject = _noticeSubject!,
+                Priority = _selectedNoticePriorityType!,
+                NoticeType = _selectedNoticeType!,
+                Description = _noticeDescription!,
+                StartDate = _startDate ?? DateTime.Today,
+                EndDate = _endDate ?? DateTime.Today,
+            };
+
+            var result = _selectedNoticeId is null
+                ? await NoticesApiService.SaveNoticeAsync(dto, _filesPDF)
+                : await NoticesApiService.UpdateNoticeAsync(dto, _filesPDF);
+
+            if (result.IsSuccess)
+            {
+                Snackbar.Add(
+                    Lang.Text(
+                        "Notice saved successfully.",
+                        "नोटिस सफलतापूर्वक सुरक्षित की गई।"),
+                    Severity.Success);
+
+                await Reset();
+                await LoadNotices();
+            }
+            else
+            {
+                Snackbar.Add(
+                    result.Error ??
+                    Lang.Text(
+                        "Failed to save Notice.",
+                        "नोटिस सुरक्षित करने में विफल।"),
+                    Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ToggleActiveFlag(NoticesDto notice, bool newValue)
+    {
+        _togglingActiveIds.Add(notice.NoticeId);
+        var previousValue = notice.Status;
+        notice.Status = newValue; // optimistic UI update
+
+        try
+        {
+            var result = await NoticesApiService.UpdateNoticeActiveFlagAsync(notice.NoticeId, newValue);
+
+            if (!result.IsSuccess)
+            {
+                notice.Status = previousValue; // revert on failure
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add(
+                    newValue
+                        ? Lang.Text("Notice activated.", "नोटिस सक्रिय की गई।")
+                        : Lang.Text("Notice deactivated.", "नोटिस निष्क्रिय की गई।"),
+                    Severity.Success);
+            }
+        }
+        catch
+        {
+            notice.Status = previousValue;
+            Snackbar.Add(Lang.Text("Failed to update status.", "स्थिति अपडेट करने में विफल।"), Severity.Error);
+        }
+        finally
+        {
+            _togglingActiveIds.Remove(notice.NoticeId);
+        }
+    }
+
+    private async Task Reset()
+    {
+        _selectedNoticeId = null;
+        _selectedNoticePriorityType = null;
+        _selectedNoticeType = null;
+        _noticeSubject = null;
+        _noticeDescription = null;
+        _startDate = null;
+        _endDate = null;
+
+        if (Form is not null)
+            await Form.ResetValidationAsync();
+
+        await RemovePdf();
+    }
+
+    private async Task RemovePdf()
+    {
+        _filesPDF = null;
+        if (_fileUploadPDF is not null)
+            await _fileUploadPDF.ClearAsync();
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+
+        return $"{len:0.##} {sizes[order]}";
+    }
+
+    private string? ValidatePDF(IBrowserFile file)
+    {
+        if (file is null)
+            return Lang.Text("PDF file is required.", "PDF फ़ाइल आवश्यक है।");
+
+        return file.Size > 2 * 1024 * 1024
+            ? Lang.Text("File size exceeds 2MB limit.", "फ़ाइल का आकार 2MB सीमा से अधिक है।")
+            : null;
+    }
+
+    
+    private async Task LoadForEdit(NoticesDto Notice)
+    {
+        _selectedNoticeId = Notice.NoticeId;
+        _noticeSubject = Notice.Subject;
+        _selectedNoticeType = Notice.NoticeType;// requires NoticeTypeId on NoticesListDto — add if missing
+        _noticeDescription = Notice.Description;
+        _startDate = Notice.StartDate;
+        _endDate = Notice.EndDate;
+        _selectedNoticePriorityType = Notice.Priority;
+
+        if (Form is not null)
+            await Form.ResetValidationAsync();
+
+        // scroll the form into view, then focus the first field
+        await JS.InvokeVoidAsync("scrollAndFocus", _formTopRef);
+        await _noticeSubjectField.FocusAsync();
+    }
+
+    private async Task OpenNoticeDialog(NoticesDto Notice)
+    {
+        var parameters = new DialogParameters<NoticeDialog>
+        {
+            { x => x.Notice, Notice },
+            { x => x.DocType, "notification" },
+            {
+                x => x.OnOpenDocument,
+                EventCallback.Factory.Create<string?>(
+                    this,
+                    path => GetPdf(path, "notification"))
+            }
+        };
+
+        await DialogService.ShowAsync<NoticeDialog>(
+            "",
+            parameters,
+            new DialogOptions
+            {
+                MaxWidth = MaxWidth.Medium,
+                FullWidth = true,
+                CloseOnEscapeKey = true
+            });
+    }
+
+    private async Task GetPdf(string? fileName, string category)
+    {
+        if (string.IsNullOrWhiteSpace(fileName)) return;
+        try
+        {
+            var bytes = await Http.GetByteArrayAsync($"api/files/{category}/{Uri.EscapeDataString(fileName)}");
+
+            await using var stream = new MemoryStream(bytes);
+            using var streamRef = new DotNetStreamReference(stream);
+
+            var downloadName = Path.GetFileName(fileName.Replace('\\', '/'));
+
+            await JS.InvokeVoidAsync(
+                "downloadFileFromStream",
+                downloadName, // now just "139_CCF_000120_New.pdf"
+                streamRef);
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"[GetPdf] {category}/{fileName}: {ex.StatusCode} {ex.Message}");
+            Snackbar.Add($"Download failed: {(int?)ex.StatusCode} {ex.Message}", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[GetPdf] {category}/{fileName}: {ex}");
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

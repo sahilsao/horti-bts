@@ -1,0 +1,107 @@
+@using System.Net.Http.Json
+@using HortiBts.Shared.Dtos.Notices
+@inject HttpClient Http
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Primary" Class="w-100">
+            <b>@Lang.Text(english: "Notice Details", "नोटिस विवरण")</b>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudSimpleTable Dense="true" Striped="true" Elevation="0" Class="mb-4">
+            <tbody>
+                <tr>
+                    <td style="width: 40%;"><b>@Lang.Text("Notice Id", "नोटिस आईडी")</b></td>
+                    <td>@Notice.NoticeId</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("Subject", "विषय")</b></td>
+                    <td>@Notice.Subject</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("Description", "विवरण")</b></td>
+                    <td>@Notice.Description</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("Start Date", "आरंभ दिनाँक")</b></td>
+                    <td>@Notice.StartDate.ToString("dd/MM/yyyy")</td>
+                </tr>
+                <tr>
+                    <td><b>@Lang.Text("End Date", "अंतिम दिनाँक")</b></td>
+                    <td>@Notice.EndDate.ToString("dd/MM/yyyy")</td>
+                </tr>
+            </tbody>
+        </MudSimpleTable>
+
+        <MudText Typo="Typo.subtitle1" Class="mb-2"><b>@Lang.Text("Documents:", "डॉक्यूमेंट:")</b></MudText>
+
+        @if (_loading)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        }
+        else if (_loadError is not null)
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true">
+                @Lang.Text("Could not load documents for this Notice.", "इस नोटिस के दस्तावेज़ लोड नहीं हो सके।")
+            </MudAlert>
+        }
+        else if (!Documents.Any())
+        {
+            <MudText Typo="Typo.body2" Color="Color.Default">
+                @Lang.Text("No documents attached.", "कोई दस्तावेज़ संलग्न नहीं है।")
+            </MudText>
+        }
+        else
+        {
+            <MudList T="string">
+                @foreach (var doc in Documents)
+                {
+                    <MudListItem T="string" IconColor="Color.Error" Icon="@Icons.Material.Filled.PictureAsPdf"
+                                 OnClick="@(() => OnOpenDocument.InvokeAsync(doc.Path))">
+                        @(!string.IsNullOrWhiteSpace(doc.FileName) ? doc.FileName : Lang.Text("Document", "दस्तावेज़"))
+                    </MudListItem>
+                }
+            </MudList>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudStack Row="true" Justify="Justify.Center" Class="w-100 mb-2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Close">
+                @Lang.Text("Close", "बंद करें")
+            </MudButton>
+        </MudStack>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public NoticesDto Notice { get; set; } = default!;
+    [Parameter] public string DocType { get; set; } = "notification";
+    [Parameter] public EventCallback<string?> OnOpenDocument { get; set; }
+
+    private List<NoticeDocDto> Documents = new();
+    private bool _loading = true;
+    private string? _loadError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var docs = await
+Http.GetFromJsonAsync<List<NoticeDocDto>>($"api/notices/{Notice.NoticeId}/documents?docType={DocType}");
+            Documents = docs ?? new();
+        }
+        catch (Exception ex)
+        {
+            _loadError = ex.Message;
+            Console.WriteLine($"[NoticeDialog] failed to load documents for s_id={Notice.NoticeId}, doc_type={DocType}: {ex}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

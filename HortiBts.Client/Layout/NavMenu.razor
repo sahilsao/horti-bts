@@ -1,84 +1,191 @@
 @using Microsoft.AspNetCore.Components.Authorization
-<MudNavMenu Bordered="true" Margin="Margin.Normal" Color="Color.Primary" Class="mr-2">
+<MudNavMenu Bordered="true" MultiExpansion="false" Margin="Margin.Normal" Color="Color.Primary">
     <AuthorizeView Roles="Admin">
         <Authorized>
-            <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.Dashboard">
+            <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.Prefix" Ripple
+                        Icon="@Icons.Material.Filled.Dashboard">
                 @Lang.Text("Dashboard", "डैशबोर्ड")
             </MudNavLink>
-            <MudNavLink Href="/admin/farmer-details" Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.PersonSearch">
+            <MudNavLink Href="/admin/farmer-details" Match="NavLinkMatch.Prefix" Ripple
+                        Icon="@Icons.Material.Filled.PersonSearch">
                 @Lang.Text("Farmer Details", "कृषक विवरण")
             </MudNavLink>
-            <MudNavLink Href="/admin/farmer-verification" Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.DomainVerification">
+            <MudNavLink Href="/admin/farmer-verification" Match="NavLinkMatch.Prefix" Ripple
+                        Icon="@Icons.Material.Filled.DomainVerification">
                 @Lang.Text("Farmer Verification", "कृषक भौतिक सत्यापन")
             </MudNavLink>
             <MudNavGroup Title="@Lang.Text("Master Entry", "मास्टर एंट्री")" Ripple Icon="@Icons.Material.Filled.Edit">
-                <MudNavLink Href="/admin/add-benefit" Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.AddAlarm">
+                <MudNavLink Href="/admin/add-benefit" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="@Icons.Material.Filled.AddAlarm">
                     @Lang.Text("Add Benefit", "लाभ जोड़ें")
                 </MudNavLink>
-                <MudNavLink Href="/admin/add-scheme" Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.PostAdd">
+                <MudNavLink Href="/admin/add-scheme" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="@Icons.Material.Filled.PostAdd">
                     @Lang.Text("Add Scheme", "योजना जोड़ें")
                 </MudNavLink>
-                <MudNavLink Href="/admin/add-component" Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.BookmarkAdd">
+                <MudNavLink Href="/admin/add-component" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="@Icons.Material.Filled.BookmarkAdd">
                     @Lang.Text("Add Component", "घटक जोड़ें")
                 </MudNavLink>
-                <MudNavLink Href="/admin/add-target" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/target">
+                <MudNavLink Href="/admin/add-target" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/target">
                     @Lang.Text("Physical targets (for the district) ", "भौतिक लक्ष्य जोड़े (जिला हेतु)")
                 </MudNavLink>
-                <MudNavLink Href="/admin/add-midh-scheme" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/assignment_add">
+                <MudNavLink Href="/admin/add-midh-scheme" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/assignment_add">
                     @Lang.Text("Add MIDH Scheme", "MIDH योजना जोड़ें")
                 </MudNavLink>
-                <MudNavLink Href="/admin/add-midh-component-type" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/box_add">
+                <MudNavLink Href="/admin/add-midh-component-type" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/box_add">
                     @Lang.Text("Add MIDH Component Type", "MIDH घटक प्रकार जोड़ें")
                 </MudNavLink>
-                <MudNavLink Href="/admin/add-midh-component" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/bookmark_add">
+                <MudNavLink Href="/admin/add-midh-component" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/bookmark_add">
                     @Lang.Text("Add MIDH Component", "MIDH घटक जोड़ें")
                 </MudNavLink>
-                <MudNavLink Href="/admin/add-midh-sub-component" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/note_stack_add">
+                <MudNavLink Href="/admin/add-midh-sub-component" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/note_stack_add">
                     @Lang.Text("Add MIDH Sub Component", "MIDH उप घटक जोड़ें")
                 </MudNavLink>
             </MudNavGroup>
-            <MudNavGroup Title="@Lang.Text("Reports", "रिपोर्ट्स")" Ripple Icon="@Icons.Material.Filled.FileOpen">
-                <MudNavGroup Title="@Lang.Text("Yearly Reports", "वार्षिक रिपोर्ट्स")" Ripple Icon="@Icons.Material.Filled.DocumentScanner">
-                    <MudNavLink Href="/reports/yearly/districtwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
-                        @Lang.Text("District-wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                    <MudNavLink Href="/reports/yearly/blockwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
-                        @Lang.Text("Block-wise Farmer Registration Report (Yearly)", "विकासखंडवार कृषक पंजीयन रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                    <MudNavLink Href="/reports/yearly/rheowise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clinical_notes">
-                        @Lang.Text("RHEO-wise Farmer Registration Report (Yearly)", "आर.एच.ई.ओ. वार कृषक पंजीयन रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                    <MudNavLink Href="/reports/yearly/villagewise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clarify">
-                        @Lang.Text("Village-wise Farmer Registration Report (Yearly)", "ग्रामवार कृषक पंजीयन रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                    <MudNavLink Href="/reports/yearly/farmerwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article_person">
-                        @Lang.Text("Farmer-wise Farmer Registration Report (Yearly)", "कृषकवार कृषक पंजीयन रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                </MudNavGroup>
-                <MudNavGroup Title="@Lang.Text("Backlog Yearly Reports (Upto 4 Years Back)", "बैकलॉग वार्षिक रिपोर्ट्स (4 वर्ष पूर्व तक)")" Ripple Icon="@Icons.Material.Filled.DocumentScanner">
-                    <MudNavLink Href="/reports/backlog/districtwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
-                        @Lang.Text("District-wise Farmer Registration Backlog Report (Yearly)", "जिलावार कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                    <MudNavLink Href="/reports/backlog/blockwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
-                        @Lang.Text("Block-wise Farmer Registration Backlog Report (Yearly)", "विकासखंडवार कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                    <MudNavLink Href="/reports/backlog/villagewise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clarify">
-                        @Lang.Text("Village-wise Farmer Registration Backlog Report (Yearly)", "ग्रामवार कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                </MudNavGroup>
-                <MudNavGroup Title="@Lang.Text("Comparative Reports (Upto 4 Years Back)", "तुलनात्मक रिपोर्ट्स (4 वर्ष पूर्व तक)")" Ripple Icon="@Icons.Material.Filled.DocumentScanner">
-                    <MudNavLink Href="/reports/comparative/districtwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
-                        @Lang.Text("District-wise Farmer Registration Comparative Report (Yearly)", "जिलावार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                    <MudNavLink Href="/reports/comparative/blockwise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
-                        @Lang.Text("Block-wise Farmer Registration Backlog Comparative Report (Yearly)", "विकासखंडवार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                    <MudNavLink Href="/reports/comparative/villagewise-farmer-registration-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clarify">
-                        @Lang.Text("Village-wise Farmer Registration Backlog Comparative Report (Yearly)", "ग्रामवार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
-                    </MudNavLink>
-                </MudNavGroup>
-                <MudNavLink Href="/reports/status/horticulture-farmer-beneficiary-status-report" Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/checklist_rtl">
-                    @Lang.Text("Horticulture Farmer Beneficiary Status (District-Wise Physical Verification) Report", "बागवानी किसान लाभार्थी स्थिति (जिलावार भौतिक सत्यापन) रिपोर्ट")
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
+                <TitleContent>
+                    @Lang.Text("Reports", "रिपोर्ट्स")
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2019-20 to 2025-26)</MudChip>
+                </TitleContent>
+                <ChildContent>
+                    <MudNavGroup Title="@Lang.Text("Yearly Reports", "वार्षिक रिपोर्ट्स")" Ripple
+                                 Icon="@Icons.Material.Filled.DocumentScanner">
+                        <MudNavLink Href="/reports/yearly/previous/districtwise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
+                            @Lang.Text("District-wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/yearly/previous/blockwise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
+                            @Lang.Text("Block-wise Farmer Registration Report (Yearly)", "विकासखंडवार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/yearly/previous/rheowise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clinical_notes">
+                            @Lang.Text("RHEO-wise Farmer Registration Report (Yearly)", "आर.एच.ई.ओ. वार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/yearly/previous/villagewise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clarify">
+                            @Lang.Text("Village-wise Farmer Registration Report (Yearly)", "ग्रामवार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/yearly/previous/farmerwise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article_person">
+                            @Lang.Text("Farmer-wise Farmer Registration Report (Yearly)", "कृषकवार कृषक पंजीयन रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                    </MudNavGroup>
+                    <MudNavGroup
+                        Title="@Lang.Text("Backlog Yearly Reports (Upto 4 Years Back)", "बैकलॉग वार्षिक रिपोर्ट्स (4 वर्ष पूर्व तक)")"
+                        Ripple Icon="material-symbols-outlined/article_shortcut">
+                        <MudNavLink Href="/reports/backlog/previous/districtwise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
+                            @Lang.Text("District-wise Farmer Registration Backlog Report (Yearly)", "जिलावार कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/backlog/previous/blockwise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
+                            @Lang.Text("Block-wise Farmer Registration Backlog Report (Yearly)", "विकासखंडवार कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/backlog/previous/villagewise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clarify">
+                            @Lang.Text("Village-wise Farmer Registration Backlog Report (Yearly)", "ग्रामवार कृषक पंजीयन बैकलॉग रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                    </MudNavGroup>
+                    <MudNavGroup
+                        Title="@Lang.Text("Comparative Reports (Upto 4 Years Back)", "तुलनात्मक रिपोर्ट्स (4 वर्ष पूर्व तक)")"
+                        Ripple Icon="material-symbols-outlined/document_search">
+                        <MudNavLink Href="/reports/comparative/previous/districtwise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
+                            @Lang.Text("District-wise Farmer Registration Comparative Report (Yearly)", "जिलावार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/comparative/previous/blockwise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
+                            @Lang.Text("Block-wise Farmer Registration Backlog Comparative Report (Yearly)",
+         "विकासखंडवार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/comparative/previous/villagewise-farmer-registration-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clarify">
+                            @Lang.Text("Village-wise Farmer Registration Backlog Comparative Report (Yearly)", "ग्रामवार कृषक पंजीयन तुलनात्मक रिपोर्ट (वार्षिक)")
+                        </MudNavLink>
+                    </MudNavGroup>
+                    <MudNavGroup Title="@Lang.Text("Beneficiary Status Reports", "लाभार्थी स्थिति रिपोर्ट्स")" Ripple
+                                 Icon="material-symbols-outlined/data_check">
+                        <MudNavLink Href="/reports/beneficiary/previous/districtwise-farmer-status-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/checklist_rtl">
+                            @Lang.Text("Horticulture Farmer Beneficiary Status (District-Wise Physical Verification) Report", "बागवानी किसान लाभार्थी स्थिति (जिलावार भौतिक सत्यापन) रिपोर्ट")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/beneficiary/previous/blockwise-farmer-status-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/list_alt_check">
+                            @Lang.Text("Horticulture Farmer Beneficiary Status (Block-Wise Physical Verification) Report", "बागवानी किसान लाभार्थी स्थिति (विकासखण्डवार भौतिक सत्यापन) रिपोर्ट")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/beneficiary/previous/villagewise-farmer-status-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/format_list_bulleted">
+                            @Lang.Text("Horticulture Farmer Beneficiary Status (Village-Wise Physical Verification) Report", "बागवानी किसान लाभार्थी स्थिति (ग्रामवार भौतिक सत्यापन) रिपोर्ट")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/beneficiary/previous/farmerwise-farmer-status-report"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/ballot">
+                            @Lang.Text("Horticulture Farmer Beneficiary Status (Farmer-Wise Physical Verification) Report", "बागवानी किसान लाभार्थी स्थिति (कृषकवार भौतिक सत्यापन) रिपोर्ट")
+                        </MudNavLink>
+                    </MudNavGroup>
+                    <MudNavGroup Title="@Lang.Text("Applications Reports", "आवेदन रिपोर्ट्स")" Ripple
+                                 Icon="material-symbols-outlined/order_approve">
+                        <MudNavLink Href="/reports/applications/previous/districtwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/domain">
+                            @Lang.Text("District Wise Applications List", "जिलावार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/previous/blockwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
+                            @Lang.Text("Block Wise Applications List", "विकासखण्डवार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/previous/rheowise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clinical_notes">
+                            @Lang.Text("RHEO Wise Applications List", "आर.एच.ई.ओ. वार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/previous/farmerwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/patient_list">
+                            @Lang.Text("Farmer Wise Applications List", "किसानवार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/previous/approved-farmers-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/person_check">
+                            @Lang.Text("Approved Farmer Applications List (2023-2024)", "स्वीकृत कृषक आवेदन सूची (2023-2024)")
+                        </MudNavLink>
+                    </MudNavGroup>
+                </ChildContent>
+            </MudNavGroup>
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
+                <TitleContent>
+                    @Lang.Text("Reports", "रिपोर्ट्स")
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2026-27)</MudChip>
+                </TitleContent>
+                <ChildContent>
+                    <MudNavGroup Title="@Lang.Text("Applications Reports", "आवेदन रिपोर्ट्स")" Ripple
+                                 Icon="material-symbols-outlined/order_approve">
+                        <MudNavLink Href="/reports/applications/current/districtwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/domain">
+                            @Lang.Text("District Wise Applications List", "जिलावार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/current/blockwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
+                            @Lang.Text("Block Wise Applications List", "विकासखण्डवार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/current/rheowise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clinical_notes">
+                            @Lang.Text("RHEO Wise Applications List", "आर.एच.ई.ओ. वार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/current/farmerwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/patient_list">
+                            @Lang.Text("Farmer Wise Applications List", "किसानवार आवेदन सूची")
+                        </MudNavLink>
+                    </MudNavGroup>
+                </ChildContent>
+            </MudNavGroup>
+            <MudNavGroup Title="@Lang.Text("Notice Board", "नोटिस बोर्ड")" Ripple
+                         Icon="@Icons.Material.Filled.Notifications">
+                <MudNavLink Href="/admin/add-notices" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="@Icons.Material.Filled.EditNotifications">
+                    @Lang.Text("Add Notices", "नोटिस जोड़े")
                 </MudNavLink>
             </MudNavGroup>
         </Authorized>
