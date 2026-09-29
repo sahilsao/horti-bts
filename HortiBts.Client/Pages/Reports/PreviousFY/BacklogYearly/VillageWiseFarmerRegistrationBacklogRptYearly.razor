@@ -300,7 +300,7 @@
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
             <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">
                 <MudTooltip Text="@tooltipText4" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"
+                    <MudLink Href="@($"/reports/yearly/previous/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"
                              Color="Color.Info">
                         @context.VillageName
                     </MudLink>
@@ -309,7 +309,7 @@
             @* Back Year 4 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText4" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"
+                    <MudLink Href="@($"/reports/yearly/previous/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{_selectedFinancialYear!.Value}/{0}/{0}/{0}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb4
                     </MudLink>
@@ -321,7 +321,7 @@
             @* Back Year 3 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText3" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 1)!.Value}/{0}/{0}/{0}")"
+                    <MudLink Href="@($"/reports/yearly/previous/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 1)!.Value}/{0}/{0}/{0}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb3
                     </MudLink>
@@ -333,7 +333,7 @@
             @* Back Year 2 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText2" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 2)!.Value}/{0}/{0}/{0}")"
+                    <MudLink Href="@($"/reports/yearly/previous/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 2)!.Value}/{0}/{0}/{0}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb2
                     </MudLink>
@@ -345,7 +345,7 @@
             @* Back Year 1 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText1" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 3)!.Value}/{0}/{0}/{0}")"
+                    <MudLink Href="@($"/reports/yearly/previous/farmerwise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{context.VillageCode}/{context.OfficerCode!.Value}/{(_selectedFinancialYear - 3)!.Value}/{0}/{0}/{0}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb1
                     </MudLink>
@@ -483,7 +483,7 @@
         try
         {
             int departmentCode = 3;
-            var result = await OfficersApiService.GetRheoOfficersListFromSubdistrictCodeAsync(departmentCode, subDistrictCode.Value);
+            var result = await OfficersApiService.GetRheoOfficersListFromSubDistrictCodeAsync(departmentCode, subDistrictCode.Value);
             if (result.IsSuccess && result.Data is not null)
                 _officers = result.Data;
         }

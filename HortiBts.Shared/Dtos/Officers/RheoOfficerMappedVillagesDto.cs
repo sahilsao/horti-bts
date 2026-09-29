@@ -10,5 +10,6 @@ namespace HortiBts.Shared.Dtos.Officers
         public int? DistrictCode { get; set; } // DistCodeCensus
         public int? DistrictId { get; set; } // district_id
         public string? DistrictName { get; set; }
+        public DateTime? LastAssignDate { get; set; }
     }
 }

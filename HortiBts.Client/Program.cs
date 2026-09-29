@@ -14,15 +14,19 @@ using HortiBts.Client.Services.MIDHSchemes;
 using HortiBts.Client.Services.Notices;
 using HortiBts.Client.Services.Officers;
 using HortiBts.Client.Services.Reports;
+using HortiBts.Client.Services.Reports.Component;
 using HortiBts.Client.Services.Reports.CurrentFY.Applications;
+using HortiBts.Client.Services.Reports.HPMIS;
 using HortiBts.Client.Services.Reports.PreviousFY.Applications;
 using HortiBts.Client.Services.Reports.PreviousFY.BacklogYearly;
 using HortiBts.Client.Services.Reports.PreviousFY.Comparative;
 using HortiBts.Client.Services.Reports.PreviousFY.Yearly;
+using HortiBts.Client.Services.Reports.Scheme;
 using HortiBts.Client.Services.Schemes;
 using HortiBts.Client.Services.SubDistricts;
 using HortiBts.Client.Services.Target;
 using HortiBts.Client.Services.Units;
+using HortiBts.Client.Services.Users;
 using HortiBts.Client.Services.Villages;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -72,6 +76,7 @@ builder.Services.AddScoped<VillagesApiService>();
 builder.Services.AddScoped<FinancialYearsApiService>();
 builder.Services.AddScoped<OfficersApiService>();
 builder.Services.AddScoped<ExcelExportService>();
+builder.Services.AddScoped<UsersApiService>();
 
 // Dashboard Related
 builder.Services.AddScoped<DashboardApiService>();
@@ -98,5 +103,10 @@ builder.Services.AddScoped<ComparativeFarmerRegistrationApiService>();
 builder.Services.AddScoped<FarmerBeneficiaryStatusApiService>();
 builder.Services.AddScoped<FarmerApplicationsListApiService>();
 builder.Services.AddScoped<NewFarmerApplicationsListApiService>();
+// HPMIS
+builder.Services.AddScoped<FarmersListHPMISApiService>();
+//Scheme & Component
+builder.Services.AddScoped<BacklogYearlySchemeWiseRegistrationApiService>();
+builder.Services.AddScoped<BacklogYearlyComponentWiseRegistrationApiService>();
 
 await builder.Build().RunAsync();

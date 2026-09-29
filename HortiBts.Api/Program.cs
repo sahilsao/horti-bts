@@ -12,16 +12,20 @@ using HortiBts.Api.Repositories.MIDHComponents;
 using HortiBts.Api.Repositories.MIDHSchemes;
 using HortiBts.Api.Repositories.Notices;
 using HortiBts.Api.Repositories.Officers;
+using HortiBts.Api.Repositories.Reports.Component;
 using HortiBts.Api.Repositories.Reports.CurrentFY.Applications;
+using HortiBts.Api.Repositories.Reports.HPMIS;
 using HortiBts.Api.Repositories.Reports.PreviousFY.Applications;
 using HortiBts.Api.Repositories.Reports.PreviousFY.BacklogYearly;
 using HortiBts.Api.Repositories.Reports.PreviousFY.BeneficiaryStatus;
 using HortiBts.Api.Repositories.Reports.PreviousFY.Comparative;
 using HortiBts.Api.Repositories.Reports.PreviousFY.Yearly;
+using HortiBts.Api.Repositories.Reports.Scheme;
 using HortiBts.Api.Repositories.Schemes;
 using HortiBts.Api.Repositories.SubDistricts;
 using HortiBts.Api.Repositories.Target;
 using HortiBts.Api.Repositories.Units;
+using HortiBts.Api.Repositories.Users;
 using HortiBts.Api.Repositories.Villages;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -60,6 +64,7 @@ builder.Services.AddScoped<ISubDistrictsRepository, SubDistrictsRepository>();
 builder.Services.AddScoped<IVillagesRepository, VillagesRepository>();
 builder.Services.AddScoped<IFinancialYearsRepository, FinancialYearsRepository>();
 builder.Services.AddScoped<IOfficersRepository, OfficersRepository>();
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 // Dashboard Related
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
@@ -92,6 +97,11 @@ builder.Services.AddScoped<IComparativeFarmerRegistrationRepository, Comparative
 builder.Services.AddScoped<IFarmerBeneficiaryStatusRepository, FarmerBeneficiaryStatusRepository>();
 builder.Services.AddScoped<IFarmerApplicationsRepository, FarmerApplicationsRepository>();
 builder.Services.AddScoped<INewFarmerApplicationsRepository, NewFarmerApplicationsRepository>();
+// HPMIS report
+builder.Services.AddScoped<IFarmerDetailsRepository, FarmerDetailsRepository>();
+//Scheme & Component
+builder.Services.AddScoped<IBacklogYearlySchemeWiseRegistrationRepository, BacklogYearlySchemeWiseRegistrationRepository>();
+builder.Services.AddScoped<IBacklogYearlyComponentWiseRegistrationRepository, BacklogYearlyComponentWiseRegistrationRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.

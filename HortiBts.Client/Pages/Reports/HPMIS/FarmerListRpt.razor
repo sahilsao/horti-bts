@@ -1,0 +1,423 @@
+﻿@page "/reports/hpmis/farmers-list"
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Reports
+@using HortiBts.Client.Services.Reports.HPMIS
+@using HortiBts.Client.Services.SubDistricts
+@using HortiBts.Client.Services.Villages
+@using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Shared.Dtos.FinancialYear
+@using HortiBts.Shared.Dtos.Reports.HPMIS
+@using HortiBts.Shared.Dtos.SubDistricts
+@using HortiBts.Shared.Dtos.Villages
+@attribute [Authorize(Roles = "Admin")]
+
+@inject DistrictsApiService DistrictsApiService
+@inject SubDistrictsApiService SubDistrictsApiService
+@inject VillagesApiService VillagesApiService
+@inject FinancialYearsApiService FinancialYearsApiService
+@inject FarmersListHPMISApiService FarmersListHPMISApiService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject ExcelExportService ExcelExport
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
+
+<PageTitle>@Lang.Text("Farmer-List (HPMIS) Report", "कृषक सूची (HPMIS) रिपोर्ट")</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="material-symbols-outlined/patient_list" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Farmer-List (HPMIS) Report", "कृषक सूची (HPMIS) रिपोर्ट")
+</MudText>
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_selectedDistrictCensus" Label="@Lang.Text("District", "जिला")"
+                   Variant="Variant.Outlined" ValueChanged="OnDistrictChanged">
+
+            <MudSelectItem T="int?" Value="0">
+                @Lang.Text("All", "सभी")
+            </MudSelectItem>
+
+
+            @foreach (var d in _districts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                    @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_selectedSubDistrictCode" Label="@Lang.Text("Block", "विकासखण्ड")"
+                   Variant="Variant.Outlined" ValueChanged="OnSubDistrictChanged">
+
+            <MudSelectItem T="int?" Value="0">
+                @Lang.Text("All", "सभी")
+            </MudSelectItem>
+
+
+            @foreach (var s in _subdistricts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)s.SubDistrictCode)">
+                    @(Lang.IsHindi ? s.SubDistrictNameHi : s.SubDistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+   
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" @bind-Value="_selectedVillageCode" Label="@Lang.Text("Village", "ग्राम")"
+                   Variant="Variant.Outlined">
+
+            <MudSelectItem T="int?" Value="0">
+                @Lang.Text("All", "सभी")
+            </MudSelectItem>
+
+
+            @foreach (var v in _villages)
+            {
+                <MudSelectItem T="int?" Value="@((int?)v.VillageCode)">
+                    @v.VillageName
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Label="@Lang.Text("Select Financial Year", "वित्त वर्ष चुने")"
+                   @bind-Value="_selectedFinancialYear" Variant="Variant.Outlined" FullWidth="true" Class="mb-3"
+                   Required="true">
+            @foreach (var f in _finyears)
+            {
+                <MudSelectItem T="int?" Value="@((int?)f.Id)">
+                    @f.FinancialYear
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+</MudGrid>
+<MudStack Row="true" Spacing="1">
+    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="LoadReport" Disabled="_isLoading">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            <span>@Lang.Text("Loading...", "लोड हो रहा है...")</span>
+        }
+        else
+        {
+            <span>@Lang.Text("Search", "खोज करें")</span>
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+        @Lang.Text("Reset", "रीसेट")
+    </MudButton>
+</MudStack>
+
+@if (_reportData.Any())
+{
+    <MudTable Items="_filteredReportData" SortLabel="Sort By" Dense="true" Bordered="true" HeaderClass="report-header-row"
+              Hover="true" Elevation="1" Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">
+                @Lang.Text("Farmer-wise Farmer Applications Report", "कृषक-वार कृषक आवेदन रिपोर्ट")
+                (@_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear)
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<FarmersListHPMISDto, object>(x => x.ApplicationId!)">
+                    @Lang.Text("Application No", "आवेदन क्रमांक")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<FarmersListHPMISDto, object>(x => x.FarmerNameEng!)">
+                    @Lang.Text("Farmer Name", "कृषक का नाम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<FarmersListHPMISDto, object>(x => x.CareOfName!)">
+                    @Lang.Text("Father Name", "पिता का नाम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<FarmersListHPMISDto, object>(x => x.VillageName!)">
+                    @Lang.Text("Village", "ग्राम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>@Lang.Text("Season", "सीज़न")</MudTh>
+            <MudTh>@Lang.Text("Crop", "फसल")</MudTh>
+            <MudTh>@Lang.Text("Crop Area (in hectares)", "फसल रकबा (हेक्टेयर में)")</MudTh>
+            <MudTh>@Lang.Text("Expected Production (in quintal)", "अनुमानित उत्पादन (क्विंटल में)")</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("Application No", "आवेदन क्रमांक")">@context.ApplicationId</MudTd>
+            <MudTd DataLabel="@Lang.Text("Farmer Name", "कृषक का नाम")">@context.FarmerNameEng / @context.FarmerNameHi
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Father Name", "पिता का नाम")">@context.CareOfName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@context.VillageName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Season", "सीज़न")">@context.SeasonNameHi</MudTd>
+            <MudTd DataLabel="@Lang.Text("Crop", "फसल")">@context.CropName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Crop Area (in hectares)", "फसल रकबा (हेक्टेयर में)")">
+                @context.CropArea?.ToString("N4")</MudTd>
+                <MudTd DataLabel="@Lang.Text("Expected Production (in quintal)", "अनुमानित उत्पादन (क्विंटल में)")">
+                    @context.ExpectedProduction?.ToString("N2")</MudTd>
+                </RowTemplate>
+                <FooterContent>
+                    <MudTd colspan="7"><b>@Lang.Text("Total", "योग")</b></MudTd>
+                    <MudTd><b>@_filteredReportData.Sum(x => x.CropArea ?? 0).ToString("N4")</b></MudTd>
+                    <MudTd><b>@_filteredReportData.Sum(x => x.ExpectedProduction ?? 0).ToString("N2")</b></MudTd>
+                </FooterContent>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+                </PagerContent>
+            </MudTable>
+        }
+@code {
+
+    private List<DistrictsDto> _districts = [];
+    private List<SubDistrictsDto> _subdistricts = [];
+    private List<VillagesDto> _villages = [];
+    private List<FinancialYearDto> _finyears = [];
+    private int? _selectedFinancialYear;
+    private int? _selectedDistrictCensus;
+    private int? _selectedSubDistrictCode;
+    private int? _selectedVillageCode;
+   
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+
+    private List<FarmersListHPMISDto> _reportData = new();
+
+    private string _searchString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDistrictsAsync();
+        await LoadFinancialYearsAsync();
+    }
+
+    private async Task LoadDistrictsAsync()
+    {
+        var result = await DistrictsApiService.GetDistrictsAsync();
+        if (result.IsSuccess)
+            _districts = result.Data!;
+        else
+            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+    }
+
+    private async Task OnDistrictChanged(int? districtId)
+    {
+        _selectedDistrictCensus = districtId;
+
+        // reset everything that depends on district
+        _selectedSubDistrictCode = null;
+        _selectedVillageCode = null;
+
+        _subdistricts.Clear();
+        _villages.Clear();
+
+        if (districtId is null) return;
+
+        try
+        {
+            var result = await SubDistrictsApiService.GetSubDistrictsAsync(districtId.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _subdistricts = result.Data;
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load subdistricts.", "उपजिलों को लोड करने में विफल।"), Severity.Error);
+        }
+    }
+
+    private async Task OnSubDistrictChanged(int? subDistrictCode)
+    {
+        _selectedSubDistrictCode = subDistrictCode;
+
+        // reset everything that depends on sub-district
+        _selectedVillageCode = null;
+
+        _villages.Clear();
+
+        if (subDistrictCode is null) return;
+
+        try
+        {
+            var result = await VillagesApiService.GetVillagesAsync(
+subDistrictCode.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _villages = result.Data;
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load officers.", "अधिकारियों को लोड करने में विफल।"), Severity.Error);
+        }
+    }
+
+    private async Task LoadFinancialYearsAsync()
+    {
+        var result = await FinancialYearsApiService.GetFinancialYearsForReportAsync();
+
+        if (result.IsSuccess && result.Data is not null)
+            _finyears = result.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load financial years.", "वित्त वर्ष लोड करने में विफल।"), Severity.Warning);
+
+    }
+
+    private async Task LoadReport()
+    {
+        if (_selectedFinancialYear is null)
+        {
+            Snackbar.Add(
+                Lang.Text("Please select a financial year.", "कृपया वित्त वर्ष चुनें।"),
+                Severity.Warning);
+            return;
+        }
+
+        _isLoading = true;
+
+        try
+        {
+            string searchFlag;
+            int id;
+
+            if ((_selectedVillageCode ?? 0) != 0)
+            {
+                searchFlag = "VILL";
+                id = _selectedVillageCode!.Value;
+            }
+            else if ((_selectedSubDistrictCode ?? 0) != 0)
+            {
+                searchFlag = "SUBDIST";
+                id = _selectedSubDistrictCode!.Value;
+            }
+            else if ((_selectedDistrictCensus ?? 0) != 0)
+            {
+                searchFlag = "DIST";
+                id = _selectedDistrictCensus!.Value;
+            }
+            else
+            {
+                // everything is "All" — use the repository's "all districts" sentinel
+                searchFlag = "DIST";
+                id = 100;
+            }
+
+            var result = await FarmersListHPMISApiService.GetFarmerListAsync(new FarmerListQueryParams
+            {
+                SearchFlag = searchFlag,
+                FinancialYear = _selectedFinancialYear!.Value,
+                Id = id
+            });
+
+            if (result.IsSuccess && result.Data is not null && result.Data.Any())
+            {
+                _reportData = result.Data;
+            }
+            else if (result.IsSuccess)
+            {
+                _reportData = [];
+                Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+            }
+            else
+            {
+                Snackbar.Add(
+                    Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"),
+                    Severity.Warning);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(
+                Lang.Text("An error occurred while loading the report.", "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task Reset()
+    {
+        _selectedFinancialYear = null;
+        _selectedDistrictCensus = null;
+        _selectedSubDistrictCode = null;
+        _selectedVillageCode = null;
+        _subdistricts.Clear();
+        _villages.Clear();
+        _reportData.Clear();
+    }
+
+    private IEnumerable<FarmersListHPMISDto> _filteredReportData =>
+     _reportData.Where(t =>
+         string.IsNullOrWhiteSpace(_searchString)
+         || (t.VillageName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+         || (t.FarmerNameEng?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+         || (t.CareOfName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+         || (t.CropName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private List<ExcelColumn<FarmersListHPMISDto>> GetColumns() => new()
+{
+    new() { HeaderEn = "Application No", HeaderHi = "आवेदन क्रमांक",
+            ValueSelector = x => x.ApplicationId! },
+
+    new() { HeaderEn = "Farmer Name", HeaderHi = "कृषक का नाम",
+            ValueSelector = x => $"{x.FarmerNameEng} / {x.FarmerNameHi}" },
+
+    new() { HeaderEn = "Father Name", HeaderHi = "पिता का नाम",
+            ValueSelector = x => x.CareOfName! },
+
+    new() { HeaderEn = "Village", HeaderHi = "ग्राम",
+            ValueSelector = x => x.VillageName! },
+
+    new() { HeaderEn = "Season", HeaderHi = "सीज़न",
+            ValueSelector = x => x.SeasonNameHi! },
+
+    new() { HeaderEn = "Crop", HeaderHi = "फसल",
+            ValueSelector = x => x.CropName! },
+
+    new() { HeaderEn = "Crop Area (in hectares)", HeaderHi = "फसल रकबा (हेक्टेयर में)",
+            ValueSelector = x => x.CropArea!,
+            TotalSelector = list => list.Sum(x => x.CropArea!) },
+
+    new() { HeaderEn = "Expected Production (in quintal)", HeaderHi = "अनुमानित उत्पादन (क्विंटल में)",
+            ValueSelector = x => x.ExpectedProduction!,
+            TotalSelector = list => list.Sum(x => x.ExpectedProduction!) },
+};
+
+    private async Task ExportToExcel()
+    {
+        var finYear = (_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear!)
+                      .Replace("/", "-");
+
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("Farmers List (HPMIS) Report", "कृषक सूची (HPMIS) रिपोर्ट"),
+            (en, hi) => Lang.Text(en, hi),
+            $"FarmersList_HPMIS_Report_{finYear}.xlsx");
+    }
+}

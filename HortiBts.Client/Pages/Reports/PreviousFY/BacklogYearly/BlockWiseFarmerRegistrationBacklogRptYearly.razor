@@ -260,7 +260,7 @@
             @* Back Year 4 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText4" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/previous/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{_selectedFinancialYear!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb4
                     </MudLink>
@@ -272,7 +272,7 @@
             @* Back Year 3 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText3" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{(_selectedFinancialYear - 1)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/previous/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{(_selectedFinancialYear - 1)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb3
                     </MudLink>
@@ -284,7 +284,7 @@
             @* Back Year 2 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText2" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{(_selectedFinancialYear - 2)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/previous/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{(_selectedFinancialYear - 2)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb2
                     </MudLink>
@@ -296,7 +296,7 @@
             @* Back Year 1 *@
             <MudTd DataLabel="@Lang.Text("Farmer Count", "कृषक संख्या")">
                 <MudTooltip Text="@tooltipText1" Color="Color.Info" Placement="Placement.Top">
-                    <MudLink Href="@($"/reports/yearly/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{(_selectedFinancialYear - 3)!.Value}")"
+                    <MudLink Href="@($"/reports/yearly/previous/rheowise-farmer-registration-report/{3}/{context.DistrictCode!.Value}/{context.SubDistrictCode!.Value}/{(_selectedFinancialYear - 3)!.Value}")"
                              Color="Color.Info">
                         @context.TotalFarmerCountFyb1
                     </MudLink>

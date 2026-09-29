@@ -369,7 +369,7 @@
         try
         {
             int departmentCode = 3;
-            var result = await OfficersApiService.GetRheoOfficersListFromSubdistrictCodeAsync(departmentCode, subDistrictCode.Value);
+            var result = await OfficersApiService.GetRheoOfficersListFromSubDistrictCodeAsync(departmentCode, subDistrictCode.Value);
             if (result.IsSuccess && result.Data is not null)
                 _officers = result.Data;
         }

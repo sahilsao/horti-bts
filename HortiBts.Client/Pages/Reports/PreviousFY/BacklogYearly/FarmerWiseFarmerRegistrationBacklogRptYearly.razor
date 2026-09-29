@@ -1,4 +1,6 @@
-﻿@page "/reports/backlog/previous/farmerwise-farmer-registration-report"
+﻿@* not in use - report not presenting accurately *@ 
+
+@page "/reports/backlog/previous/farmerwise-farmer-registration-report" 
 @page "/reports/backlog/previous/farmerwise-farmer-registration-report/{DepartmentCode:int}/{DistrictCode:int}/{SubDistrictCode:int}/{VillageCode:int}/{OfficerCode:int}/{FinancialYear:int}/{SchemeTypeId:int}/{SchemeId:int}/{ComponentId:int}"
 @using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Components
@@ -614,7 +616,7 @@
         try
         {
             int departmentCode = 3;
-            var result = await OfficersApiService.GetRheoOfficersListFromSubdistrictCodeAsync(departmentCode, subDistrictCode.Value);
+            var result = await OfficersApiService.GetRheoOfficersListFromSubDistrictCodeAsync(departmentCode, subDistrictCode.Value);
             if (result.IsSuccess && result.Data is not null)
                 _officers = result.Data;
         }

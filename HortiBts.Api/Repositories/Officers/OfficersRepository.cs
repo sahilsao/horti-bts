@@ -8,14 +8,88 @@ namespace HortiBts.Api.Repositories.Officers
 {
     public interface IOfficersRepository
     {
-        /// <summary>Returns all rheo officers for the specified sub-district</summary>
+        Task<Result<List<RheoOfficersDto>>> GetAllOfficersListByAsync(int departmentCode);
+        Task<Result<List<RheoOfficersDto>>> GetOfficersListByDistrictCodeAsync(int departmentCode, int districtCode);
         Task<Result<List<RheoOfficersDto>>> GetOfficersListBySubDistrictCodeAsync(int departmentCode, int subDistrictCode);
-
+        Task<Result<List<RheoOfficersDto>>> GetOfficersListByVillageCodeAsync(int departmentCode, int villageCode);
         Task<Result<List<RheoOfficerMappedVillagesDto>>> GetRheoOfficerMappedVillagesListAsync(int departmentCode, int officerCode);
     }
 
     public class OfficersRepository(IDbConnectionFactory dbFactory) : IOfficersRepository
     {
+        public async Task<Result<List<RheoOfficersDto>>> GetAllOfficersListByAsync(int departmentCode)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT
+                    mr.officer_code AS OfficerCode,
+                    mr.name AS OfficerName,
+                    mr.mobile_no AS MobileNo,
+                    COALESCE(mr.alternate_mobile_no, '-') AS AlternateMobileNo,
+                    COALESCE(mr.email, '-') AS Email,
+                    mr.charge_date AS ChargeTakenDate,
+                    v.subdistrict_code AS SubDistrictCode,
+                    v.subdistrict_name AS SubDistrictName,
+                    v.DistCodeCensus AS DistrictCodeCensus,
+                    v.DistrictName AS DistrictName
+                    FROM
+                    view_all_villages v
+                    INNER JOIN officer_village_details ovd ON ovd.village_code = v.village_code
+                    INNER JOIN mas_raeo mr ON mr.officer_code = ovd.officer_code
+                    WHERE mr.usertype = @DepartmentCode
+                    GROUP BY
+                    ovd.officer_code
+                    ORDER BY
+                    mr.name
+                """;
+                var result = await connection.QueryAsync<RheoOfficersDto>(sql, new { DepartmentCode = departmentCode });
+                return Result<List<RheoOfficersDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<RheoOfficersDto>>.Failure($"Failed to fetch officers: {ex.Message}");
+            }
+        }
+        public async Task<Result<List<RheoOfficersDto>>> GetOfficersListByDistrictCodeAsync(int departmentCode, int districtCode)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT
+                    mr.officer_code AS OfficerCode,
+                    mr.name AS OfficerName,
+                    mr.mobile_no AS MobileNo,
+                    COALESCE(mr.alternate_mobile_no, '-') AS AlternateMobileNo,
+                    COALESCE(mr.email, '-') AS Email,
+                    mr.charge_date AS ChargeTakenDate,
+                    v.subdistrict_code AS SubDistrictCode,
+                    v.subdistrict_name AS SubDistrictName,
+                    v.DistCodeCensus AS DistrictCodeCensus,
+                    v.DistrictName AS DistrictName
+                    FROM
+                    view_all_villages v
+                    INNER JOIN officer_village_details ovd ON ovd.village_code = v.village_code
+                    INNER JOIN mas_raeo mr ON mr.officer_code = ovd.officer_code
+                    WHERE
+                    v.DistCodeCensus = @DistrictCode
+                    AND mr.usertype = @DepartmentCode
+                    GROUP BY
+                    ovd.officer_code
+                    ORDER BY
+                    mr.name
+                """;
+                var result = await connection.QueryAsync<RheoOfficersDto>(sql, new { DepartmentCode = departmentCode, DistrictCode = districtCode });
+                return Result<List<RheoOfficersDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<RheoOfficersDto>>.Failure($"Failed to fetch officers: {ex.Message}");
+            }
+        }
+
         public async Task<Result<List<RheoOfficersDto>>> GetOfficersListBySubDistrictCodeAsync(int departmentCode, int subDistrictCode)
         {
             try
@@ -54,6 +128,44 @@ namespace HortiBts.Api.Repositories.Officers
             }
         }
 
+        public async Task<Result<List<RheoOfficersDto>>> GetOfficersListByVillageCodeAsync(int departmentCode, int villageCode)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT
+                    mr.officer_code AS OfficerCode,
+                    mr.name AS OfficerName,
+                    mr.mobile_no AS MobileNo,
+                    COALESCE(mr.alternate_mobile_no, '-') AS AlternateMobileNo,
+                    COALESCE(mr.email, '-') AS Email,
+                    mr.charge_date AS ChargeTakenDate,
+                    v.subdistrict_code AS SubDistrictCode,
+                    v.subdistrict_name AS SubDistrictName,
+                    v.DistCodeCensus AS DistrictCodeCensus,
+                    v.DistrictName AS DistrictName
+                    FROM
+                    view_all_villages v
+                    INNER JOIN officer_village_details ovd ON ovd.village_code = v.village_code
+                    INNER JOIN mas_raeo mr ON mr.officer_code = ovd.officer_code
+                    WHERE
+                    v.village_code = @VillageCode
+                    AND mr.usertype = @DepartmentCode
+                    GROUP BY
+                    ovd.officer_code
+                    ORDER BY
+                    mr.name
+                """;
+                var result = await connection.QueryAsync<RheoOfficersDto>(sql, new { DepartmentCode = departmentCode, VillageCode = villageCode });
+                return Result<List<RheoOfficersDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<RheoOfficersDto>>.Failure($"Failed to fetch officers: {ex.Message}");
+            }
+        }
+
         public async Task<Result<List<RheoOfficerMappedVillagesDto>>> GetRheoOfficerMappedVillagesListAsync(int departmentCode, int officerCode)
         {
             try
@@ -72,13 +184,14 @@ namespace HortiBts.Api.Repositories.Officers
                     rb.BlockNameEng AS SubDistrictName,
                     b.DistCodeCensus AS DistrictCode,
                     b.district_id AS DistrictId,
-                    b.DistrictName AS DistrictName
+                    b.DistrictName AS DistrictName,
+                    a.update_datetime as LastAssignDate 
                 FROM
                     officer_village_details a
                     INNER JOIN view_all_villages b ON a.village_code = b.village_code
                     INNER JOIN rev_block rb ON rb.subdistrict_code = b.subdistrict_code
                 WHERE
-                    a.officer_code = @OfficerCode
+                    a.officer_code = @OfficerCode AND a.flag = 1
                     AND a.department_code = @DepartmentCode
                 ORDER BY
                     b.village_name

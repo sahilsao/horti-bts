@@ -48,6 +48,13 @@
                     @Lang.Text("Add MIDH Sub Component", "MIDH उप घटक जोड़ें")
                 </MudNavLink>
             </MudNavGroup>
+            <MudNavGroup Title="@Lang.Text("Notice Board", "नोटिस बोर्ड")" Ripple
+                         Icon="@Icons.Material.Filled.Notifications">
+                <MudNavLink Href="/admin/add-notices" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="@Icons.Material.Filled.EditNotifications">
+                    @Lang.Text("Add Notices", "नोटिस जोड़े")
+                </MudNavLink>
+            </MudNavGroup>
             <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
                 <TitleContent>
                     @Lang.Text("Reports", "रिपोर्ट्स")
@@ -181,13 +188,35 @@
                     </MudNavGroup>
                 </ChildContent>
             </MudNavGroup>
-            <MudNavGroup Title="@Lang.Text("Notice Board", "नोटिस बोर्ड")" Ripple
-                         Icon="@Icons.Material.Filled.Notifications">
-                <MudNavLink Href="/admin/add-notices" Match="NavLinkMatch.Prefix" Ripple
-                            Icon="@Icons.Material.Filled.EditNotifications">
-                    @Lang.Text("Add Notices", "नोटिस जोड़े")
+            <MudNavGroup Title="@Lang.Text("RHEO Report", "आर.एच.ई.ओ. रिपोर्ट")" Ripple
+                         Icon="@Icons.Material.Filled.ListAlt">
+                <MudNavLink Href="/reports/rheo-list" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/patient_list">
+                    @Lang.Text("RHEO List", "आर.एच.ई.ओ. सूची")
                 </MudNavLink>
             </MudNavGroup>
+            <MudNavGroup Title="@Lang.Text("HPMIS Report", "HPMIS रिपोर्ट")" Ripple
+                         Icon="@Icons.Material.Filled.AccountTree">
+                <MudNavLink Href="/reports/hpmis/farmers-list" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="@Icons.Material.Filled.PersonSearch">
+                    @Lang.Text("Farmers List", "किसान सूची")
+                </MudNavLink>
+            </MudNavGroup>
+            <MudNavGroup Title="@Lang.Text("Scheme/Component Wise Report", "योजनावार/घटकवार रिपोर्ट")" Ripple
+                         Icon="@Icons.Material.Filled.Schema">
+                <MudNavLink Href="/reports/scheme/schemewise-farmer-registration-report" Match="NavLinkMatch.Prefix"
+                            Ripple Icon="@Icons.Material.Filled.FilterList">
+                    @Lang.Text("Scheme-Wise Farmer Registration Report", "योजनावार कृषक पंजीयन रिपोर्ट")
+                </MudNavLink>
+                <MudNavLink Href="/reports/scheme/componentwise-farmer-registration-report" Match="NavLinkMatch.Prefix"
+                            Ripple Icon="@Icons.Material.Filled.LineStyle">
+                    @Lang.Text("Component-Wise Farmer Registration Report", "घटकवार कृषक पंजीयन रिपोर्ट")
+                </MudNavLink>
+            </MudNavGroup>
+            <MudNavLink Href="/admin/reset-password" Match="NavLinkMatch.Prefix"
+                        Ripple Icon="@Icons.Material.Filled.LockReset">
+                @Lang.Text("Reset Password", "रिसेट पासवर्ड")
+            </MudNavLink>
         </Authorized>
     </AuthorizeView>
 </MudNavMenu>

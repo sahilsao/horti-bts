@@ -1,0 +1,592 @@
+﻿@page "/reports/rheo-list"
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.Officers
+@using HortiBts.Client.Services.Reports
+@using HortiBts.Client.Services.SubDistricts
+@using HortiBts.Client.Services.Villages
+@using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Shared.Dtos.Officers
+@using HortiBts.Shared.Dtos.SubDistricts
+@using HortiBts.Shared.Dtos.Villages
+@attribute [Authorize(Roles = "Admin")]
+
+@inject DistrictsApiService DistrictsApiService
+@inject SubDistrictsApiService SubDistrictsApiService
+@inject VillagesApiService VillagesApiService
+@inject OfficersApiService OfficersApiService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject ExcelExportService ExcelExport
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
+
+<PageTitle>@Lang.Text("RHEO List and Village Mapped into RHEO", "आर.एच.ई.ओ. एवं RHEO में मैप किए गए गाँव की सूची")</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="material-symbols-outlined/patient_list" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("RHEO List and Village Mapped into RHEO", "आर.एच.ई.ओ. एवं RHEO में मैप किए गए गाँव की सूची")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("List of all RHEO and Village Mapped into RHEO", "आर.एच.ई.ओ. एवं RHEO में मैप किए गए गाँव की सूची")
+</MudText>
+
+<MudGrid Spacing="3" Class="mb-4" AlignItems="Center">
+    <MudItem xs="12" sm=6">
+        <MudText Typo="Typo.body1" Class="mb-1">
+            @Lang.Text("Filter by", "फ़िल्टर करें")
+        </MudText>
+        <MudToggleGroup T="string" Value="_filterMode" ValueChanged="SetFilterMode" Color="Color.Primary"
+                        Delimiters="false" SelectionMode="SelectionMode.SingleSelection">
+            <MudToggleItem Value="@("village")" Text="@Lang.Text("Village", "ग्राम")" />
+            <MudToggleItem Value="@("officer")" Text="@Lang.Text("Village Mapped into RHEO", "RHEO में मैप किए गए गाँव")" />
+        </MudToggleGroup>
+    </MudItem>
+</MudGrid>
+
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_selectedDistrictCensus" Label="@Lang.Text("District", "जिला")"
+                   Variant="Variant.Outlined" ValueChanged="OnDistrictChanged">
+            <MudSelectItem T="int?" Value="0">
+                @Lang.Text("All", "सभी")
+            </MudSelectItem>
+            @foreach (var d in _districts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                    @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_selectedSubDistrictCode" Label="@Lang.Text("Block", "विकासखण्ड")"
+                   Variant="Variant.Outlined" ValueChanged="OnSubDistrictChanged">
+            <MudSelectItem T="int?" Value="0">
+                @Lang.Text("All", "सभी")
+            </MudSelectItem>
+            @foreach (var s in _subdistricts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)s.SubDistrictCode)">
+                    @(Lang.IsHindi ? s.SubDistrictNameHi : s.SubDistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="4">
+        @if (_filterMode == "village")
+        {
+            <MudSelect T="int?" @bind-Value="_selectedVillageCode" Label="@Lang.Text("Village", "ग्राम")"
+                       Variant="Variant.Outlined">
+                <MudSelectItem T="int?" Value="0">
+                    @Lang.Text("All", "सभी")
+                </MudSelectItem>
+                @foreach (var v in _villages)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)v.VillageCode)">
+                        @v.VillageName
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        }
+        else
+        {
+            <MudSelect T="int?" @bind-Value="_selectedOfficerCode" Label="@Lang.Text("Officer", "अधिकारी")"
+                       Variant="Variant.Outlined">
+                <MudSelectItem T="int?" Value="0">
+                    @Lang.Text("All", "सभी")
+                </MudSelectItem>
+                @foreach (var o in _officers)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)o.OfficerCode)">
+                        @o.OfficerName
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        }
+    </MudItem>
+</MudGrid>
+<MudStack Row="true" Spacing="1">
+    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="LoadReport" Disabled="_isLoading">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            <span>@Lang.Text("Loading...", "लोड हो रहा है...")</span>
+        }
+        else
+        {
+            <span>@Lang.Text("Search", "खोज करें")</span>
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+        @Lang.Text("Reset", "रीसेट")
+    </MudButton>
+</MudStack>
+
+@if (_reportData.Any())
+{
+    <MudTable Items="_filteredReportData" SortLabel="Sort By" Dense="true" Bordered="true" HeaderClass="report-header-row"
+              Hover="true" Elevation="1" Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">
+                @Lang.Text("RHEO List", "आर.एच.ई.ओ. सूची")
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RheoOfficersDto, object>(x => x.OfficerCode!)">@Lang.Text("Officer (RHEO) ID", "अधिकारी (आरएचईओ) आई.डी.")</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RheoOfficersDto, object>(x => x.OfficerName!)">@Lang.Text("Name of the Officer (RHEO)", "अधिकारी (आरएचईओ) का नाम")</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                @Lang.Text("Mobile Number", "मोबाइल नंबर")
+            </MudTh>
+            <MudTh>
+                @Lang.Text("Alternate Mobile Number", "अन्य मोबाइल नंबर")
+            </MudTh>
+            <MudTh>
+                @Lang.Text("Email", "ईमेल")
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RheoOfficersDto, object>(x => x.DistrictName!)">
+                    @Lang.Text("District", "जिला")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RheoOfficersDto, object>(x => x.SubDistrictName!)">
+                    @Lang.Text("Block", "विकासखण्ड")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                @Lang.Text(english: "View", "देखे")
+            </MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("Officer (RHEO) ID", "अधिकारी (आरएचईओ) आई.डी.")">
+                @context.OfficerCode
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Name of the Officer (RHEO)", "अधिकारी (आरएचईओ) का नाम")">
+                @context.OfficerName
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Mobile No", "मोबाइल नंबर")">@context.MobileNo</MudTd>
+            <MudTd DataLabel="@Lang.Text("Alternate Mobile Number", "अन्य मोबाइल नंबर")">@context.AlternateMobileNo</MudTd>
+            <MudTd DataLabel="@Lang.Text("Email", "ईमेल")">@context.Email</MudTd>
+            <MudTd DataLabel="@Lang.Text("District", "जिला")">@context.DistrictName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@context.SubDistrictName</MudTd>
+            <MudTd DataLabel="@Lang.Text("View", "देखे")">
+                <MudStack Row="true" Spacing="1">
+                    <MudTooltip Text="@Lang.Text("View Mapped Village", "मैप किया गया गाँव देखें")">
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary" Size="Size.Small"
+                                       OnClick="@(() => LoadRHEOMappedVillage(context))" />
+                    </MudTooltip>
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
+
+@if (_reportMappedData.Any())
+{
+    <MudTable Items="_filteredMappedReportData" SortLabel="Sort By" Dense="true" Bordered="true"
+              HeaderClass="report-header-row" Hover="true" Elevation="1" Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">
+                @Lang.Text("List of Villages Mapped into RHEO", "RHEO में मैप किए गए गाँव की सूची")
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Back", "पीछे जाये")">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Secondary" OnClick="Reset" />
+            </MudTooltip>
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success"
+                               OnClick="ExportToExcelMappedData" />
+            </MudTooltip>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RheoOfficerMappedVillagesDto, object>(x => x.VillageCode!)">
+                    @Lang.Text("Village Code (Census Code)", "ग्राम कोड (Census Code)")</MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortBy="new Func<RheoOfficerMappedVillagesDto, object>(x => x.VillageName!)">
+                        @Lang.Text("Name of the Village", "ग्राम का नाम")</MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>
+                        <MudTableSortLabel SortBy="new Func<RheoOfficerMappedVillagesDto, object>(x => x.Halka!)">
+                            @Lang.Text("Halka Number", "हल्का नंबर")</MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<RheoOfficerMappedVillagesDto, object>(x => x.DistrictName!)">
+                                @Lang.Text("District", "जिला")
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<RheoOfficerMappedVillagesDto, object>(x => x.SubDistrictName!)">
+                                @Lang.Text("Block", "विकासखण्ड")
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<RheoOfficerMappedVillagesDto, object>(x => x.LastAssignDate!)">
+                                @Lang.Text("Assign Date", "प्रभार दिनाँक")
+                            </MudTableSortLabel>
+                        </MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredMappedReportData.ToList().IndexOf(context) + 1)
+                        </MudTd>
+                        <MudTd DataLabel="@Lang.Text("Village Code (Census Code)", "ग्राम कोड (Census Code)")">
+                            @context.VillageCode
+                        </MudTd>
+                        <MudTd DataLabel="@Lang.Text("Name of the Village", "ग्राम का नाम")">
+                            @context.VillageName
+                        </MudTd>
+                        <MudTd DataLabel="@Lang.Text("Halka Number", "हल्का नंबर")">
+                            @context.Halka
+                        </MudTd>
+                        <MudTd DataLabel="@Lang.Text("District", "जिला")">@context.DistrictName</MudTd>
+                        <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@context.SubDistrictName</MudTd>
+                        <MudTd DataLabel="@Lang.Text("Assign Date", "प्रभार दिनाँक")">
+                            @(context.LastAssignDate.HasValue ? context.LastAssignDate.Value.ToString("dd MMM yyyy") : string.Empty)
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+                    </PagerContent>
+                </MudTable>
+            }
+
+@code {
+
+    private List<DistrictsDto> _districts = [];
+    private List<SubDistrictsDto> _subdistricts = [];
+    private List<VillagesDto> _villages = [];
+    private List<RheoOfficersDto> _officers = [];
+    private List<RheoOfficerMappedVillagesDto> _rheoMappedVillages = [];
+    private int? _selectedDistrictCensus = 0;
+    private int? _selectedSubDistrictCode = 0;
+    private int? _selectedVillageCode = 0;
+
+    private int? _selectedOfficerCode = 0;
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+    private string _filterMode = "village";
+    private async Task SetFilterMode(string mode)
+    {
+        _filterMode = mode;
+        _selectedDistrictCensus = 0;
+        _selectedSubDistrictCode = 0;
+        _selectedVillageCode = 0;
+        _selectedOfficerCode = 0;
+        _reportData.Clear();
+        _reportMappedData.Clear();
+    }
+    private List<RheoOfficersDto> _reportData = new();
+    private List<RheoOfficerMappedVillagesDto> _reportMappedData = new();
+
+    private string _searchString = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDistrictsAsync();
+        await LoadReport();
+    }
+
+    private async Task LoadDistrictsAsync()
+    {
+        var result = await DistrictsApiService.GetDistrictsAsync();
+        if (result.IsSuccess)
+            _districts = result.Data!;
+        else
+            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+    }
+
+    private async Task OnDistrictChanged(int? districtId)
+    {
+        _selectedDistrictCensus = districtId;
+
+        // reset everything that depends on district
+        _selectedSubDistrictCode = null;
+        _selectedVillageCode = null;
+
+        _subdistricts.Clear();
+        _officers.Clear();
+        _villages.Clear();
+
+        if (districtId is null) return;
+
+        try
+        {
+            var result = await SubDistrictsApiService.GetSubDistrictsAsync(districtId.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _subdistricts = result.Data;
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load subdistricts.", "उपजिलों को लोड करने में विफल।"), Severity.Error);
+        }
+    }
+
+    private async Task OnSubDistrictChanged(int? subDistrictCode)
+    {
+        _selectedSubDistrictCode = subDistrictCode;
+
+        // reset everything that depends on sub-district
+        _selectedVillageCode = null;
+
+        _officers.Clear();
+        _villages.Clear();
+
+        if (subDistrictCode is null) return;
+
+        try
+        {
+            if (_filterMode == "village")
+            {
+                var result = await VillagesApiService.GetVillagesAsync(subDistrictCode.Value);
+                if (result.IsSuccess && result.Data is not null)
+                    _villages = result.Data;
+            }
+            else
+            {
+                const int departmentCode = 3;
+                var result1 = await OfficersApiService.GetRheoOfficersListFromSubDistrictCodeAsync(departmentCode,
+        subDistrictCode.Value);
+                if (result1.IsSuccess && result1.Data is not null)
+                    _officers = result1.Data;
+            }
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load villages.", "ग्राम लोड करने में विफल।"), Severity.Error);
+        }
+    }
+
+    private async Task LoadReport()
+    {
+        _isLoading = true;
+
+        if (_filterMode == "officer" && (_selectedOfficerCode ?? 0) == 0)
+        {
+            Snackbar.Add(Lang.Text("Please select an district, block and officer", "कृपया जिला, ब्लॉक एवं अधिकारी चुनें।"),
+Severity.Warning);
+            _isLoading = false;
+            return;
+        }
+
+        try
+        {
+            if (_filterMode == "village")
+            {
+                var result = (_selectedVillageCode ?? 0) != 0
+                ? await OfficersApiService.GetRheoOfficersListFromVillageCodeAsync(3, _selectedVillageCode!.Value)
+                : (_selectedSubDistrictCode ?? 0) != 0
+                    ? await OfficersApiService.GetRheoOfficersListFromSubDistrictCodeAsync(3, _selectedSubDistrictCode!.Value)
+                    : (_selectedDistrictCensus ?? 0) != 0
+                        ? await OfficersApiService.GetRheoOfficersListFromDistrictCodeAsync(3, _selectedDistrictCensus!.Value)
+                        : await OfficersApiService.GetAllRheoOfficersListAsync(3);
+               
+                if (result.IsSuccess && result.Data is not null && result.Data.Any())
+                {
+                    _reportData = result.Data;
+                    _reportMappedData.Clear();
+                }
+            
+                else if (result.IsSuccess && result.Data!.Any())
+                {
+                    _reportData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
+                else
+                {
+                    Snackbar.Add(Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"), Severity.Warning);
+                }
+            }
+            else
+            {
+                var result = await OfficersApiService.GetRheoOfficerMappedVillagesListAsync(3, _selectedOfficerCode!.Value);
+
+                if (result.IsSuccess && result.Data is not null && result.Data.Any())
+                {
+                    _reportMappedData = result.Data;
+                    _reportData.Clear();
+                }
+                else if (result.IsSuccess)
+                {
+                    _reportMappedData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
+                else
+                {
+                    Snackbar.Add(Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"), Severity.Warning);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(Lang.Text("An error occurred while loading the report.", "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+    Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private IEnumerable<RheoOfficersDto> _filteredReportData =>
+         _reportData.Where(t =>
+             string.IsNullOrWhiteSpace(_searchString)
+             || (t.OfficerCode?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+             || (t.OfficerName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+             || (t.DistrictName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+             || (t.SubDistrictName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+
+    private async Task Reset()
+    {
+        _selectedDistrictCensus = 0;
+        _selectedSubDistrictCode = 0;
+        _selectedVillageCode = 0;
+        _selectedOfficerCode = 0;
+        _subdistricts.Clear();
+        _officers.Clear();
+        _villages.Clear();
+        _reportData.Clear();
+        _reportMappedData.Clear();
+        _searchString = string.Empty;
+    }
+   
+
+
+    private List<ExcelColumn<RheoOfficersDto>> GetColumns() => new()
+    {
+        new() { HeaderEn = "Officer (RHEO) ID", HeaderHi = "अधिकारी (आरएचईओ) आई.डी",
+                ValueSelector = x => x.OfficerCode! },
+
+        new() { HeaderEn = "Name of the Officer (RHEO)", HeaderHi = "अधिकारी (आरएचईओ) का नाम",
+        ValueSelector = x => x.OfficerName! },
+
+        new() { HeaderEn = "Mobile Number", HeaderHi = "मोबाइल नंबर",
+                ValueSelector = x => x.MobileNo! },
+
+        new() { HeaderEn = "Alternate Mobile Number", HeaderHi = "अन्य मोबाइल नंबर",
+                ValueSelector = x => x.AlternateMobileNo },
+
+        new() { HeaderEn = "Email", HeaderHi = "ईमेल",
+                ValueSelector = x => x.Email! },
+
+        new() { HeaderEn = "District", HeaderHi = "जिला",
+                ValueSelector = x => x.DistrictName! },
+
+        new() { HeaderEn = "Block", HeaderHi = "विकासखण्ड",
+                ValueSelector = x => x.SubDistrictName! },
+        
+    };
+
+    private async Task ExportToExcel()
+    {
+        await ExcelExport.ExportAsync(
+             _filteredReportData.ToList(),
+             GetColumns(),
+             Lang.Text("RHEO List", "आर.एच.ई.ओ. सूची"),
+             (en, hi) => Lang.Text(en, hi),
+             $"RHEOList.xlsx");
+    }
+
+    //mapped data
+
+    private IEnumerable<RheoOfficerMappedVillagesDto> _filteredMappedReportData =>
+           _reportMappedData.Where(t =>
+           string.IsNullOrWhiteSpace(_searchString)
+           || (t.VillageCode?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+           || (t.VillageName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+           || (t.Halka?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+           || (t.SubDistrictCode?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+           || (t.SubDistrictName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private List<ExcelColumn<RheoOfficerMappedVillagesDto>> GetMappedDataColumns() => new()
+    {
+        new() { HeaderEn = "Village Code (Census Code)", HeaderHi = "ग्राम कोड (Census Code)",
+                ValueSelector = x => x.VillageCode! },
+
+        new() { HeaderEn = "Name of the Village", HeaderHi = "ग्राम का नाम",
+        ValueSelector = x => x.VillageName! },
+        
+        new() { HeaderEn = "Halka Number", HeaderHi = "हल्का नंबर",
+                ValueSelector = x => x.Halka },
+
+       new() { HeaderEn = "District", HeaderHi = "जिला",
+                ValueSelector = x => x.DistrictName! },
+
+        new() { HeaderEn = "Block", HeaderHi = "विकासखण्ड",
+                ValueSelector = x => x.SubDistrictName! },
+
+                new() { HeaderEn = "Assign Date", HeaderHi = "प्रभार दिनाँक",
+                ValueSelector = x => x.LastAssignDate! },
+      
+    };
+
+    private async Task LoadRHEOMappedVillage(RheoOfficersDto component)
+    {
+        try
+        {
+            var result = await OfficersApiService.GetRheoOfficerMappedVillagesListAsync(3, component.OfficerCode!.Value);
+
+            if (result.IsSuccess && result.Data is not null && result.Data.Any())
+            {
+                _reportMappedData = result.Data;
+                _reportData.Clear();
+            }
+            else if (result.IsSuccess)
+            {
+                _reportMappedData = [];
+                Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+            }
+            else
+            {
+                Snackbar.Add(Lang.Text("Failed to load report data.", "रिपोर्ट डेटा लोड करने में विफल।"), Severity.Warning);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(Lang.Text("An error occurred while loading the report.", "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+    Severity.Error);
+        }
+    }
+
+    private async Task ExportToExcelMappedData()
+    {
+        await ExcelExport.ExportAsync(
+             _filteredMappedReportData.ToList(),
+             GetMappedDataColumns(),
+             Lang.Text("List of Villages Mapped into RHEO", "RHEO में मैप किए गए गाँव की सूची"),
+             (en, hi) => Lang.Text(en, hi),
+             $"RHEOListMappedByVillage.xlsx");
+    }
+}
