@@ -112,8 +112,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(BtsClientCorsPolicy, policy =>
     {
         policy.WithOrigins(
-                "http://localhost:5032",
-                "https://localhost:7126",                // local Blazor dev server -- confirm your actual port
+                "http://localhost:5032",               // local Blazor dev server -- confirm your actual port
                 "https://cghorticulture.gov.in",
                 "https://www.cghorticulture.gov.in")     // production client origin, once deployed
               .AllowAnyHeader()
@@ -124,7 +123,7 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "https://localhost:7188",               // local Blazor dev server -- confirm your actual port
+                "http://localhost:5066",               // local Blazor dev server -- confirm your actual port
                 "https://cghorticulture.gov.in",
                 "https://www.cghorticulture.gov.in")
             .AllowAnyHeader()
@@ -159,7 +158,10 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference(); // default route: /scalar/v1
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors(BtsClientCorsPolicy);
 app.UseCors(PublicClientCorsPolicy);
