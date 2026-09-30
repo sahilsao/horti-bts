@@ -16,224 +16,203 @@
     @Lang.Text("Admin - Horticulture Farmer Dashboard", "एडमिन - उद्यानिकी कृषक डैशबोर्ड")
 </MudText>
 
-<div style="position:relative; min-height:400px;">
+<!-- ===================== OVERALL SUMMARY ===================== -->
+<MudGrid Spacing="3" Class="mb-4">
+    <!-- Total RHEO -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="3" Class="rounded-lg" Style="border-left: 6px solid var(--mud-palette-primary);">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                        @Lang.Text("Total RHEO", "कुल RHEO")
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Primary">@_totRheo</MudText>
+                </div>
+                <MudAvatar Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large">
+                    <MudIcon Icon="@Icons.Material.Filled.AccountBalance" />
+                </MudAvatar>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-    <MudOverlay Visible="_isLoading" DarkBackground="false" Absolute="true" ZIndex="10">
-        <div class="d-flex flex-column align-center justify-center" style="height:100%;">
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
-            <MudText Typo="Typo.body2" Class="mt-2">
-                @Lang.Text("Loading dashboard...", "डैशबोर्ड लोड हो रहा है...")
-            </MudText>
-        </div>
-    </MudOverlay>
+    <!-- Registered Farmers -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="3" Class="rounded-lg" Style="border-left: 6px solid var(--mud-palette-success);">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                        @Lang.Text("Total Registered Farmers", "कुल पंजीकृत कृषक")
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Success">@_totRegFarmers</MudText>
+                </div>
+                <MudAvatar Color="Color.Success" Variant="Variant.Filled" Size="Size.Large">
+                    <MudIcon Icon="@Icons.Material.Filled.People" />
+                </MudAvatar>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-    @if (!string.IsNullOrEmpty(_loadError))
-    {
-        <MudAlert Severity="Severity.Warning" Class="mb-4">@_loadError</MudAlert>
-    }
+    <!-- Backlog Farmers -->
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="3" Class="rounded-lg" Style="border-left: 6px solid var(--mud-palette-warning);">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                        @Lang.Text("Total Registered Backlog Farmers", "कुल पंजीकृत बैकलॉग कृषक")
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Warning">@_totRegBacklogFarmers</MudText>
+                </div>
+                <MudAvatar Color="Color.Warning" Variant="Variant.Filled" Size="Size.Large">
+                    <MudIcon Icon="@Icons.Material.Filled.PendingActions" />
+                </MudAvatar>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
 
-    <!-- ===================== OVERALL SUMMARY ===================== -->
-    <MudGrid Spacing="3" Class="mb-4">
-        <!-- Total RHEO -->
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="3" Class="rounded-lg" Style="border-left: 6px solid var(--mud-palette-primary);">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                            @Lang.Text("Total RHEO", "कुल RHEO")
-                        </MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Primary">@_totRheo</MudText>
-                    </div>
-                    <MudAvatar Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large">
-                        <MudIcon Icon="@Icons.Material.Filled.AccountBalance" />
-                    </MudAvatar>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+<!-- ===================== CURRENT YEAR ===================== -->
+<MudDivider Class="my-4" />
+<MudText Typo="Typo.h6" Class="mb-3 d-flex align-center gap-2">
+    <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Color="Color.Tertiary" />
+    @(_finyears.Count > 0 ? _finyears[0].FinancialYear : "")
+</MudText>
 
-        <!-- Registered Farmers -->
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="3" Class="rounded-lg" Style="border-left: 6px solid var(--mud-palette-success);">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                            @Lang.Text("Total Registered Farmers", "कुल पंजीकृत कृषक")
-                        </MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Success">@_totRegFarmers</MudText>
-                    </div>
-                    <MudAvatar Color="Color.Success" Variant="Variant.Filled" Size="Size.Large">
-                        <MudIcon Icon="@Icons.Material.Filled.People" />
-                    </MudAvatar>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="2" Class="rounded-lg">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Applications", "कुल आवेदन")</MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalApplications</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Info" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-        <!-- Backlog Farmers -->
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="3" Class="rounded-lg" Style="border-left: 6px solid var(--mud-palette-warning);">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                            @Lang.Text("Total Registered Backlog Farmers", "कुल पंजीकृत बैकलॉग कृषक")
-                        </MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Warning">@_totRegBacklogFarmers</MudText>
-                    </div>
-                    <MudAvatar Color="Color.Warning" Variant="Variant.Filled" Size="Size.Large">
-                        <MudIcon Icon="@Icons.Material.Filled.PendingActions" />
-                    </MudAvatar>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    </MudGrid>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="2" Class="rounded-lg">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                        @Lang.Text("Total Approved Farmers (RHEO)", "कुल स्वीकृत कृषक (RHEO)")
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalRheoApproved</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.VerifiedUser" Color="Color.Success" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-    <!-- ===================== CURRENT YEAR ===================== -->
-    <MudDivider Class="my-4" />
-    <MudText Typo="Typo.h6" Class="mb-3 d-flex align-center gap-2">
-        <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Color="Color.Tertiary" />
-        @(_finyears.Count > 0 ? _finyears[0].FinancialYear : "")
-    </MudText>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="2" Class="rounded-lg">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Approved Farmers (DDH)", "कुल स्वीकृत कृषक (DDH)")</MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalDdhApproved</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-    <MudGrid Spacing="3" Class="mb-4">
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="rounded-lg">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Applications", "कुल आवेदन")</MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalApplications</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Info" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="2" Class="rounded-lg">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Centrally Sponsored Scheme (Total Applications)", "केंद्र प्रवर्तित योजना (कुल आवेदन)")</MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalCentralSponsored</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Primary" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="rounded-lg">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                            @Lang.Text("Total Approved Farmers (RHEO)", "कुल स्वीकृत कृषक (RHEO)")
-                        </MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalRheoApproved</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.VerifiedUser" Color="Color.Success" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="2" Class="rounded-lg">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("State-Sponsored Scheme (Total applications)", "राज्य पोषित योजना (कुल आवेदन)")</MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalStateSponsored</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Secondary" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="rounded-lg">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Approved Farmers (DDH)", "कुल स्वीकृत कृषक (DDH)")</MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalDdhApproved</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+<!-- ===================== PREVIOUS YEAR ===================== -->
+<MudDivider Class="my-4" />
+<MudText Typo="Typo.h6" Class="mb-3 d-flex align-center gap-2">
+    <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Default" />
+    @(_finyears.Count > 0 ? _finyears[1].FinancialYear : "")
+</MudText>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="rounded-lg">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Centrally Sponsored Scheme (Total Applications)", "केंद्र प्रवर्तित योजना (कुल आवेदन)")</MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalCentralSponsored</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Primary" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+<MudGrid Spacing="3">
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Applications", "कुल आवेदन")</MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalApplications</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Info" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="rounded-lg">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("State-Sponsored Scheme (Total applications)", "राज्य पोषित योजना (कुल आवेदन)")</MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalStateSponsored</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Secondary" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    </MudGrid>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
+                        @Lang.Text("Total Approved Farmers (RHEO)", "कुल स्वीकृत कृषक (RHEO)")
+                    </MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalRheoApproved</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.VerifiedUser" Color="Color.Success" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-    <!-- ===================== PREVIOUS YEAR ===================== -->
-    <MudDivider Class="my-4" />
-    <MudText Typo="Typo.h6" Class="mb-3 d-flex align-center gap-2">
-        <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Default" />
-        @(_finyears.Count > 0 ? _finyears[1].FinancialYear : "")
-    </MudText>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Approved Farmers (DDH)", "कुल स्वीकृत कृषक (DDH)")</MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalDdhApproved</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-    <MudGrid Spacing="3">
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Applications", "कुल आवेदन")</MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalApplications</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Info" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Centrally Sponsored Scheme (Total Applications)", "केंद्र प्रवर्तित योजना (कुल आवेदन)")</MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalCentralSponsored</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Primary" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">
-                            @Lang.Text("Total Approved Farmers (RHEO)", "कुल स्वीकृत कृषक (RHEO)")
-                        </MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalRheoApproved</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.VerifiedUser" Color="Color.Success" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Approved Farmers (DDH)", "कुल स्वीकृत कृषक (DDH)")</MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalDdhApproved</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Centrally Sponsored Scheme (Total Applications)", "केंद्र प्रवर्तित योजना (कुल आवेदन)")</MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalCentralSponsored</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Primary" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
-                <MudCardContent Class="d-flex justify-space-between align-center">
-                    <div>
-                        <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("State-Sponsored Scheme (Total applications)", "राज्य पोषित योजना (कुल आवेदन)")</MudText>
-                        <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalStateSponsored</MudText>
-                    </div>
-                    <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Secondary" Size="Size.Large" />
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-    </MudGrid>
-
-</div>
+    <MudItem xs="12" sm="6" md="4">
+        <MudCard Elevation="1" Class="rounded-lg" Style="opacity: 0.9;">
+            <MudCardContent Class="d-flex justify-space-between align-center">
+                <div>
+                    <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("State-Sponsored Scheme (Total applications)", "राज्य पोषित योजना (कुल आवेदन)")</MudText>
+                    <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalStateSponsored</MudText>
+                </div>
+                <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Secondary" Size="Size.Large" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
 
 @code {
-    private bool _isLoading = true;
-    private string? _loadError;
-
     private int _totRheo;
     private int _totRegFarmers;
     private int _totRegBacklogFarmers;
@@ -244,26 +223,13 @@
     private ApplicationDashboardDto _previousYearDashboard = new();
 
     protected override async Task OnInitializedAsync()
-    {
-        _isLoading = true;
-        try
-        {
-            await LoadFinancialYearsAsync();
+    {      
+        await LoadFinancialYearsAsync();
 
-            if (_finyears.Count < 2)
-            {
-                _loadError = Lang.Text(
-                    "At least two financial years are required to show the dashboard.",
-                    "डैशबोर्ड दिखाने के लिए कम से कम दो वित्त वर्ष आवश्यक हैं।");
-                return;
-            }
+        if (_finyears.Count < 2)
+            return;
 
-            await LoadDashboardAsync();
-        }
-        finally
-        {
-            _isLoading = false;
-        }
+        await LoadDashboardAsync();
     }
 
     private async Task LoadFinancialYearsAsync()
@@ -286,93 +252,73 @@
 
     private async Task LoadDashboardAsync()
     {
-        try
+        // First financial year
+        var currentFinYearId = _finyears[0].Id;
+
+        // Second financial year
+        var previousFinYearId = _finyears[1].Id;
+
+        // Start all API calls together
+        var rheoTask =
+            DashboardService.GetTotRheoAsync();
+
+        var farmersTask =
+            DashboardService.GetTotRegFarmersCountAsync();
+
+        var backlogTask =
+            DashboardService.GetTotRegBacklogFarmersCountAsync(
+                currentFinYearId.ToString());
+
+        var applicationTask =
+            DashboardService.GetApplicationDashboardAsync(
+                currentFinYearId.ToString());
+
+        var applicationTask2 =
+            DashboardService.GetApplicationDashboardAsync(
+                previousFinYearId.ToString());
+
+        await Task.WhenAll(
+            rheoTask,
+            farmersTask,
+            backlogTask,
+            applicationTask,
+            applicationTask2);
+
+        // Get results
+        var rheoResult = await rheoTask;
+        var farmersResult = await farmersTask;
+        var backlogResult = await backlogTask;
+        var applicationResult = await applicationTask;
+        var applicationResult2 = await applicationTask2;
+
+        // RHEO
+        if (rheoResult.IsSuccess && rheoResult.Data is not null)
         {
-            // First financial year
-            var currentFinYearId = _finyears[0].Id;
-
-            // Second financial year
-            var previousFinYearId = _finyears[1].Id;
-
-            // Start all API calls together
-            var rheoTask =
-                DashboardService.GetTotRheoAsync();
-
-            var farmersTask =
-                DashboardService.GetTotRegFarmersCountAsync();
-
-            var backlogTask =
-                DashboardService.GetTotRegBacklogFarmersCountAsync(
-                    currentFinYearId.ToString());
-
-            var applicationTask =
-                DashboardService.GetApplicationDashboardAsync(
-                    currentFinYearId.ToString());
-
-            var applicationTask2 =
-                DashboardService.GetApplicationDashboardAsync(
-                    previousFinYearId.ToString());
-
-            await Task.WhenAll(
-                rheoTask,
-                farmersTask,
-                backlogTask,
-                applicationTask,
-                applicationTask2);
-
-            // Get results
-            var rheoResult = await rheoTask;
-            var farmersResult = await farmersTask;
-            var backlogResult = await backlogTask;
-            var applicationResult = await applicationTask;
-            var applicationResult2 = await applicationTask2;
-
-            // RHEO
-            if (rheoResult.IsSuccess && rheoResult.Data is not null)
-            {
-                _totRheo = rheoResult.Data.FirstOrDefault()?.Count ?? 0;
-            }
-
-            // Registered Farmers
-            if (farmersResult.IsSuccess && farmersResult.Data is not null)
-            {
-                _totRegFarmers = farmersResult.Data.FirstOrDefault()?.Count ?? 0;
-            }
-
-            // Backlog Farmers
-            if (backlogResult.IsSuccess && backlogResult.Data is not null)
-            {
-                _totRegBacklogFarmers = backlogResult.Data.FirstOrDefault()?.Count ?? 0;
-            }
-
-            // Current Financial Year
-            if (applicationResult.IsSuccess && applicationResult.Data is not null)
-            {
-                _currentYearDashboard = applicationResult.Data.FirstOrDefault() ?? new ApplicationDashboardDto();
-            }
-
-            // Previous Financial Year
-            if (applicationResult2.IsSuccess && applicationResult2.Data is not null)
-            {
-                _previousYearDashboard = applicationResult2.Data.FirstOrDefault() ?? new ApplicationDashboardDto();
-            }
-
-            var failures = new[]
-            {
-                rheoResult.IsSuccess, farmersResult.IsSuccess, backlogResult.IsSuccess,
-                applicationResult.IsSuccess, applicationResult2.IsSuccess
-            }.Count(ok => !ok);
-
-            if (failures > 0)
-            {
-                _loadError = Lang.Text(
-                    "Some dashboard data could not be loaded.",
-                    "कुछ डैशबोर्ड डेटा लोड नहीं हो सका।");
-            }
+            _totRheo = rheoResult.Data.FirstOrDefault()?.Count ?? 0;
         }
-        catch (Exception)
+
+        // Registered Farmers
+        if (farmersResult.IsSuccess && farmersResult.Data is not null)
         {
-            _loadError = Lang.Text("Failed to load dashboard.", "डैशबोर्ड लोड करने में विफल।");
+            _totRegFarmers = farmersResult.Data.FirstOrDefault()?.Count ?? 0;
+        }
+
+        // Backlog Farmers
+        if (backlogResult.IsSuccess && backlogResult.Data is not null)
+        {
+            _totRegBacklogFarmers = backlogResult.Data.FirstOrDefault()?.Count ?? 0;
+        }
+
+        // Current Financial Year
+        if (applicationResult.IsSuccess && applicationResult.Data is not null)
+        {
+            _currentYearDashboard = applicationResult.Data.FirstOrDefault() ?? new ApplicationDashboardDto(); ;
+        }
+
+        // Previous Financial Year
+        if (applicationResult2.IsSuccess && applicationResult2.Data is not null)
+        {
+            _previousYearDashboard = applicationResult2.Data.FirstOrDefault() ?? new ApplicationDashboardDto(); ;
         }
     }
 }
