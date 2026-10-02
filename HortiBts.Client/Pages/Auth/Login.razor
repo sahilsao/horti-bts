@@ -38,8 +38,7 @@
                 <MudCardContent>
                     <EditForm Model="@_loginModel" OnValidSubmit="Authenticate" OnInvalidSubmit="FormInvalid">
                         <DataAnnotationsValidator />
-                        <MudRadioGroup T="LoginType"
-                                       Value="_loginModel.LoginType" ValueChanged="OnLoginTypeChanged"
+                        <MudRadioGroup T="LoginType" Value="_loginModel.LoginType" ValueChanged="OnLoginTypeChanged"
                                        Class="mb-4">
 
                             <MudRadio Value="@LoginType.Admin" Color="Color.Primary">
@@ -74,42 +73,26 @@
 
                         @if (_loginModel.LoginType == LoginType.Rheo)
                         {
-                            <MudTextField Label="@Lang.Text("User Id", "यूजर आईडी")"
-                                          Variant="Variant.Outlined"
-                                          InputType="@_UserIdInput"
-                                          Placeholder=@Lang.Text("Enter User Id", "यूजर आईडी दर्ज करें")
-                                          @bind-Value="_loginModel.UserId"
-                                          Required
-                                          For="@(()=>_loginModel.UserId)"
-                                          Class="mb-3" />
+                            <MudTextField Label="@Lang.Text("User Id", "यूजर आईडी")" Variant="Variant.Outlined"
+                                          InputType="@_UserIdInput" Placeholder=@Lang.Text("Enter User Id", "यूजर आईडी दर्ज करें")
+                                          @bind-Value="_loginModel.UserId" Required For="@(() => _loginModel.UserId)" Class="mb-3" />
                         }
 
-                        <MudTextField Label=@Lang.Text("Password", "पासवर्ड")
-                                      @bind-Value="_loginModel.Password"
-                                      For="@(() => _loginModel.Password)"
-                                      InputType="@_passwordInput"
-                                      Variant="Variant.Outlined"
-                                      Adornment="Adornment.End"
-                                      AdornmentIcon="@_passwordInputIcon"
-                                      OnAdornmentClick="ToggleVisibility"
-                                      Placeholder=@Lang.Text("Enter Password", "पासवर्ड दर्ज करें")
+                        <MudTextField Label=@Lang.Text("Password", "पासवर्ड") @bind-Value="_loginModel.Password"
+                                      For="@(() => _loginModel.Password)" InputType="@_passwordInput" Variant="Variant.Outlined"
+                                      Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon"
+                                      OnAdornmentClick="ToggleVisibility" Placeholder=@Lang.Text("Enter Password", "पासवर्ड दर्ज करें")
                                       Required />
 
                         <Captcha @bind-CaptchaText="_captchaWord" Length="6" />
 
-                        <MudTextField Label=@Lang.Text("Captcha", "कैप्चा")
-                                      @bind-Value="_captchaInput"
-                                      FullWidth
-                                      Required
-                                      Error="@_captchaError"
-                                      ErrorText=@Lang.Text("Incorrect Captcha", "गलत कैप्चा।")
-                                      Placeholder=@Lang.Text("Enter Captcha", "कैप्चा दर्ज करें")
-                                      MaxLength="6" Class="mb-4"
-                                      HelperText=@Lang.Text("Case Sensitive: Match capital and small letters accurately", "केस-संवेदनशील: बड़े और छोटे अक्षरों को सटीक रूप से मिलाएं") />
+                        <MudTextField Label=@Lang.Text("Captcha", "कैप्चा") @bind-Value="_captchaInput" FullWidth
+                                      Required Error="@_captchaError" ErrorText=@Lang.Text("Incorrect Captcha", "गलत कैप्चा।")
+                                      Placeholder=@Lang.Text("Enter Captcha", "कैप्चा दर्ज करें") MaxLength="6" Class="mb-4"
+                                      HelperText=@Lang.Text("Case Sensitive: Match capital and small letters accurately",
+                                      "केस-संवेदनशील: बड़े और छोटे अक्षरों को सटीक रूप से मिलाएं") />
 
-                        <MudButton ButtonType="ButtonType.Submit"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Primary"
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary"
                                    Disabled="@_isLoading">
                             @if (_isLoading)
                             {
@@ -288,30 +271,50 @@
                 Snackbar.Add(Lang.Text("Invalid User ID or Password!", "अमान्य यूजर आईडी या पासवर्ड!"), Severity.Error);
                 return;
             }
+            
+            var data = result.Data!;
 
-            if (!result.Data!.PasswordFlag)
+            if (!data.PasswordFlag) // must change password first
             {
-                Nav.NavigateTo("change-password");
-                return;
+                switch (data.UserType)
+                {
+                    case 13: // admin
+                        Nav.NavigateTo("/admin/update-password");
+                        break;
+
+                    case 14: // district
+                        Nav.NavigateTo("/district/update-password");
+                        break;
+
+                    case 12: // rheo
+                        Nav.NavigateTo("/rheo/update-password");
+                        break;
+
+                    default:
+                        Nav.NavigateTo("/not-found");
+                        break;
+                }
             }
-
-            switch (result.Data.UserType)
+            else // password already changed
             {
-                case 13://admin
-                    Nav.NavigateTo("/admin/dashboard");
-                    break;
+                switch (data.UserType)
+                {
+                    case 13: // admin
+                        Nav.NavigateTo("/admin/dashboard");
+                        break;
 
-                case 14://district
-                    Nav.NavigateTo("/district/dashboard");
-                    break;
+                    case 14: // district
+                        Nav.NavigateTo("/district/dashboard");
+                        break;
 
-                case 12:
-                    Nav.NavigateTo("/rheo/dashboard");
-                    break;
+                    case 12: // rheo
+                        Nav.NavigateTo("/rheo/dashboard");
+                        break;
 
-                default:
-                    Nav.NavigateTo("/not-found");
-                    break;
+                    default:
+                        Nav.NavigateTo("/not-found");
+                        break;
+                }
             }
         }
         catch (Exception ex)

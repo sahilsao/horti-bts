@@ -1,10 +1,10 @@
 ﻿@page "/admin/dashboard"
 @attribute [Authorize(Roles = "Admin")]
-@using HortiBts.Client.Services.Dashboard
+@using HortiBts.Client.Services.Dashboard.Admin
 @using HortiBts.Client.Services.FinancialYears
 @using HortiBts.Shared.Dtos.Dashboard.Admin
 @using HortiBts.Shared.Dtos.FinancialYear
-@inject DashboardApiService DashboardService
+@inject AdminDashboardApiService DashboardService
 @inject FinancialYearsApiService FinancialYearApiService
 @inject ISnackbar Snackbar
 
@@ -218,8 +218,8 @@
 
     private List<FinancialYearDto> _finyears = [];
 
-    private ApplicationDashboardDto _currentYearDashboard = new();
-    private ApplicationDashboardDto _previousYearDashboard = new();
+    private AdminApplicationDashboardDto _currentYearDashboard = new();
+    private AdminApplicationDashboardDto _previousYearDashboard = new();
 
     protected override async Task OnInitializedAsync()
     {      
@@ -311,13 +311,13 @@
         // Current Financial Year
         if (applicationResult.IsSuccess && applicationResult.Data is not null)
         {
-            _currentYearDashboard = applicationResult.Data.FirstOrDefault() ?? new ApplicationDashboardDto(); ;
+            _currentYearDashboard = applicationResult.Data.FirstOrDefault() ?? new AdminApplicationDashboardDto(); ;
         }
 
         // Previous Financial Year
         if (applicationResult2.IsSuccess && applicationResult2.Data is not null)
         {
-            _previousYearDashboard = applicationResult2.Data.FirstOrDefault() ?? new ApplicationDashboardDto(); ;
+            _previousYearDashboard = applicationResult2.Data.FirstOrDefault() ?? new AdminApplicationDashboardDto(); ;
         }
     }
 }

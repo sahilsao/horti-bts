@@ -2,6 +2,8 @@
 @using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Common
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 @using MudBlazor
 
 @inject LanguageService Lang
@@ -13,6 +15,7 @@
 
 @inherits LayoutComponentBase
 @implements IDisposable
+
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
 
@@ -76,7 +79,7 @@
             <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" AriaLabel="Open user menu">
 
                 <MudMenuItem Icon="@Icons.Material.Filled.DisplaySettings" IconColor="Color.Primary"
-                             Href="update-password" Label="@Lang.Text("Update Password", "पासवर्ड अपडेट")" />
+                             Href="admin/update-password" Label="@Lang.Text("Update Admin Password", "पासवर्ड एडमिन अपडेट")" />
 
                 <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Primary" OnClick="Logout"
                              Label="@Lang.Text("Log Out", "लॉग आउट")" />
@@ -87,13 +90,19 @@
     </MudAppBar>
 
     <!-- Drawer -->
-    <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" Width="300px" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu />
+    <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" Width="300px" ClipMode="DrawerClipMode.Always" Elevation="2">     
+        <AuthorizeView Roles="Admin">
+            <AdminNavMenu />
+        </AuthorizeView>
+
+        <AuthorizeView Roles="District">
+            <DistrictNavMenu />
+        </AuthorizeView>
     </MudDrawer>
 
     <!-- Main Content -->
     <MudMainContent Class="pt-16 pa-4 mt-4">
-            @Body
+        @Body
     </MudMainContent>
 
     <!-- Footer -->

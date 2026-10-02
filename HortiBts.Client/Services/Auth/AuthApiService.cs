@@ -69,7 +69,7 @@ namespace HortiBts.Client.Services.Auth
         {
             try
             {
-                var response = await http.PostAsJsonAsync("api/auth/change-password", new ChangePasswordDto(currentPassword, newPassword));
+                var response = await http.PostAsJsonAsync("api/auth/admin-change-password", new ChangePasswordDto(currentPassword, newPassword));
                 if (!response.IsSuccessStatusCode)
                     return Result<PasswordUpdateResult>.Failure(await response.Content.ReadAsStringAsync());
 

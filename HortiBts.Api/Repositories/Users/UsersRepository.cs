@@ -10,19 +10,19 @@ namespace HortiBts.Api.Repositories.Users
         // district users password reset
         Task<Result<List<DistrictUsersDto>>> GetDistrictsUsersAsync(int departmentCode, int userType);
 
-        Task<Result<int>> DistrictResetPasswordAsync(
+        Task<Result<bool>> DistrictResetPasswordAsync(
             int districtCode, int departmentCode, int userType,
             string passwordHash, int passwordFlag, string? ipAddress);
 
         // shdo user password reset
 
-        Task<Result<int>> ShdoResetPasswordAsync(
+        Task<Result<bool>> ShdoResetPasswordAsync(
         int officerCode, int userType,
         string passwordHash, int passwordFlag, string? ipAddress);
 
         // rheo user password reset
 
-        Task<Result<int>> RheoResetPasswordAsync(
+        Task<Result<bool>> RheoResetPasswordAsync(
         int officerCode, int userType,
         string passwordHash, int passwordFlag, string? ipAddress);
     }
@@ -61,7 +61,7 @@ namespace HortiBts.Api.Repositories.Users
             }
         }
 
-        public async Task<Result<int>> DistrictResetPasswordAsync(
+        public async Task<Result<bool>> DistrictResetPasswordAsync(
         int districtCode, int departmentCode, int userType,
         string passwordHash, int passwordFlag, string? ipAddress)
         {
@@ -88,15 +88,17 @@ namespace HortiBts.Api.Repositories.Users
                     UserType = userType
                 });
 
-                return Result<int>.Success(rows);
+                return rows > 0
+                    ? Result<bool>.Success(true)
+                    : Result<bool>.Failure("Failed to reset password.");
             }
             catch (Exception ex)
             {
-                return Result<int>.Failure($"Failed to reset password: {ex.Message}");
+                return Result<bool>.Failure($"Failed to reset password: {ex.Message}");
             }
         }
 
-        public async Task<Result<int>> ShdoResetPasswordAsync(
+        public async Task<Result<bool>> ShdoResetPasswordAsync(
         int officerCode, int userType,
         string passwordHash, int passwordFlag, string? ipAddress)
         {
@@ -107,7 +109,7 @@ namespace HortiBts.Api.Repositories.Users
                 UPDATE mas_raeo
                 SET PASSWORD      = @PasswordHash,
                     password_flag = @PasswordFlag,
-                    ipaddress     = @IpAddress
+                    ip_address     = @IpAddress
                 WHERE officer_code   = @OfficerCode
                 AND usertype        = @UserType
                 """;
@@ -121,15 +123,17 @@ namespace HortiBts.Api.Repositories.Users
                     UserType = userType
                 });
 
-                return Result<int>.Success(rows);
+                return rows > 0
+                    ? Result<bool>.Success(true)
+                    : Result<bool>.Failure("Failed to reset password.");
             }
             catch (Exception ex)
             {
-                return Result<int>.Failure($"Failed to reset password: {ex.Message}");
+                return Result<bool>.Failure($"Failed to reset password: {ex.Message}");
             }
         }
 
-        public async Task<Result<int>> RheoResetPasswordAsync(
+        public async Task<Result<bool>> RheoResetPasswordAsync(
         int officerCode, int userType,
         string passwordHash, int passwordFlag, string? ipAddress)
         {
@@ -140,7 +144,7 @@ namespace HortiBts.Api.Repositories.Users
                 UPDATE mas_raeo
                 SET PASSWORD      = @PasswordHash,
                     password_flag = @PasswordFlag,
-                    ipaddress     = @IpAddress
+                    ip_address     = @IpAddress
                 WHERE officer_code   = @OfficerCode
                 AND usertype        = @UserType
                 """;
@@ -154,11 +158,13 @@ namespace HortiBts.Api.Repositories.Users
                     UserType = userType
                 });
 
-                return Result<int>.Success(rows);
+                return rows > 0
+                   ? Result<bool>.Success(true)
+                   : Result<bool>.Failure("Failed to reset password.");
             }
             catch (Exception ex)
             {
-                return Result<int>.Failure($"Failed to reset password: {ex.Message}");
+                return Result<bool>.Failure($"Failed to reset password: {ex.Message}");
             }
         }
     }

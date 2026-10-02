@@ -4,6 +4,7 @@ using HortiBts.Api.Repositories.Auth;
 using HortiBts.Api.Repositories.Benefits;
 using HortiBts.Api.Repositories.Components;
 using HortiBts.Api.Repositories.Dashboard.Admin;
+using HortiBts.Api.Repositories.Dashboard.District;
 using HortiBts.Api.Repositories.Districts;
 using HortiBts.Api.Repositories.Farmers;
 using HortiBts.Api.Repositories.FinancialYears;
@@ -67,7 +68,8 @@ builder.Services.AddScoped<IOfficersRepository, OfficersRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 // Dashboard Related
-builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IAdminDashboardRepository, AdminDashboardRepository>();
+builder.Services.AddScoped<IDistrictDashboardRepository, DistrictDashboardRepository>();
 
 // Master Entry Related
 builder.Services.AddScoped<ISchemeRepository, SchemeRepository>();
@@ -162,7 +164,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
-
 app.UseCors(BtsClientCorsPolicy);
 app.UseCors(PublicClientCorsPolicy);
 

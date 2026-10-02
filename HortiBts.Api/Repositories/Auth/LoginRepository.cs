@@ -72,7 +72,7 @@ namespace HortiBts.Api.Repositories.Auth
                         d.DistrictName               AS UsernameEn,
                         d.DistrictNameHindi          AS UsernameHi,
 
-                        l.usertype                   AS UserType,
+                        14                           AS UserType,
                         l.password_flag              AS PasswordFlag,
                         l.updated_at                 AS UpdatedAt,
 
@@ -96,7 +96,7 @@ namespace HortiBts.Api.Repositories.Auth
                         password                AS Password,
                         name                    AS UsernameEn,
                         name                    AS UsernameHi,
-                        usertype                AS UserType,
+                        12                      AS UserType,
                         password_flag           AS PasswordFlag,
                         updated_at              AS UpdatedAt,
                         district_code           AS DistrictCode,

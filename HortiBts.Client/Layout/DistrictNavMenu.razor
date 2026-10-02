@@ -1,0 +1,15 @@
+@using Microsoft.AspNetCore.Components.Authorization
+<MudNavMenu Bordered="true" MultiExpansion="false" Margin="Margin.Normal" Color="Color.Primary">
+    <AuthorizeView Roles="District">
+        <Authorized>
+            <MudNavLink Href="/district/dashboard" Match="NavLinkMatch.Prefix" Ripple
+                        Icon="@Icons.Material.Filled.Dashboard">
+                @Lang.Text("Dashboard", "डैशबोर्ड")
+            </MudNavLink>
+             <MudNavLink Href="/district/farmer-verification" Match="NavLinkMatch.Prefix" Ripple
+                        Icon="@Icons.Material.Filled.DomainVerification">
+                @Lang.Text("Farmer Verification", "कृषक भौतिक सत्यापन")
+            </MudNavLink>            
+        </Authorized>
+    </AuthorizeView>
+</MudNavMenu>

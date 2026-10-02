@@ -4,7 +4,8 @@ using HortiBts.Client.Services.Auth;
 using HortiBts.Client.Services.Benefits;
 using HortiBts.Client.Services.Common;
 using HortiBts.Client.Services.Components;
-using HortiBts.Client.Services.Dashboard;
+using HortiBts.Client.Services.Dashboard.Admin;
+using HortiBts.Client.Services.Dashboard.District;
 using HortiBts.Client.Services.Districts;
 using HortiBts.Client.Services.Farmers;
 using HortiBts.Client.Services.FinancialYears;
@@ -78,7 +79,8 @@ builder.Services.AddScoped<ExcelExportService>();
 builder.Services.AddScoped<UsersApiService>();
 
 // Dashboard Related
-builder.Services.AddScoped<DashboardApiService>();
+builder.Services.AddScoped<AdminDashboardApiService>();
+builder.Services.AddScoped<DistrictDashboardApiService>();
 
 // Master Entry Related
 builder.Services.AddScoped<NoticesApiService>();

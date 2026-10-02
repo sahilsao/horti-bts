@@ -1,4 +1,7 @@
 ﻿@page "/admin/farmer-verification" 
+@page "/district/farmer-verification" 
+@attribute [Authorize(Roles = "Admin, District")]
+@using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Districts
 @using HortiBts.Client.Services.Farmers
 @using HortiBts.Client.Services.SubDistricts
@@ -14,6 +17,7 @@
 
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject IUserContextService UserContextService
 @inject NavigationManager NavigationManager
 
 @* todo: change to /farmer-verification when ready for public *@
@@ -30,11 +34,8 @@
 
 <MudGrid Spacing="3" Class="mb-4">
     <MudItem xs="12" sm="4">
-        <MudSelect T="int?"
-                   Value="_selectedDistrictCensus"
-                   Label="@Lang.Text("District", "जिला")"
-                   Variant="Variant.Outlined"
-                   ValueChanged="OnDistrictChanged">
+        <MudSelect T="int?" Value="_selectedDistrictCensus" Label="@Lang.Text("District", "जिला")"
+                   Variant="Variant.Outlined" ValueChanged="OnDistrictChanged">
             @foreach (var d in _districts)
             {
                 <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
@@ -45,10 +46,8 @@
     </MudItem>
 
     <MudItem xs="12" sm="4">
-        <MudSelect T="int?" Value="_selectedSubdistrictId"
-                   Label="@Lang.Text("Block", "विकासखण्ड")"
-                   Variant="Variant.Outlined"
-                   ValueChanged="OnSubdistrictChanged"
+        <MudSelect T="int?" Value="_selectedSubdistrictId" Label="@Lang.Text("Block", "विकासखण्ड")"
+                   Variant="Variant.Outlined" ValueChanged="OnSubdistrictChanged"
                    Disabled="_selectedDistrictCensus is null || _isLoadingVillages">
             @foreach (var s in _subdistricts)
             {
@@ -60,32 +59,21 @@
     </MudItem>
 
     <MudItem xs="12" sm="4">
-        <MudAutocomplete T="VillagesDto"
-                         Label="@Lang.Text("Village", "ग्राम")"
-                         Variant="Variant.Outlined"
-                         Value="_selectedVillage"
-                         ValueChanged="OnVillageSelected"
-                         Clearable="true"
-                         SearchFunc="SearchVillages"
+        <MudAutocomplete T="VillagesDto" Label="@Lang.Text("Village", "ग्राम")" Variant="Variant.Outlined"
+                         Value="_selectedVillage" ValueChanged="OnVillageSelected" Clearable="true" SearchFunc="SearchVillages"
                          ToStringFunc="@(v => v is null ? string.Empty : Lang.Text(v.VillageName!, v.VillageNameHi!))"
-                         Disabled="_selectedSubdistrictId is null || _isLoadingVillages"
-                         ResetValueOnEmptyText="true"
+                         Disabled="_selectedSubdistrictId is null || _isLoadingVillages" ResetValueOnEmptyText="true"
                          CoerceText="true" />
     </MudItem>
 </MudGrid>
 @* ---------- Search / Reset ---------- *@
 <MudStack Row="true" Spacing="3" Class="mb-6">
-    <MudButton Variant="Variant.Filled"
-               Color="Color.Primary"
-               OnClick="SearchByLocationAsync"
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SearchByLocationAsync"
                Disabled="_isLoading || _selectedVillageId is null">
         @Lang.Text("Search", "खोजें")
     </MudButton>
 
-    <MudButton Variant="Variant.Outlined"
-               Color="Color.Secondary"
-               OnClick="ResetLocationFilters"
-               Disabled="_isLoading">
+    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ResetLocationFilters" Disabled="_isLoading">
         @Lang.Text("Reset", "रीसेट")
     </MudButton>
 </MudStack>
@@ -108,15 +96,14 @@
         @Lang.Text("Farmers found:", "कृषक पाए गए:") @_villageFarmers.Count
     </MudText>
 
-    <MudDataGrid Items="_villageFarmers" Hover="true" Dense="true" Elevation="1"
-                 SortMode="SortMode.Single" AllowUnsorted="false" Filterable="false" QuickFilter="_quickFilter"
-                 Class="mt-2">
+    <MudDataGrid Items="_villageFarmers" Hover="true" Dense="true" Elevation="1" SortMode="SortMode.Single"
+                 AllowUnsorted="false" Filterable="false" QuickFilter="_quickFilter" Class="mt-2">
         <ToolBarContent>
             <MudText Typo="Typo.h6">@Lang.Text("Farmers", "कृषक सूची")</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search by UFID & Farmer Name", "यु.एफ.आई.डी और किसान के नाम से खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
-                          Immediate="true" Class="mt-0" />
+            <MudTextField @bind-Value="_searchString"
+                          Placeholder="@Lang.Text("Search by UFID & Farmer Name", "यु.एफ.आई.डी और किसान के नाम से खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mt-0" />
         </ToolBarContent>
         <Columns>
             <PropertyColumn Property="x => x.UfId" Title="@Lang.Text("UFID", "यूएफ आईडी")" />
@@ -126,13 +113,12 @@
             <PropertyColumn Property="x => x.MaskAadharNumber" Title="@Lang.Text("Aadhar No.", "आधार नंबर")" />
             <PropertyColumn Property="x => x.IfscCode" Title="@Lang.Text("IFSC Code", "आईएफएससी कोड")" />
             <PropertyColumn Property="x => x.MaskAccountNo" Title="@Lang.Text("Account No.", "खाता संख्या")" />
-            <PropertyColumn Property="x => x.TotalCropArea" Title="@Lang.Text("Crop Area (Ha.)", "फसल क्षेत्र (हेक्ट. में)")" Format="N2" />
+            <PropertyColumn Property="x => x.TotalCropArea"
+                            Title="@Lang.Text("Crop Area (Ha.)", "फसल क्षेत्र (हेक्ट. में)")" Format="N2" />
 
             <TemplateColumn Title="@Lang.Text("View", "देखें")" Sortable="false">
                 <CellTemplate>
-                    <MudIconButton Icon="@Icons.Material.Filled.Visibility"
-                                   Color="Color.Primary"
-                                   Size="Size.Small"
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary" Size="Size.Small"
                                    OnClick="@(() => ViewDetails(context.Item))" />
                 </CellTemplate>
             </TemplateColumn>
@@ -174,15 +160,29 @@
     private List<FarmersListByVillageForUFPVerificationDto> _villageFarmers = new();
     private string _searchString = string.Empty;
 
-
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
     protected override async Task OnInitializedAsync()
     {
+        _currentUser = await UserContextService.GetCurrentUserAsync();
 
         try
         {
             var result = await DistrictsApiService.GetDistrictsAsync();
+
             if (result.IsSuccess && result.Data is not null)
-                _districts = result.Data;
+            {
+                if (_currentUser.UserType == 14 // district user
+                    && int.TryParse(_currentUser.UserId, out var districtCode))
+                {
+                    _districts = result.Data
+                        .Where(d => d.DistrictCensus == districtCode)
+                        .ToList();
+                }
+                else
+                {
+                    _districts = result.Data;
+                }
+            }
         }
         catch
         {
@@ -199,8 +199,8 @@
         _selectedVillage = null;
         _subdistricts = new();
         _villages = new();
-        _villageFarmers = new();      // ADDED
-        _hasSearched = false;         // ADDED
+        _villageFarmers = new(); // ADDED
+        _hasSearched = false; // ADDED
 
         if (districtId is null)
             return;
@@ -224,8 +224,8 @@
         _selectedVillageId = null;
         _selectedVillage = null;
         _villages = new();
-        _villageFarmers = new();      // ADDED
-        _hasSearched = false;         // ADDED
+        _villageFarmers = new(); // ADDED
+        _hasSearched = false; // ADDED
 
         if (subdistrictId is null)
             return;
@@ -249,7 +249,7 @@
         _selectedVillageId = village?.VillageCode;
 
         _villageFarmers = new();
-        _hasSearched = false;         // ADDED — clears any stale "no results" message too
+        _hasSearched = false; // ADDED — clears any stale "no results" message too
     }
 
     private VillagesDto? _selectedVillage;
@@ -279,7 +279,8 @@
         try
         {
             // call farmer-verification/get-farmers-list-by-village-from-ufp API applies here, e.g.:
-            var result = await FarmersVerificationForUFPApiService.GetFarmersListFromVillageForUFPAsync(_selectedVillageId.Value.ToString().Trim());
+            var result = await
+FarmersVerificationForUFPApiService.GetFarmersListFromVillageForUFPAsync(_selectedVillageId.Value.ToString().Trim());
             _villageFarmers = result.IsSuccess && result.Data is not null ? result.Data : new();
         }
         finally
@@ -319,7 +320,8 @@
     private async Task Approve(FarmersListByVillageForUFPVerificationDto farmer)
     {
         // call your approval API here
-        Snackbar.Add(Lang.Text($"Approved {farmer.FarmerNameEng}", $"{farmer.FarmerNameHi} स्वीकृत किया गया"), Severity.Success);
+        Snackbar.Add(Lang.Text($"Approved {farmer.FarmerNameEng}", $"{farmer.FarmerNameHi} स्वीकृत किया गया"),
+Severity.Success);
     }
 
     private async Task Reject(FarmersListByVillageForUFPVerificationDto farmer)

@@ -1,11 +1,11 @@
-﻿namespace HortiBts.Shared.Dtos.Dashboard.Admin;
+﻿namespace HortiBts.Shared.Dtos.Dashboard.District;
 
-public record DashboardCountDto
+public record DistrictDashboardCountDto
 {
     public int Count { get; set; }
 }
 
-public record ApplicationDashboardDto
+public record DistrictApplicationDashboardDto
 {
     public int TotalApplications { get; set; }
     public int TotalRheoApproved { get; set; }

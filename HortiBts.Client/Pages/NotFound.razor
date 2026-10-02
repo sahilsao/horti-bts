@@ -1,9 +1,47 @@
 @page "/not-found"
-@layout MainLayout
+@layout EmptyLayout
+@inherits AppComponentBase
+@inject IJSRuntime JS
 
-<PageTitle>Not Found</PageTitle>
+<PageTitle>@Lang.Text("Not Found", "पृष्ठ नहीं मिला")</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">404 - Page Not Found</MudText>
-<MudText Class="mb-8">Sorry, the content you are looking for does not exist.</MudText>
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center mt-6">
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">Go to Home</MudButton>
+    <MudPaper Elevation="4" Class="pa-10 rounded-lg" Style="width:100%;">
+        <MudStack AlignItems="AlignItems.Center" Spacing="3">
+
+            <MudIcon Icon="@Icons.Material.Filled.SearchOff" Color="Color.Primary" Style="font-size:5rem;" />
+
+            <MudText Typo="Typo.h2" Color="Color.Primary" Align="Align.Center">404</MudText>
+
+            <MudText Typo="Typo.h5" Align="Align.Center">
+                @Lang.Text("Page Not Found", "पृष्ठ नहीं मिला")
+            </MudText>
+
+            <MudDivider Class="my-2" Style="width:60%;" />
+
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">
+                @Lang.Text(
+                    "Sorry, the page you are looking for does not exist or has been moved.",
+                    "क्षमा करें, आप जिस पृष्ठ को खोज रहे हैं वह मौजूद नहीं है या स्थानांतरित कर दिया गया है।")
+            </MudText>
+
+            <MudStack Row="true" Spacing="2" Class="mt-4" Wrap="Wrap.Wrap" Justify="Justify.Center">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Home" Href="/">
+                    @Lang.Text("Go to Home", "होम पर जाएं")
+                </MudButton>
+
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="GoBack">
+                    @Lang.Text("Go Back", "वापस जाएं")
+                </MudButton>
+            </MudStack>
+
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private async Task GoBack() => await JS.InvokeVoidAsync("history.back");
+}

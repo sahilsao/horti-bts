@@ -5,7 +5,7 @@ namespace HortiBts.Api.Controllers.Dashboard.Admin
 {
     [Route("api/dashboard/admin")]
     [ApiController]
-    public class DashboardController(IDashboardRepository dashboardRepository, ILogger<DashboardController> logger) : ControllerBase
+    public class AdminDashboardController(IAdminDashboardRepository dashboardRepository, ILogger<AdminDashboardController> logger) : ControllerBase
     {
         [HttpGet("get-tot-rheo-count")]
         [EndpointSummary("Get total RHEO count")]

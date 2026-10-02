@@ -73,8 +73,8 @@ public class AuthController(IAuthRepository authRepository, ILogger<AuthControll
         }
     }
 
-    [HttpPost("change-password")]
-    [Authorize]
+    [HttpPost("admin-change-password")]
+    [Authorize(Roles = "Admin")]
     [EndpointSummary("Change password")]
     [EndpointDescription("Allows the currently authenticated user to change their password by providing the current password and a new password.")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)

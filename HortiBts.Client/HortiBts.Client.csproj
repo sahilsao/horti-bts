@@ -7,7 +7,9 @@
 		<OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
 		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
 	</PropertyGroup>
-
+	<PropertyGroup>
+	<NoWarn>$(NoWarn);MUD0002</NoWarn>
+	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="ClosedXML" Version="0.105.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.12" />
