@@ -43,7 +43,7 @@
             <MudImage Src="images/icons/HortiLogo.jpg" Alt="Logo" Height="40" />
         </MudAvatar>
 
-        <MudHidden Breakpoint="Breakpoint.Lg" Invert="true">
+        <MudHidden Breakpoint="Breakpoint.Xl" Invert="true">
             <MudText Typo="Typo.h6" Class="ml-3">
                 @Lang.Text(
                     "Chhattisgarh Horticulture Beneficiary Tracking System",
@@ -54,10 +54,10 @@
         <MudChip T="string" Label="true" Size="Size.Large" Color="Color.Primary" Variant="Variant.Filled">
             <MudStack Spacing="0" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.body2">
-                    @GetUserRoleText()
+                    @UserContextService.GetUserRoleText(_currentUser)
                 </MudText>
                 <MudText Typo="Typo.caption">
-                    @GetUserNameText()
+                    @UserContextService.GetUserNameText(_currentUser)
                 </MudText>
             </MudStack>
         </MudChip>
@@ -90,7 +90,7 @@
     </MudAppBar>
 
     <!-- Drawer -->
-    <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" Width="300px" ClipMode="DrawerClipMode.Always" Elevation="2">     
+    <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" Width="300px" ClipMode="DrawerClipMode.Always" Elevation="2">
         <AuthorizeView Roles="Admin">
             <AdminNavMenu />
         </AuthorizeView>
@@ -183,27 +183,6 @@
     private async Task LoadCurrentUserAsync()
     {
         _currentUser = await UserContextService.GetCurrentUserAsync();
-    }
-
-    // ---------------------------------------------------------
-    // User Display
-    // ---------------------------------------------------------
-
-    private string GetUserRoleText()
-    {
-        return _currentUser.UserType switch
-        {
-            13 => Lang.Text("Director", "संचालक"),
-            14 => Lang.Text("DDH", "उप संचालक उद्यान"),
-            15 => Lang.Text($"SHDO - {_currentUser.UserId}", $"एसएचडीओ - {_currentUser.UserId}"),
-            12 => Lang.Text($"RHEO - {_currentUser.UserId}", $"आरएचईओ - {_currentUser.UserId}"),
-            _ => string.Empty
-        };
-    }
-
-    private string GetUserNameText()
-    {
-        return Lang.Text(_currentUser.UsernameEn, _currentUser.UsernameHi);
     }
 
     // ---------------------------------------------------------

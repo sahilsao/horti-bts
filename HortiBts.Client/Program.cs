@@ -1,5 +1,6 @@
 using HortiBts.Client;
 using HortiBts.Client.MultiLanguage;
+using HortiBts.Client.Services.ApplicationVerification.DDH;
 using HortiBts.Client.Services.Auth;
 using HortiBts.Client.Services.Benefits;
 using HortiBts.Client.Services.Common;
@@ -106,8 +107,11 @@ builder.Services.AddScoped<FarmerApplicationsListApiService>();
 builder.Services.AddScoped<NewFarmerApplicationsListApiService>();
 // HPMIS
 builder.Services.AddScoped<FarmersListHPMISApiService>();
-//Scheme & Component
+// Scheme & Component
 builder.Services.AddScoped<BacklogYearlySchemeWiseRegistrationApiService>();
 builder.Services.AddScoped<BacklogYearlyComponentWiseRegistrationApiService>();
+
+// Application Verification Related
+builder.Services.AddScoped<SchemeWiseApplicationVerificationApiService>();
 
 await builder.Build().RunAsync();

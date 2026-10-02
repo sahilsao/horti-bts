@@ -70,18 +70,21 @@
 <MudStack Row="true" Spacing="3" Class="mb-6">
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SearchByLocationAsync"
                Disabled="_isLoading || _selectedVillageId is null">
-        @Lang.Text("Search", "खोजें")
+        @if (_isLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            <span>@Lang.Text("Searching...", "खोजा जा रहा है...")</span>
+        }
+        else
+        {
+            @Lang.Text("Search", "खोजें")
+        }
     </MudButton>
 
     <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ResetLocationFilters" Disabled="_isLoading">
         @Lang.Text("Reset", "रीसेट")
     </MudButton>
 </MudStack>
-
-@if (_isLoading)
-{
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-4" Rounded="true" />
-}
 
 @if (_hasSearched && !_isLoading && !_villageFarmers.Any())
 {

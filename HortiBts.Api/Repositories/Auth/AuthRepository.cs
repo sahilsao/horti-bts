@@ -9,8 +9,9 @@ namespace HortiBts.Api.Repositories.Auth
     {
         Task<Result<LoginResponseDto>> LoginAsync(LoginType loginType, string loginId, string password);
         Task<Result<LoginResponseDto>> RefreshTokenAsync(string refreshToken);
-        Task<Result<PasswordUpdateResult>> ChangePasswordAsync(string currentPassword, string newPassword);
-        Task<Result<PasswordUpdateResult>> AdminResetPasswordAsync(string userId, string newPassword);
+        Task<Result<PasswordUpdateResult>> ChangeAdminPasswordAsync(string currentPassword, string newPassword);
+        Task<Result<PasswordUpdateResult>> ChangeDistrictPasswordAsync(string currentPassword, string newPassword);
+        Task<Result<PasswordUpdateResult>> ResetAdminPasswordAsync(string userId, string newPassword);
         Task LogoutAsync(string? refreshToken = null);
     }
 
@@ -126,19 +127,29 @@ namespace HortiBts.Api.Repositories.Auth
                   user.PasswordFlag));
         }
 
-        public async Task<Result<PasswordUpdateResult>> ChangePasswordAsync(string currentPassword, string newPassword)
+        public async Task<Result<PasswordUpdateResult>> ChangeAdminPasswordAsync(string currentPassword, string newPassword)
         {
             var userId = httpContextAccessor.HttpContext?.User.Identity?.Name;
             if (string.IsNullOrEmpty(userId))
                 return Result<PasswordUpdateResult>.Failure("Not authenticated.");
 
-            var result = await passwordRepository.UpdatePasswordAsync(userId, currentPassword, newPassword);
+            var result = await passwordRepository.UpdateAdminPasswordAsync(userId, currentPassword, newPassword);
             return Result<PasswordUpdateResult>.Success(result);
         }
 
-        public async Task<Result<PasswordUpdateResult>> AdminResetPasswordAsync(string userId, string newPassword)
+        public async Task<Result<PasswordUpdateResult>> ChangeDistrictPasswordAsync(string currentPassword, string newPassword)
         {
-            var result = await passwordRepository.AdminResetPasswordAsync(userId, newPassword);
+            var userId = httpContextAccessor.HttpContext?.User.Identity?.Name;
+            if (string.IsNullOrEmpty(userId))
+                return Result<PasswordUpdateResult>.Failure("Not authenticated.");
+
+            var result = await passwordRepository.UpdateDistrictPasswordAsync(userId, currentPassword, newPassword);
+            return Result<PasswordUpdateResult>.Success(result);
+        }
+
+        public async Task<Result<PasswordUpdateResult>> ResetAdminPasswordAsync(string userId, string newPassword)
+        {
+            var result = await passwordRepository.ResetAdminPasswordAsync(userId, newPassword);
             return Result<PasswordUpdateResult>.Success(result);
         }
 

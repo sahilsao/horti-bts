@@ -6,10 +6,21 @@
                         Icon="@Icons.Material.Filled.Dashboard">
                 @Lang.Text("Dashboard", "डैशबोर्ड")
             </MudNavLink>
-             <MudNavLink Href="/district/farmer-verification" Match="NavLinkMatch.Prefix" Ripple
+            <MudNavLink Href="/district/farmer-details" Match="NavLinkMatch.Prefix" Ripple
+                        Icon="@Icons.Material.Filled.PersonSearch">
+                @Lang.Text("Farmer Details", "कृषक विवरण")
+            </MudNavLink>
+            <MudNavLink Href="/district/farmer-verification" Match="NavLinkMatch.Prefix" Ripple
                         Icon="@Icons.Material.Filled.DomainVerification">
                 @Lang.Text("Farmer Verification", "कृषक भौतिक सत्यापन")
-            </MudNavLink>            
+            </MudNavLink>
+            <MudNavGroup Title="@Lang.Text("Application Verification", "आवेदन सत्यापन")" Ripple
+                         Icon="@Icons.Material.Filled.Edit">
+                <MudNavLink Href="/district/schemewise-new-application-verification" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="@Icons.Material.Filled.DomainVerification">
+                    @Lang.Text("Scheme Wise New Application Verification (2025-26 / 2026-27)", "योजनावार नविन आवेदन सत्यापन (2025-26 / 2026-27)")
+                </MudNavLink>
+            </MudNavGroup>
         </Authorized>
     </AuthorizeView>
 </MudNavMenu>

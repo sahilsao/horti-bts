@@ -1,11 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
+using HortiBts.Client.MultiLanguage;
 
 namespace HortiBts.Client.Services.Auth
 {
     public interface IUserContextService
     {
         Task<CurrentUserInfo> GetCurrentUserAsync();
+
+        string GetUserRoleText(CurrentUserInfo currentUser);
+
+        string GetUserNameText(CurrentUserInfo currentUser);
     }
 
     public record CurrentUserInfo(
@@ -14,7 +19,9 @@ namespace HortiBts.Client.Services.Auth
         string UsernameHi,
         int UserType);
 
-    public class UserContextService(AuthenticationStateProvider authStateProvider) : IUserContextService
+    public class UserContextService(
+        AuthenticationStateProvider authStateProvider,
+        LanguageService lang) : IUserContextService
     {
         public async Task<CurrentUserInfo> GetCurrentUserAsync()
         {
@@ -37,6 +44,37 @@ namespace HortiBts.Client.Services.Auth
                 usernameEn,
                 usernameHi,
                 userType);
+        }
+
+        public string GetUserRoleText(CurrentUserInfo currentUser)
+        {
+            return currentUser.UserType switch
+            {
+                13 => lang.Text(
+                    "Director",
+                    "संचालक"),
+
+                14 => lang.Text(
+                    "DDH",
+                    "उप संचालक उद्यान"),
+
+                15 => lang.Text(
+                    $"SHDO - {currentUser.UserId}",
+                    $"एसएचडीओ - {currentUser.UserId}"),
+
+                12 => lang.Text(
+                    $"RHEO - {currentUser.UserId}",
+                    $"आरएचईओ - {currentUser.UserId}"),
+
+                _ => string.Empty
+            };
+        }
+
+        public string GetUserNameText(CurrentUserInfo currentUser)
+        {
+            return lang.Text(
+                currentUser.UsernameEn,
+                currentUser.UsernameHi);
         }
     }
 }

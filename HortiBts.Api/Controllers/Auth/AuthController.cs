@@ -75,13 +75,36 @@ public class AuthController(IAuthRepository authRepository, ILogger<AuthControll
 
     [HttpPost("admin-change-password")]
     [Authorize(Roles = "Admin")]
-    [EndpointSummary("Change password")]
+    [EndpointSummary("Change Admin password")]
     [EndpointDescription("Allows the currently authenticated user to change their password by providing the current password and a new password.")]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
+    public async Task<IActionResult> ChangeAdminPassword([FromBody] ChangePasswordDto request)
     {
         try
         {
-            var result = await authRepository.ChangePasswordAsync(
+            var result = await authRepository.ChangeAdminPasswordAsync(
+                request.CurrentPassword,
+                request.NewPassword);
+
+            return result.IsSuccess
+                ? Ok(result.Data)
+                : Problem(detail: result.Error, statusCode: 500);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while changing the password.");
+            return Problem(detail: "An unexpected error occurred. Please try again later.", statusCode: 500);
+        }
+    }
+
+    [HttpPost("district-change-password")]
+    [Authorize(Roles = "District")]
+    [EndpointSummary("Change District password")]
+    [EndpointDescription("Allows the currently authenticated user to change their password by providing the current password and a new password.")]
+    public async Task<IActionResult> ChangeDistrictPassword([FromBody] ChangePasswordDto request)
+    {
+        try
+        {
+            var result = await authRepository.ChangeDistrictPasswordAsync(
                 request.CurrentPassword,
                 request.NewPassword);
 
@@ -100,11 +123,11 @@ public class AuthController(IAuthRepository authRepository, ILogger<AuthControll
     [Authorize(Roles = "Admin")]
     [EndpointSummary("Reset user password")]
     [EndpointDescription("Allows an administrator to reset the password of a specified user.")]
-    public async Task<IActionResult> AdminResetPassword([FromBody] AdminResetPasswordDto request)
+    public async Task<IActionResult> ResetAdminPassword([FromBody] AdminResetPasswordDto request)
     {
         try
         {
-            var result = await authRepository.AdminResetPasswordAsync(
+            var result = await authRepository.ResetAdminPasswordAsync(
                 request.UserId,
                 request.NewPassword);
 

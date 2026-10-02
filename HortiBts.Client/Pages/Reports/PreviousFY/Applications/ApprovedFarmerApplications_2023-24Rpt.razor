@@ -151,9 +151,6 @@
                     {
                         <span> / @st.SchemeTypeNameEn</span>
                     }
-                    @(Lang.IsHindi
-                        ? st.SchemeTypeName
-                        : st.SchemeTypeNameEn)
                 </MudSelectItem>
             }
         </MudSelect>
@@ -225,7 +222,7 @@
             <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
             <MudTh>
                 <MudTableSortLabel SortBy="new Func<ApprovedFarmerApplicationsDto, object>(x => x.UfId!)">@Lang.Text("UFID",
-                       "यू.एफ.आईडी")</MudTableSortLabel>
+                                           "यू.एफ.आईडी")</MudTableSortLabel>
                 </MudTh>
                 <MudTh>
                     <MudTableSortLabel SortBy="new Func<ApprovedFarmerApplicationsDto, object>(x => x.VillageName!)">
@@ -297,7 +294,8 @@
                                                                         @context.TotalLandArea?.ToString("N2")</MudTd>
                                                                         <MudTd DataLabel="@Lang.Text("IFSC Code", "आईएफएससी कोड")">@context.IfscCode</MudTd>
                                                                         <MudTd DataLabel="@Lang.Text("Account No", "खाता क्रमांक")">@context.AccountNo</MudTd>
-                                                                        <MudTd DataLabel="@Lang.Text("Registration Date", "पंजीयन दिनांक")">@context.RegDate?.ToString("dd/MM/yyyy")</MudTd>
+                                                                        <MudTd DataLabel="@Lang.Text("Registration Date", "पंजीयन दिनांक")">@context.RegDate?.ToString("dd/MM/yyyy")
+                                                                        </MudTd>
                                                                     </RowTemplate>
                                                                     <FooterContent>
                                                                         <MudTd>
@@ -307,14 +305,14 @@
                                                                         <MudTd></MudTd>
                                                                         <MudTd>
                                                                             <b>@_filteredReportData.Where(x => !string.IsNullOrWhiteSpace(x.UfId!.ToString())).Select(x =>
-                                                                                                x.UfId).Distinct().Count()</b>
+                                                                                                                                                                                x.UfId).Distinct().Count()</b>
                                                                                 <span> @Lang.Text("Farmers", "कृषक")</span>
                                                                             </MudTd>
                                                                             <MudTd></MudTd>
                                                                             <MudTd></MudTd>
                                                                             <MudTd>
                                                                                 <b>@_filteredReportData.Where(x => !string.IsNullOrWhiteSpace(x.ComponentName)).Select(x =>
-                                                                                                    x.ComponentName).Distinct().Count()</b>
+                                                                                                                                                                                        x.ComponentName).Distinct().Count()</b>
                                                                                     <span> @Lang.Text("Schemes", "योजनाएं")</span>
                                                                                 </MudTd>
                                                                                 <MudTd></MudTd>

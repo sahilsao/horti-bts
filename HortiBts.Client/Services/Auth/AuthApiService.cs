@@ -65,7 +65,7 @@ namespace HortiBts.Client.Services.Auth
             }
         }
 
-        public async Task<Result<PasswordUpdateResult>> ChangePasswordAsync(string currentPassword, string newPassword)
+        public async Task<Result<PasswordUpdateResult>> ChangeAdminPasswordAsync(string currentPassword, string newPassword)
         {
             try
             {
@@ -82,7 +82,24 @@ namespace HortiBts.Client.Services.Auth
             }
         }
 
-        public async Task<Result<PasswordUpdateResult>> AdminResetPasswordAsync(string userId, string newPassword)
+        public async Task<Result<PasswordUpdateResult>> ChangeDistrictPasswordAsync(string currentPassword, string newPassword)
+        {
+            try
+            {
+                var response = await http.PostAsJsonAsync("api/auth/district-change-password", new ChangePasswordDto(currentPassword, newPassword));
+                if (!response.IsSuccessStatusCode)
+                    return Result<PasswordUpdateResult>.Failure(await response.Content.ReadAsStringAsync());
+
+                var result = await response.Content.ReadFromJsonAsync<PasswordUpdateResult>();
+                return Result<PasswordUpdateResult>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return Result<PasswordUpdateResult>.Failure($"Failed to update password: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<PasswordUpdateResult>> ResetAdminPasswordAsync(string userId, string newPassword)
         {
             try
             {
