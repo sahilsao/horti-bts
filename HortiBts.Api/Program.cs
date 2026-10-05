@@ -10,6 +10,7 @@ using HortiBts.Api.Repositories.Districts;
 using HortiBts.Api.Repositories.Farmers;
 using HortiBts.Api.Repositories.FinancialYears;
 using HortiBts.Api.Repositories.Girdawari;
+using HortiBts.Api.Repositories.HPMIS;
 using HortiBts.Api.Repositories.MIDHComponents;
 using HortiBts.Api.Repositories.MIDHSchemes;
 using HortiBts.Api.Repositories.Notices;
@@ -101,7 +102,8 @@ builder.Services.AddScoped<IFarmerBeneficiaryStatusRepository, FarmerBeneficiary
 builder.Services.AddScoped<IFarmerApplicationsRepository, FarmerApplicationsRepository>();
 builder.Services.AddScoped<INewFarmerApplicationsRepository, NewFarmerApplicationsRepository>();
 // HPMIS report
-builder.Services.AddScoped<IFarmerDetailsRepository, FarmerDetailsRepository>();
+builder.Services.AddScoped<IFarmersListHPMISRepository, FarmersListHPMISRepository>();
+builder.Services.AddScoped<IFarmersDetailsHPMISRepository, FarmersDetailsHPMISRepository>();
 // Scheme & Component
 builder.Services.AddScoped<IBacklogYearlySchemeWiseRegistrationRepository, BacklogYearlySchemeWiseRegistrationRepository>();
 builder.Services.AddScoped<IBacklogYearlyComponentWiseRegistrationRepository, BacklogYearlyComponentWiseRegistrationRepository>();

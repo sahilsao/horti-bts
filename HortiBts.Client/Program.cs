@@ -11,6 +11,7 @@ using HortiBts.Client.Services.Districts;
 using HortiBts.Client.Services.Farmers;
 using HortiBts.Client.Services.FinancialYears;
 using HortiBts.Client.Services.Girdawari;
+using HortiBts.Client.Services.HPMIS;
 using HortiBts.Client.Services.MIDHComponents;
 using HortiBts.Client.Services.MIDHSchemes;
 using HortiBts.Client.Services.Notices;
@@ -107,6 +108,7 @@ builder.Services.AddScoped<FarmerApplicationsListApiService>();
 builder.Services.AddScoped<NewFarmerApplicationsListApiService>();
 // HPMIS
 builder.Services.AddScoped<FarmersListHPMISApiService>();
+builder.Services.AddScoped<FarmersDetailsHPMISApiService>();
 // Scheme & Component
 builder.Services.AddScoped<BacklogYearlySchemeWiseRegistrationApiService>();
 builder.Services.AddScoped<BacklogYearlyComponentWiseRegistrationApiService>();

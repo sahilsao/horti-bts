@@ -58,6 +58,34 @@
             <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
                 <TitleContent>
                     @Lang.Text("Reports", "रिपोर्ट्स")
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2026-27)</MudChip>
+                </TitleContent>
+                <ChildContent>
+                    <MudNavGroup Title="@Lang.Text("Applications Reports", "आवेदन रिपोर्ट्स")" Ripple
+                                 Icon="material-symbols-outlined/order_approve">
+                        <MudNavLink Href="/reports/applications/current/districtwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/domain">
+                            @Lang.Text("District Wise Applications List", "जिलावार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/current/blockwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
+                            @Lang.Text("Block Wise Applications List", "विकासखण्डवार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/current/rheowise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clinical_notes">
+                            @Lang.Text("RHEO Wise Applications List", "आर.एच.ई.ओ. वार आवेदन सूची")
+                        </MudNavLink>
+                        <MudNavLink Href="/reports/applications/current/farmerwise-farmer-applications-list"
+                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/patient_list">
+                            @Lang.Text("Farmer Wise Applications List", "किसानवार आवेदन सूची")
+                        </MudNavLink>
+                    </MudNavGroup>
+                </ChildContent>
+            </MudNavGroup>
+            
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
+                <TitleContent>
+                    @Lang.Text("Reports", "रिपोर्ट्स")
                     <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2019-20 to 2025-26)</MudChip>
                 </TitleContent>
                 <ChildContent>
@@ -157,33 +185,6 @@
                         <MudNavLink Href="/reports/applications/previous/approved-farmers-applications-list"
                                     Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/person_check">
                             @Lang.Text("Approved Farmer Applications List (2023-2024)", "स्वीकृत कृषक आवेदन सूची (2023-2024)")
-                        </MudNavLink>
-                    </MudNavGroup>
-                </ChildContent>
-            </MudNavGroup>
-            <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
-                <TitleContent>
-                    @Lang.Text("Reports", "रिपोर्ट्स")
-                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2026-27)</MudChip>
-                </TitleContent>
-                <ChildContent>
-                    <MudNavGroup Title="@Lang.Text("Applications Reports", "आवेदन रिपोर्ट्स")" Ripple
-                                 Icon="material-symbols-outlined/order_approve">
-                        <MudNavLink Href="/reports/applications/current/districtwise-farmer-applications-list"
-                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/domain">
-                            @Lang.Text("District Wise Applications List", "जिलावार आवेदन सूची")
-                        </MudNavLink>
-                        <MudNavLink Href="/reports/applications/current/blockwise-farmer-applications-list"
-                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/article">
-                            @Lang.Text("Block Wise Applications List", "विकासखण्डवार आवेदन सूची")
-                        </MudNavLink>
-                        <MudNavLink Href="/reports/applications/current/rheowise-farmer-applications-list"
-                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/clinical_notes">
-                            @Lang.Text("RHEO Wise Applications List", "आर.एच.ई.ओ. वार आवेदन सूची")
-                        </MudNavLink>
-                        <MudNavLink Href="/reports/applications/current/farmerwise-farmer-applications-list"
-                                    Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/patient_list">
-                            @Lang.Text("Farmer Wise Applications List", "किसानवार आवेदन सूची")
                         </MudNavLink>
                     </MudNavGroup>
                 </ChildContent>

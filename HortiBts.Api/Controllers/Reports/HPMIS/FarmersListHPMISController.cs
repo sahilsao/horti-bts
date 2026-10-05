@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace HortiBts.Api.Controllers.Reports.HPMIS
 {
 
-    [Route("api/reports")]
-    [Tags("FarmerDetails (HPMIS)")]
+    [Route("api/reports/hpmis")]
+    [Tags("Farmers List Details (HPMIS)")]
     [ApiController]
-    public class FarmerDetailsController(
-    IFarmerDetailsRepository repository,
-    ILogger<FarmerDetailsController> logger) : ControllerBase
+    public class FarmersListHPMISController(
+    IFarmersListHPMISRepository repository,
+    ILogger<FarmersListHPMISController> logger) : ControllerBase
     {
         // GET api/reports/farmer-list?searchFlag=DIST&financialYear=2025-26&id=100
-        [HttpGet("hpmis/farmer-list")]
+        [HttpGet("farmer-list")]
         [EndpointSummary("Get farmer details list from HPMIS")]
         [EndpointDescription("Retrieves farmer application details from HPMIS and filtered by district, sub-district, officer, village or farmer, depending on the search flag.")]
         public async Task<IActionResult> GetFarmerList([FromQuery] FarmerListQueryParams query)
