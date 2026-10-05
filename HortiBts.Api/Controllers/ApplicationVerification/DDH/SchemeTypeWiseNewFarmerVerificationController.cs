@@ -10,9 +10,9 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
     public class SchemeTypeWiseNewFarmerVerificationController(ISchemeTypeWiseNewFarmerVerificationRepository repository, ILogger<SchemeTypeWiseNewApplicationsListDto> logger) : ControllerBase
     {
         [HttpGet("scheme-type-wise-new-applications")]
-        [EndpointSummary("Get scheme type wise district applications")]
-        [EndpointDescription("Retrieves the list of applications for a specified district, scheme type, and financial year.")]
-        public async Task<IActionResult> GetSchemeTypeWiseDistrictApplicationsAsync([FromQuery] int schemeTypeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
+        [EndpointSummary("Get scheme type wise new district applications")]
+        [EndpointDescription("Retrieves the list of new applications for a specified district, scheme type, and financial year.")]
+        public async Task<IActionResult> GetSchemeTypeWiseNewDistrictApplicationsAsync([FromQuery] int schemeTypeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
         {
             try
             {

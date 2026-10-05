@@ -14,16 +14,37 @@
                         Icon="@Icons.Material.Filled.DomainVerification">
                 @Lang.Text("Farmer Verification", "कृषक भौतिक सत्यापन")
             </MudNavLink>
-            <MudNavGroup Title="@Lang.Text("Application Verification", "आवेदन सत्यापन")" Ripple
-                         Icon="@Icons.Material.Filled.Edit">
-                <MudNavLink Href="/district/scheme-type-wise-new-application-list" Match="NavLinkMatch.Prefix" Ripple
-                            Icon="@Icons.Material.Filled.DomainVerification">
-                    @Lang.Text("Scheme Wise New Application List (2025-26/2026-27)", "योजनावार नविन आवेदन सूची (2025-26/2026-27)")
-                </MudNavLink>
-                <MudNavLink Href="/district/scheme-wise-new-application-beneficiary-list" Match="NavLinkMatch.Prefix"
-                            Ripple Icon="@Icons.Material.Filled.ViewList">
-                    @Lang.Text("New Application Beneficiary List (2025-26/2026-27)", "नविन आवेदन लाभार्थी सूची (2025-26/2026-27)")
-                </MudNavLink>
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.Edit">
+                <TitleContent>
+                    @Lang.Text("Application Verification", "आवेदन सत्यापन")
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2025-26 / 2026-27)</MudChip>
+                </TitleContent>
+                <ChildContent>
+                    <MudNavLink Href="/district/scheme-type-wise-new-application-list" Match="NavLinkMatch.Prefix"
+                                Ripple Icon="@Icons.Material.Filled.DomainVerification">
+                        @Lang.Text("Scheme Wise New Application List (2025-26 / 2026-27)", "योजनावार नविन आवेदन सूची (2025-26 / 2026-27)")
+                    </MudNavLink>
+                    <MudNavLink Href="/district/scheme-wise-new-application-beneficiary-list"
+                                Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.ViewList">
+                        @Lang.Text("New Application Beneficiary List (2025-26 / 2026-27)", "नविन आवेदन लाभार्थी सूची (2025-26 / 2026-27)")
+                    </MudNavLink>
+                </ChildContent>
+            </MudNavGroup>
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.Edit">
+                <TitleContent>
+                    @Lang.Text("Application Verification", "आवेदन सत्यापन")
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2018-19 / 2024-25)</MudChip>
+                </TitleContent>
+                <ChildContent>
+                    <MudNavLink Href="/district/scheme-type-wise-old-application-list" Match="NavLinkMatch.Prefix"
+                                Ripple Icon="@Icons.Material.Filled.DomainVerification">
+                        @Lang.Text("Scheme Wise Old Application List (2018-19 / 2024-25)", "योजनावार पूर्व आवेदन सूची (2018-19 / 2024-25)")
+                    </MudNavLink>
+                    <MudNavLink Href="/district/scheme-wise-old-application-beneficiary-list"
+                                Match="NavLinkMatch.Prefix" Ripple Icon="@Icons.Material.Filled.ViewList">
+                        @Lang.Text("Old Application Beneficiary List (2018-19 / 2024-25)", "पूर्व आवेदन लाभार्थी सूची (2018-19 / 2024-25)")
+                    </MudNavLink>
+                </ChildContent>
             </MudNavGroup>
         </Authorized>
     </AuthorizeView>

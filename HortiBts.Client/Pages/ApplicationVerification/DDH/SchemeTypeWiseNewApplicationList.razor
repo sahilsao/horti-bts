@@ -16,12 +16,12 @@
 @inject IUserContextService UserContextService
 @inject ExcelExportService ExcelExport
 
-<PageTitle>@Lang.Text("Scheme Wise New Application List (2025-26/2026-27)", "योजनावार नविन आवेदन सूची (2025-26/2026-27)")
+<PageTitle>@Lang.Text("Scheme Wise New Application List (2025-26 / 2026-27)", "योजनावार नविन आवेदन सूची (2025-26 / 2026-27)")
 </PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Filled.Person" Color="Color.Primary" Size="Size.Large" />
-    @Lang.Text("Scheme Wise New Application Verification List (2025-26/2026-27)", "योजनावार नविन आवेदन सूची (2025-26/2026-27)")
+    <MudIcon Icon="@Icons.Material.Filled.DomainVerification" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Scheme Wise New Application Verification List (2025-26 / 2026-27)", "योजनावार नविन आवेदन सूची (2025-26 / 2026-27)")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
     @Lang.Text("View New Application details from scheme wise for verification.", "सत्यापन हेतु योजनावार नविन आवेदन का विवरण देखें")
@@ -363,11 +363,14 @@
 
     private async Task ExportToExcel()
     {
+        var finYear = (_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear!)
+                     .Replace("/", "-");
+
         await ExcelExport.ExportAsync(
             _filteredReportData.ToList(),
             GetColumns(),
             Lang.Text("Scheme Wise Applications Report", "योजनावार आवेदन रिपोर्ट"),
             (en, hi) => Lang.Text(en, hi),
-            $"SchemeWise_ApplicationsReport.xlsx");
+            $"SchemeWise_ApplicationsReport_{finYear}.xlsx");
     }
 }

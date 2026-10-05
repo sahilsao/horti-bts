@@ -10,7 +10,7 @@ public interface ISchemeTypeWiseNewFarmerVerificationRepository
     Task<Result<List<SchemeTypeWiseNewApplicationsListDto>>> GetSchemeTypeWiseNewDistrictApplicationsAsync(int schemeTypeId, int districtCode, int financialYear);
 }
 
-public class SchemeTypeWiseFarmerVerificationRepository(IDbConnectionFactory connectionFactory) : ISchemeTypeWiseNewFarmerVerificationRepository
+public class SchemeTypeWiseNewFarmerVerificationRepository(IDbConnectionFactory connectionFactory) : ISchemeTypeWiseNewFarmerVerificationRepository
 {
     public async Task<Result<List<SchemeTypeWiseNewApplicationsListDto>>> GetSchemeTypeWiseNewDistrictApplicationsAsync(int schemeTypeId, int districtCode, int financialYear)
     {

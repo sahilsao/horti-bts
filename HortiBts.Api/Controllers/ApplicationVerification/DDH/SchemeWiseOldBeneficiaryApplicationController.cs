@@ -7,18 +7,18 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
 {
     [Route("api/district")]
     [ApiController]
-    public class SchemeWiseNewBeneficiaryApplicationController(ISchemeWiseNewBeneficiaryApplicationRepository repository, ILogger<SchemeWiseNewBeneficiaryApplicationListDto> logger) : ControllerBase
+    public class SchemeWiseOldBeneficiaryApplicationController(ISchemeWiseOldBeneficiaryApplicationRepository repository, ILogger<SchemeWiseOldBeneficiaryApplicationListDto> logger) : ControllerBase
     {
 
 
-        [HttpGet("scheme-wise-new-beneficiaries-applications")]
-        [EndpointSummary("Get beneficiary list of new applications")]
-        [EndpointDescription("Retrieves the list of new beneficiaries applications for a specified district, scheme, and financial year.")]
+        [HttpGet("scheme-wise-old-beneficiaries-applications")]
+        [EndpointSummary("Get beneficiary list of old applications")]
+        [EndpointDescription("Retrieves the list of old beneficiaries applications for a specified district, scheme, and financial year.")]
         public async Task<IActionResult> GetSchemeWiseDistrictApplicationsAsync([FromQuery] int schemeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
         {
             try
             {
-                var result = await repository.GetSchemeWiseNewBeneficiaryApplicationsAsync(schemeId, districtCode, financialYear);
+                var result = await repository.GetSchemeWiseOldBeneficiaryApplicationsAsync(schemeId, districtCode, financialYear);
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
                 return Ok(result);
