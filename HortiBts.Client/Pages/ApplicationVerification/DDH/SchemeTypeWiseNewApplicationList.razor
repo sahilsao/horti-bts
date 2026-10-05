@@ -11,7 +11,7 @@
 
 @inject FinancialYearsApiService FinancialYearsApiService
 @inject SchemesApiService SchemesApiService
-@inject SchemeTypeWiseApplicationVerificationApiService SchemeTypeWiseApplicationVerificationApiService
+@inject SchemeTypeWiseNewApplicationVerificationApiService SchemeTypeWiseNewApplicationVerificationApiService
 @inject ISnackbar Snackbar
 @inject IUserContextService UserContextService
 @inject ExcelExportService ExcelExport
@@ -117,43 +117,45 @@
             <MudTHeadRow Class="report-header-row">
                 <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseApplicationsListDto, object>(x => x.SchemeName!)">
+                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseNewApplicationsListDto, object>(x => x.SchemeName!)">
                         @Lang.Text("Scheme", "योजना")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
                     <MudTableSortLabel
-                        SortBy="new Func<SchemeTypeWiseApplicationsListDto, object>(x => x.TotalApplications!)">
+                        SortBy="new Func<SchemeTypeWiseNewApplicationsListDto, object>(x => x.TotalApplications!)">
                         @Lang.Text("Applications Count", "आवेदनों की संख्या")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseApplicationsListDto, object>(x => x.RheoPending!)">
+                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseNewApplicationsListDto, object>(x => x.RheoPending!)">
                         @Lang.Text("Pending", "लंबित")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseApplicationsListDto, object>(x => x.RheoApproved!)">
+                    <MudTableSortLabel
+                        SortBy="new Func<SchemeTypeWiseNewApplicationsListDto, object>(x => x.RheoApproved!)">
                         @Lang.Text("Approved", "स्वीकृत")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseApplicationsListDto, object>(x => x.RheoRejected!)">
+                    <MudTableSortLabel
+                        SortBy="new Func<SchemeTypeWiseNewApplicationsListDto, object>(x => x.RheoRejected!)">
                         @Lang.Text("Rejected", "अस्वीकृत")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseApplicationsListDto, object>(x => x.DdhPending!)">
+                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseNewApplicationsListDto, object>(x => x.DdhPending!)">
                         @Lang.Text("Pending", "लंबित")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseApplicationsListDto, object>(x => x.DdhApproved!)">
+                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseNewApplicationsListDto, object>(x => x.DdhApproved!)">
                         @Lang.Text("Approved", "स्वीकृत")
                     </MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseApplicationsListDto, object>(x => x.DdhRejected!)">
+                    <MudTableSortLabel SortBy="new Func<SchemeTypeWiseNewApplicationsListDto, object>(x => x.DdhRejected!)">
                         @Lang.Text("Rejected", "अस्वीकृत")
                     </MudTableSortLabel>
                 </MudTh>
@@ -214,7 +216,7 @@
 
     private bool _isLoading = false;
 
-    private List<SchemeTypeWiseApplicationsListDto> _reportData = new();
+    private List<SchemeTypeWiseNewApplicationsListDto> _reportData = new();
 
     private string _searchString = string.Empty;
 
@@ -272,8 +274,8 @@
         {
             int _selectedDistrictCode = int.Parse(_currentUser.UserId);
             var result =
-                await SchemeTypeWiseApplicationVerificationApiService
-                    .GetSchemeTypeWiseDistrictApplicationsAsync(
+                await SchemeTypeWiseNewApplicationVerificationApiService
+                    .GetSchemeTypeWiseNewDistrictApplicationsAsync(
                         _selectedSchemeTypeId!.Value,
                         _selectedDistrictCode,
                         _selectedFinancialYear!.Value
@@ -320,7 +322,7 @@
         _selectedSchemeTypeId = null;
     }
 
-    private IEnumerable<SchemeTypeWiseApplicationsListDto> _filteredReportData =>
+    private IEnumerable<SchemeTypeWiseNewApplicationsListDto> _filteredReportData =>
     _reportData.Where(t =>
     string.IsNullOrWhiteSpace(_searchString)
     || (t.SchemeName?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
@@ -332,7 +334,7 @@
     || (t.DdhApproved?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
     || (t.DdhRejected?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
 
-    private List<ExcelColumn<SchemeTypeWiseApplicationsListDto>> GetColumns() => new()
+    private List<ExcelColumn<SchemeTypeWiseNewApplicationsListDto>> GetColumns() => new()
     {
         new() { HeaderEn = "Scheme", HeaderHi = "योजना",
                 ValueSelector = x => x.SchemeName! },

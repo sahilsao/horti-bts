@@ -5,14 +5,14 @@ using HortiBts.Shared.Dtos.ApplicationVerification.DDH;
 
 namespace HortiBts.Api.Repositories.ApplicationVerification.DDH;
 
-public interface ISchemeTypeWiseFarmerVerificationRepository
+public interface ISchemeTypeWiseNewFarmerVerificationRepository
 {
-    Task<Result<List<SchemeTypeWiseApplicationsListDto>>> GetSchemeTypeWiseDistrictApplicationsAsync(int schemeTypeId, int districtCode, int financialYear);
+    Task<Result<List<SchemeTypeWiseNewApplicationsListDto>>> GetSchemeTypeWiseNewDistrictApplicationsAsync(int schemeTypeId, int districtCode, int financialYear);
 }
 
-public class SchemeTypeWiseFarmerVerificationRepository(IDbConnectionFactory connectionFactory) : ISchemeTypeWiseFarmerVerificationRepository
+public class SchemeTypeWiseFarmerVerificationRepository(IDbConnectionFactory connectionFactory) : ISchemeTypeWiseNewFarmerVerificationRepository
 {
-    public async Task<Result<List<SchemeTypeWiseApplicationsListDto>>> GetSchemeTypeWiseDistrictApplicationsAsync(int schemeTypeId, int districtCode, int financialYear)
+    public async Task<Result<List<SchemeTypeWiseNewApplicationsListDto>>> GetSchemeTypeWiseNewDistrictApplicationsAsync(int schemeTypeId, int districtCode, int financialYear)
     {
         using var connection = connectionFactory.CreateConnection();
         string Sql = @"
@@ -47,7 +47,7 @@ public class SchemeTypeWiseFarmerVerificationRepository(IDbConnectionFactory con
             GROUP BY s.s_id
             ORDER BY s.scheme_name;";
 
-        var result = await connection.QueryAsync<SchemeTypeWiseApplicationsListDto>(Sql, new { SchemeTypeId = schemeTypeId, DistrictCode = districtCode, FinancialYear = financialYear });
-        return Result<List<SchemeTypeWiseApplicationsListDto>>.Success(result.ToList());
+        var result = await connection.QueryAsync<SchemeTypeWiseNewApplicationsListDto>(Sql, new { SchemeTypeId = schemeTypeId, DistrictCode = districtCode, FinancialYear = financialYear });
+        return Result<List<SchemeTypeWiseNewApplicationsListDto>>.Success(result.ToList());
     }
 }

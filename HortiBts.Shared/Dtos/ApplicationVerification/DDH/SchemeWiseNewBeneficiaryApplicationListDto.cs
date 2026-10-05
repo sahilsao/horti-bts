@@ -2,7 +2,7 @@ using System;
 
 namespace HortiBts.Shared.Dtos.ApplicationVerification.DDH;
 
-public class SchemeWiseBeneficiaryApplicationListDto
+public class SchemeWiseNewBeneficiaryApplicationListDto
 {
     public int? ApplicationId { get; set; } // application_id
     public int? HfId { get; set; } // hf_id

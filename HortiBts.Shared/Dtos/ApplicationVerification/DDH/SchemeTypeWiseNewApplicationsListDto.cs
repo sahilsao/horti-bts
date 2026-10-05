@@ -2,7 +2,7 @@ using System;
 
 namespace HortiBts.Shared.Dtos.ApplicationVerification.DDH;
 
-public class SchemeTypeWiseApplicationsListDto
+public class SchemeTypeWiseNewApplicationsListDto
 {
     public int? SchemeId { get; set; } // s_id
     public string? SchemeName { get; set; } // scheme_name

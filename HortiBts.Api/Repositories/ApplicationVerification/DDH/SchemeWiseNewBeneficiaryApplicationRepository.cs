@@ -5,15 +5,15 @@ using HortiBts.Shared.Dtos.ApplicationVerification.DDH;
 
 namespace HortiBts.Api.Repositories.ApplicationVerification.DDH;
 
-public interface ISchemeWiseBeneficiaryApplicationRepository
+public interface ISchemeWiseNewBeneficiaryApplicationRepository
 {
-    Task<Result<List<SchemeWiseBeneficiaryApplicationListDto>>> GetSchemeWiseBeneficiaryApplicationsAsync(int schemeId, int districtCode, int financialYear);
+    Task<Result<List<SchemeWiseNewBeneficiaryApplicationListDto>>> GetSchemeWiseNewBeneficiaryApplicationsAsync(int schemeId, int districtCode, int financialYear);
 }
 
-public class SchemeWiseBeneficiaryApplicationRepository(IDbConnectionFactory connectionFactory) : ISchemeWiseBeneficiaryApplicationRepository
+public class SchemeWiseNewBeneficiaryApplicationRepository(IDbConnectionFactory connectionFactory) : ISchemeWiseNewBeneficiaryApplicationRepository
 {
 
-    public async Task<Result<List<SchemeWiseBeneficiaryApplicationListDto>>> GetSchemeWiseBeneficiaryApplicationsAsync(int schemeId, int districtCode, int financialYear)
+    public async Task<Result<List<SchemeWiseNewBeneficiaryApplicationListDto>>> GetSchemeWiseNewBeneficiaryApplicationsAsync(int schemeId, int districtCode, int financialYear)
     {
         using var connection = connectionFactory.CreateConnection();
         string Sql = @"
@@ -45,7 +45,7 @@ public class SchemeWiseBeneficiaryApplicationRepository(IDbConnectionFactory con
             WHERE sd.scheme_id = @SchemeId AND v.DistCodeCensus= @DistrictCode and fa.rheo_approval_status=1 and fa.ddh_approval_status=0
             ORDER BY sd.created_at";
 
-        var result = await connection.QueryAsync<SchemeWiseBeneficiaryApplicationListDto>(Sql, new { SchemeId = schemeId, DistrictCode = districtCode, FinancialYear = financialYear });
-        return Result<List<SchemeWiseBeneficiaryApplicationListDto>>.Success(result.ToList());
+        var result = await connection.QueryAsync<SchemeWiseNewBeneficiaryApplicationListDto>(Sql, new { SchemeId = schemeId, DistrictCode = districtCode, FinancialYear = financialYear });
+        return Result<List<SchemeWiseNewBeneficiaryApplicationListDto>>.Success(result.ToList());
     }
 }

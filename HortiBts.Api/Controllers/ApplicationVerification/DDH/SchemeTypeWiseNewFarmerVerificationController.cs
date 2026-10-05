@@ -7,16 +7,16 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
 {
     [Route("api/district")]
     [ApiController]
-    public class SchemeTypeWiseFarmerVerificationController(ISchemeTypeWiseFarmerVerificationRepository repository, ILogger<SchemeTypeWiseApplicationsListDto> logger) : ControllerBase
+    public class SchemeTypeWiseNewFarmerVerificationController(ISchemeTypeWiseNewFarmerVerificationRepository repository, ILogger<SchemeTypeWiseNewApplicationsListDto> logger) : ControllerBase
     {
-        [HttpGet("scheme-type-wise-applications")]
+        [HttpGet("scheme-type-wise-new-applications")]
         [EndpointSummary("Get scheme type wise district applications")]
         [EndpointDescription("Retrieves the list of applications for a specified district, scheme type, and financial year.")]
         public async Task<IActionResult> GetSchemeTypeWiseDistrictApplicationsAsync([FromQuery] int schemeTypeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
         {
             try
             {
-                var result = await repository.GetSchemeTypeWiseDistrictApplicationsAsync(schemeTypeId, districtCode, financialYear);
+                var result = await repository.GetSchemeTypeWiseNewDistrictApplicationsAsync(schemeTypeId, districtCode, financialYear);
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
                 return Ok(result);
