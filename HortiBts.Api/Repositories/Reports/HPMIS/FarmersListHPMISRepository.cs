@@ -1,13 +1,14 @@
 using System;
 using Dapper;
 using HortiBts.Api.Data;
+using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Reports.HPMIS;
 
 namespace HortiBts.Api.Repositories.Reports.HPMIS;
 
-public interface IFarmerDetailsRepository
+public interface IFarmersListHPMISRepository
 {
-    Task<IEnumerable<FarmersListHPMISDto>> GetFarmerListByIdAsync(FarmerListQueryParams query);
+    Task<Result<List<FarmersListHPMISDto>>> GetFarmerListByIdAsync(FarmerListQueryParams query);
 }
 
 public class FarmerListQueryParams
@@ -17,9 +18,9 @@ public class FarmerListQueryParams
     public int? Id { get; set; }
 }
 
-public class FarmerDetailsRepository(IDbConnectionFactory connectionFactory) : IFarmerDetailsRepository
+public class FarmersListHPMISRepository(IDbConnectionFactory connectionFactory) : IFarmersListHPMISRepository
 {
-    public async Task<IEnumerable<FarmersListHPMISDto>> GetFarmerListByIdAsync(FarmerListQueryParams query)
+    public async Task<Result<List<FarmersListHPMISDto>>> GetFarmerListByIdAsync(FarmerListQueryParams query)
     {
         using var connection = connectionFactory.CreateConnection(HortiDb.Hpmis);
 
@@ -139,6 +140,7 @@ public class FarmerDetailsRepository(IDbConnectionFactory connectionFactory) : I
                     LIMIT 1000
                 ) cd ON cd.application_id = fa.application_id
             {subQuery}";
-        return await connection.QueryAsync<FarmersListHPMISDto>(sql, parameters);
+        var result = await connection.QueryAsync<FarmersListHPMISDto>(sql, parameters);
+        return Result<List<FarmersListHPMISDto>>.Success(result.ToList());
     }
 }

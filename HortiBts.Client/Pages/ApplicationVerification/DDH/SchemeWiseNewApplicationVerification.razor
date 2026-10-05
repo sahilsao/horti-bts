@@ -1,4 +1,4 @@
-﻿@page "/district/schemewise-new-application-verification"
+﻿@* @page "/district/schemewise-new-application-verification"
 @attribute [Authorize(Roles = "District")]
 @using HortiBts.Client.Services.ApplicationVerification.DDH
 @using HortiBts.Client.Services.Auth
@@ -332,4 +332,4 @@
             (en, hi) => Lang.Text(en, hi),
             $"DistrictWise_FarmerRegistrationReport_{finYear}.xlsx");
     }
-}
+} *@

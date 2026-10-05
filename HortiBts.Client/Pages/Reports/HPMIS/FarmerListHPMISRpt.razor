@@ -132,7 +132,7 @@
               Hover="true" Elevation="1" Class="mt-4">
         <ToolBarContent>
             <MudText Typo="Typo.h6">
-                @Lang.Text("Farmer-wise Farmer Applications Report", "कृषक-वार कृषक आवेदन रिपोर्ट")
+                @Lang.Text("Farmer-wise (HPMIS) Report", "कृषक-वार (HPMIS) रिपोर्ट")
                 (@_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear)
             </MudText>
             <MudSpacer />
@@ -168,6 +168,7 @@
             <MudTh>@Lang.Text("Crop", "फसल")</MudTh>
             <MudTh>@Lang.Text("Crop Area (in hectares)", "फसल रकबा (हेक्टेयर में)")</MudTh>
             <MudTh>@Lang.Text("Expected Production (in quintal)", "अनुमानित उत्पादन (क्विंटल में)")</MudTh>
+            <MudTh>@Lang.Text("Action", "एक्शन")</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
@@ -179,20 +180,28 @@
             <MudTd DataLabel="@Lang.Text("Season", "सीज़न")">@context.SeasonNameHi</MudTd>
             <MudTd DataLabel="@Lang.Text("Crop", "फसल")">@context.CropName</MudTd>
             <MudTd DataLabel="@Lang.Text("Crop Area (in hectares)", "फसल रकबा (हेक्टेयर में)")">
-                @context.CropArea?.ToString("N4")</MudTd>
-                <MudTd DataLabel="@Lang.Text("Expected Production (in quintal)", "अनुमानित उत्पादन (क्विंटल में)")">
-                    @context.ExpectedProduction?.ToString("N2")</MudTd>
-                </RowTemplate>
-                <FooterContent>
-                    <MudTd colspan="7"><b>@Lang.Text("Total", "योग")</b></MudTd>
-                    <MudTd><b>@_filteredReportData.Sum(x => x.CropArea ?? 0).ToString("N4")</b></MudTd>
-                    <MudTd><b>@_filteredReportData.Sum(x => x.ExpectedProduction ?? 0).ToString("N2")</b></MudTd>
-                </FooterContent>
-                <PagerContent>
-                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
-                </PagerContent>
-            </MudTable>
-        }
+                @context.CropArea?.ToString("N4")
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Expected Production (in quintal)", "अनुमानित उत्पादन (क्विंटल में)")">
+                @context.ExpectedProduction?.ToString("N2")
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Action", "एक्शन")">
+                <MudTooltip Text="@Lang.Text("View Details", "विवरण देखें")">
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary"
+                                   OnClick="@(() => Navigation.NavigateTo($"/reports/hpmis/farmer-details/{context.ApplicationId}"))" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+        <FooterContent>
+            <MudTd colspan="7"><b>@Lang.Text("Total", "योग")</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.CropArea ?? 0).ToString("N4")</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.ExpectedProduction ?? 0).ToString("N2")</b></MudTd>
+        </FooterContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
 @code {
 
     private List<DistrictsDto> _districts = [];
