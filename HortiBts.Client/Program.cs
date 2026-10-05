@@ -112,6 +112,7 @@ builder.Services.AddScoped<BacklogYearlySchemeWiseRegistrationApiService>();
 builder.Services.AddScoped<BacklogYearlyComponentWiseRegistrationApiService>();
 
 // Application Verification Related
-builder.Services.AddScoped<SchemeWiseApplicationVerificationApiService>();
+builder.Services.AddScoped<SchemeTypeWiseApplicationVerificationApiService>();
+builder.Services.AddScoped<SchemeWiseBeneficiaryApplicationApiService>();
 
 await builder.Build().RunAsync();

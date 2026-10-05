@@ -7,16 +7,18 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
 {
     [Route("api/district")]
     [ApiController]
-    public class SchemeWiseFarmerVerificationController(ISchemeWiseFarmerVerificationRepository repository, ILogger<SchemeWiseApplicationsListDto> logger) : ControllerBase
+    public class SchemeWiseBeneficiaryApplicationController(ISchemeWiseBeneficiaryApplicationRepository repository, ILogger<SchemeWiseBeneficiaryApplicationListDto> logger) : ControllerBase
     {
-        [HttpGet("scheme-wise-applications")]
-        [EndpointSummary("Get scheme-wise district applications")]
-        [EndpointDescription("Retrieves the list of applications for a specified district, scheme, and financial year.")]
-        public async Task<IActionResult> GetSchemeWiseDistrictApplicationsAsync([FromQuery] int financialYear, [FromQuery] int districtCode, [FromQuery] int schemeTypeId)
+
+
+        [HttpGet("scheme-wise-beneficiaries-applications")]
+        [EndpointSummary("Get beneficiary list of applications")]
+        [EndpointDescription("Retrieves the list of beneficiaries applications for a specified district, scheme, and financial year.")]
+        public async Task<IActionResult> GetSchemeWiseDistrictApplicationsAsync([FromQuery] int schemeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
         {
             try
             {
-                var result = await repository.GetSchemeWiseDistrictApplicationsAsync(financialYear, districtCode, schemeTypeId);
+                var result = await repository.GetSchemeWiseBeneficiaryApplicationsAsync(schemeId, districtCode, financialYear);
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
                 return Ok(result);

@@ -107,7 +107,8 @@ builder.Services.AddScoped<IBacklogYearlySchemeWiseRegistrationRepository, Backl
 builder.Services.AddScoped<IBacklogYearlyComponentWiseRegistrationRepository, BacklogYearlyComponentWiseRegistrationRepository>();
 
 // Application Verification Related
-builder.Services.AddScoped<ISchemeWiseFarmerVerificationRepository, SchemeWiseFarmerVerificationRepository>();
+builder.Services.AddScoped<ISchemeTypeWiseFarmerVerificationRepository, SchemeTypeWiseFarmerVerificationRepository>();
+builder.Services.AddScoped<ISchemeWiseBeneficiaryApplicationRepository, SchemeWiseBeneficiaryApplicationRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.

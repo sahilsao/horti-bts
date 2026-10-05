@@ -1,0 +1,450 @@
+﻿@page "/district/scheme-wise-new-application-beneficiary-list"
+@page "/district/scheme-wise-new-application-beneficiary-list/{SchemeTypeId:int}/{SchemeId:int}/{DistrictCode:int}/{FinancialYear:int}"
+@attribute [Authorize(Roles = "District")]
+@using HortiBts.Client.Services.ApplicationVerification.DDH
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Reports
+@using HortiBts.Client.Services.Schemes
+@using HortiBts.Shared.Dtos.ApplicationVerification.DDH
+@using HortiBts.Shared.Dtos.FinancialYear
+@using HortiBts.Shared.Dtos.Schemes
+
+@inject FinancialYearsApiService FinancialYearsApiService
+@inject SchemesApiService SchemesApiService
+@inject SchemeWiseBeneficiaryApplicationApiService SchemeWiseBeneficiaryApplicationApiService
+@inject ISnackbar Snackbar
+@inject IUserContextService UserContextService
+@inject ExcelExportService ExcelExport
+
+<PageTitle>@Lang.Text("New Application Beneficiary List (2025-26/2026-27)", "नविन आवेदन लाभार्थी सूची (2025-26/2026-27)")
+</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="@Icons.Material.Filled.ViewList" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("New Application Beneficiary List (2025-26/2026-27)", "नविन आवेदन लाभार्थी सूची (2025-26/2026-27)")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("View New Application Beneficiary details for verification.", "सत्यापन हेतु नविन आवेदन के लाभार्थी का विवरण देखें।")
+</MudText>
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Label="@Lang.Text("Select Financial Year", "वित्त वर्ष चुने")"
+                   @bind-Value="_selectedFinancialYear" Variant="Variant.Outlined" FullWidth="true" Class="mb-3"
+                   Required="true">
+            @foreach (var f in _finyears)
+            {
+                <MudSelectItem T="int?" Value="@((int?)f.Id)">
+                    @f.FinancialYear
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_selectedSchemeTypeId" ValueChanged="OnSchemeTypeChanged"
+                   Label="@Lang.Text("Scheme Type", "योजना का प्रकार")" Variant="Variant.Outlined" Required="true">
+
+            @foreach (var st in _schemesTypes)
+            {
+                <MudSelectItem T="int?" Value="@((int?)st.SchemeId)">
+                    @st.SchemeTypeName
+
+                    @if (!string.IsNullOrWhiteSpace(st.SchemeTypeNameEn))
+                    {
+                        <span> / @st.SchemeTypeNameEn</span>
+                    }
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <!-- Scheme -->
+    <MudItem xs="12" sm="5">
+        <MudSelect T="int?" @bind-Value="_selectedSchemeId" Label="@Lang.Text("Scheme", "योजना")"
+                   Variant="Variant.Outlined" Required="true" Disabled="@(!_schemes.Any())">
+
+
+            @foreach (var scheme in _schemes)
+            {
+                <MudSelectItem T="int?" Value="@((int?)scheme.SchemeId)">
+                    @scheme.SchemeName
+
+                    @if (!string.IsNullOrWhiteSpace(scheme.SchemeNameEn))
+                    {
+                        <span> / @scheme.SchemeNameEn</span>
+                    }
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
+<MudStack Row="true" Spacing="1">
+    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="LoadReport" Disabled="_isLoading">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            <span>@Lang.Text("Loading...", "लोड हो रहा है...")</span>
+        }
+        else
+        {
+            <span>@Lang.Text("Search", "खोज करें")</span>
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+        @Lang.Text("Reset", "रीसेट")
+    </MudButton>
+</MudStack>
+
+@if (_reportData.Any())
+{
+    <MudText Typo="Typo.body2" Class="mt-4">@Lang.Text("Please approve farmers on a first-come, first-served basis. Approvals for farmers must be processed separately for each scheme.", "कृपया पहले आओ पहले पाओ के आधार पर कृषकों का स्वीकृत करे| प्रत्येक योजना के लिए कृषकों का स्वीकृत पृथक पृथक किया जाना है।")</MudText>
+    <MudTable Items="_filteredReportData" SortLabel="Sort By" Bordered="true" HeaderClass="report-header-row" Dense="true"
+              Hover="true" Elevation="1" Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">
+                @Lang.Text("List of Farmers ", "कृषकों की सूची ")
+                (@_finyears.FirstOrDefault(f => f.Id == _selectedFinancialYear)?.FinancialYear)
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.ApplicationId!)">
+                    @Lang.Text("Application Number", "आवेदन क्रमांक")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.VillageName!)">
+                    @Lang.Text("Village Name", "ग्राम का नाम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => Lang.Text(x.FarmerNameEng!, x.FarmerNameHi!))">
+                    @Lang.Text("Farmer Name", "कृषक का नाम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.FatherName!)">
+                    @Lang.Text("Father Name", "पिता का नाम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.MobileNo!)">
+                    @Lang.Text("Mobile Number", "मोबाइल नंबर")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.SchemeName!)">
+                    @Lang.Text("Scheme", "योजना")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.Area!)">
+                    @Lang.Text("Area (for the scheme) (in hectares)", "रकबा (योजना के लिए) (हेक्ट. में)")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.KhasraNo!)">
+                    @Lang.Text("Khasra number against which the benefit has been availed", "खसरा नंबर जिसमे लाभ लिया गया है")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.TotalLandKhasra!)">
+                    @Lang.Text("Total Land Khasra", "कुल खसरा भूमि")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.TotalLandArea!)">
+                    @Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्ट. में)")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.IfscCode!)">
+                    @Lang.Text("IFSC Code", "आईएफएससी कोड")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.AccountNo!)">
+                    @Lang.Text("Account Number", "खाता क्रमांक")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SchemeWiseBeneficiaryApplicationListDto, object>(x => x.RegDate!)">
+                    @Lang.Text("Registration Date", "पंजीयन दिनांक")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>@Lang.Text("Status (Accept/Reject the farmer)", "स्थिति (कृषक का स्वीकृत/निरस्त करें)")</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("Application Number", "आवेदन क्रमांक")"> @context.ApplicationId </MudTd>
+            <MudTd DataLabel="@Lang.Text("Farmer Name", "कृषक का नाम")">@context.FarmerNameEng/@context.FarmerNameHi</MudTd>
+            <MudTd DataLabel="@Lang.Text("Father Name", "पिता का नाम")">@context.FatherName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Mobile Number", "मोबाइल नंबर")">@context.MobileNo</MudTd>
+            <MudTd DataLabel="@Lang.Text("Scheme", "योजना")">@context.SchemeName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Area (for the scheme) (in hectares)", "रकबा (योजना के लिए) (हेक्ट. में)")">
+                @context.Area</MudTd>
+                <MudTd
+                    DataLabel="@Lang.Text("Khasra number against which the benefit has been availed", "खसरा नंबर जिसमे लाभ लिया गया है")">
+                    @context.KhasraNo</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Total Land Khasra", "कुल खसरा भूमि")">@context.TotalLandKhasra</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्ट. में)")">@context.TotalLandArea
+                    </MudTd>
+                    <MudTd DataLabel="@Lang.Text("IFSC Code", "आईएफएससी कोड")">@context.IfscCode</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Account Number", "खाता क्रमांक")">@context.AccountNo</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Registration Date", "पंजीयन दिनांक")">@context.RegDate</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Status (Accept/Reject the farmer)", "स्थिति (कृषक का स्वीकृत/निरस्त करें)")">
+                        <MudTooltip Text="@Lang.Text("View Applications", "आवेदन देखें")">
+                            <MudIconButton
+                                Icon="@Icons.Material.Filled.Visibility"
+                                Color="Color.Primary"
+                                Size="Size.Small"
+                                Href="" />
+                        </MudTooltip>
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+                </PagerContent>
+            </MudTable>
+        }
+
+@code {
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private List<FinancialYearDto> _finyears = [];
+    private List<SchemeTypeDto> _schemesTypes = new();
+    private List<SchemeDto> _schemes = new();
+    private int? _selectedFinancialYear;
+    private int? _selectedSchemeTypeId;
+    private int? _selectedSchemeId;
+
+    private bool _isLoading = false;
+
+    private List<SchemeWiseBeneficiaryApplicationListDto> _reportData = new();
+
+    private string _searchString = string.Empty;
+
+    [Parameter]
+    public int SchemeTypeId { get; set; }
+    [Parameter]
+    public int SchemeId { get; set; }
+    [Parameter]
+    public int DistrictCode { get; set; }
+    [Parameter]
+    public int FinancialYear { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _currentUser = await UserContextService.GetCurrentUserAsync();
+        await LoadFinancialYearsAsync();
+        await LoadSchemeTypes();
+
+        if (DistrictCode > 0 && SchemeTypeId > 0 && SchemeId > 0 && FinancialYear > 0)
+        {
+            _selectedSchemeTypeId = SchemeTypeId;
+            await OnSchemeTypeChanged(_selectedSchemeTypeId);
+
+            _selectedSchemeId = SchemeId;
+
+            _selectedFinancialYear = FinancialYear;
+
+            await LoadReport();
+        }
+    }
+
+    private async Task LoadFinancialYearsAsync()
+    {
+        var result = await FinancialYearsApiService.GetFinancialYearsForReportAsync();
+
+        if (result.IsSuccess && result.Data is not null)
+            _finyears = result.Data.Take(2).ToList();
+        else
+            Snackbar.Add(Lang.Text("Failed to load financial years.", "वित्त वर्ष लोड करने में विफल।"), Severity.Warning);
+
+    }
+
+    private async Task LoadSchemeTypes()
+    {
+        var schemeTypesTask = await SchemesApiService.GetSchemesTypesAsync();
+        if (schemeTypesTask.IsSuccess && schemeTypesTask.Data is not null)
+        {
+            _schemesTypes = schemeTypesTask.Data;
+        }
+        else
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Failed to load scheme types.",
+                    "योजना प्रकार लोड करने में विफल।"),
+                Severity.Error);
+        }
+    }
+
+    private async Task OnSchemeTypeChanged(int? schemeTypeId)
+    {
+        _selectedSchemeTypeId = schemeTypeId;
+        _selectedSchemeId = null;
+        _schemes.Clear();
+
+        if (!schemeTypeId.HasValue || schemeTypeId.Value == 0)
+            return;
+
+        var result =
+            await SchemesApiService.GetSchemesByTypeAsync(schemeTypeId.Value);
+
+        if (result.IsSuccess && result.Data is not null)
+        {
+            _schemes = result.Data;
+        }
+        else
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Failed to load schemes.",
+                    "योजनाएँ लोड करने में विफल।"),
+                Severity.Error);
+        }
+    }
+
+    private async Task LoadReport()
+    {
+        
+        if (_selectedFinancialYear is null)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Please select a financial year.",
+                    "कृपया एक वित्त वर्ष चुनें।"),
+                Severity.Warning);
+            return;
+        }
+
+        _isLoading = true;
+
+        try
+        {
+            int _selectedDistrictCode = int.Parse(_currentUser.UserId);
+            var result =
+                await SchemeWiseBeneficiaryApplicationApiService
+                    .GetSchemeWiseBeneficiaryApplicationAsync(
+                        _selectedSchemeId!.Value,
+                        _selectedDistrictCode,
+                        _selectedFinancialYear!.Value);
+
+            if (result.IsSuccess && result.Data is not null)
+            {
+                if (result.Data.Any())
+                {                    
+                    _reportData = result.Data;                    
+                    
+                }
+                else
+                {
+                    _reportData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
+            }
+           else
+            {
+                Snackbar.Add(
+                    $"IsSuccess: {result.IsSuccess}, Data null: {result.Data is null}, Error: {result.Error}",
+                    Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "An error occurred while loading the report.",
+                    "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task Reset()
+    {
+        _selectedFinancialYear = null;
+        _selectedSchemeTypeId = null;
+    }
+
+    private IEnumerable<SchemeWiseBeneficiaryApplicationListDto> _filteredReportData =>
+    _reportData.Where(t =>
+    string.IsNullOrWhiteSpace(_searchString)
+    || (t.ApplicationId?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.FarmerNameEng?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.FarmerNameHi?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.FatherName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.MobileNo?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.SchemeName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.Area?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.KhasraNo?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.TotalLandKhasra?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.TotalLandArea?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.IfscCode?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.AccountNo?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.RegDate?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private List<ExcelColumn<SchemeWiseBeneficiaryApplicationListDto>> GetColumns() => new()
+    {
+        @* new() { HeaderEn = "Scheme", HeaderHi = "योजना",
+                ValueSelector = x => x.SchemeName! },
+        new() { HeaderEn = "Applications Count", HeaderHi = "आवेदनों की संख्या",
+                ValueSelector = x => x.TotalApplications ?? 0,
+                TotalSelector = list => list.Sum(x => x.TotalApplications ?? 0) },
+        new() { HeaderEn = "Pending", HeaderHi = "लंबित",
+                ValueSelector = x => x.RheoPending ?? 0,
+                TotalSelector = list => list.Sum(x => x.RheoPending ?? 0) },
+        new() { HeaderEn = "Approved", HeaderHi = "स्वीकृत",
+                ValueSelector = x => x.RheoApproved ?? 0,
+                TotalSelector = list => list.Sum(x => x.RheoApproved ?? 0) },
+        new() { HeaderEn = "Rejected", HeaderHi = "अस्वीकृत",
+                ValueSelector = x => x.RheoRejected ?? 0,
+                TotalSelector = list => list.Sum(x => x.RheoRejected ?? 0) },
+        new() { HeaderEn = "Pending", HeaderHi = "लंबित",
+                ValueSelector = x => x.RheoPending ?? 0,
+                TotalSelector = list => list.Sum(x => x.DdhPending ?? 0) },
+        new() { HeaderEn = "Approved", HeaderHi = "स्वीकृत",
+                ValueSelector = x => x.RheoApproved ?? 0,
+                TotalSelector = list => list.Sum(x => x.DdhApproved ?? 0) },
+        new() { HeaderEn = "Rejected", HeaderHi = "अस्वीकृत",
+                ValueSelector = x => x.RheoRejected ?? 0,
+                TotalSelector = list => list.Sum(x => x.DdhRejected ?? 0) }, *@
+    };
+
+    private async Task ExportToExcel()
+    {
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("Scheme Wise Beneficiary Applications Report", "योजनावार लाभार्थी आवेदन रिपोर्ट"),
+            (en, hi) => Lang.Text(en, hi),
+            $"SchemeWiseBeneficiary_ApplicationsReport.xlsx");
+    }
+}

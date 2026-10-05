@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Schemes;
@@ -33,7 +32,7 @@ namespace HortiBts.Api.Repositories.Schemes
                 ms.scheme_name     AS SchemeName,
                 ms.scheme_name_en  AS SchemeNameEn,
                 ms.scheme_code     AS SchemeCode,
-                st.st_id           AS SchemeTypeId,
+                ms.st_id           AS SchemeTypeId,
                 st.scheme_name     AS SchemeTypeHi,
                 st.scheme_name_en  AS SchemeTypeEn,
                 ms.description_hi  AS SchemeDescriptionHi,
@@ -65,7 +64,7 @@ namespace HortiBts.Api.Repositories.Schemes
                     ms.scheme_name AS SchemeName,
                     ms.scheme_name_en AS SchemeNameEn,
                     ms.scheme_code AS SchemeCode,
-                    ms.st_id AS SchemeTypeId,
+                    ms.s_id AS SchemeTypeId,
                     ms.scheme_name AS SchemeTypeName,
                     ms.scheme_name_en AS SchemeTypeNameEn
                 FROM mas_scheme_horti ms

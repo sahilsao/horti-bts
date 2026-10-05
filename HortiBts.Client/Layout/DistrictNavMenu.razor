@@ -16,9 +16,13 @@
             </MudNavLink>
             <MudNavGroup Title="@Lang.Text("Application Verification", "आवेदन सत्यापन")" Ripple
                          Icon="@Icons.Material.Filled.Edit">
-                <MudNavLink Href="/district/schemewise-new-application-verification" Match="NavLinkMatch.Prefix" Ripple
+                <MudNavLink Href="/district/scheme-type-wise-new-application-list" Match="NavLinkMatch.Prefix" Ripple
                             Icon="@Icons.Material.Filled.DomainVerification">
-                    @Lang.Text("Scheme Wise New Application Verification (2025-26 / 2026-27)", "योजनावार नविन आवेदन सत्यापन (2025-26 / 2026-27)")
+                    @Lang.Text("Scheme Wise New Application List (2025-26/2026-27)", "योजनावार नविन आवेदन सूची (2025-26/2026-27)")
+                </MudNavLink>
+                <MudNavLink Href="/district/scheme-wise-new-application-beneficiary-list" Match="NavLinkMatch.Prefix"
+                            Ripple Icon="@Icons.Material.Filled.ViewList">
+                    @Lang.Text("New Application Beneficiary List (2025-26/2026-27)", "नविन आवेदन लाभार्थी सूची (2025-26/2026-27)")
                 </MudNavLink>
             </MudNavGroup>
         </Authorized>
