@@ -10,7 +10,6 @@ using HortiBts.Client.Services.Dashboard.District;
 using HortiBts.Client.Services.Districts;
 using HortiBts.Client.Services.Farmers;
 using HortiBts.Client.Services.FinancialYears;
-using HortiBts.Client.Services.Girdawari;
 using HortiBts.Client.Services.HPMIS;
 using HortiBts.Client.Services.MIDHComponents;
 using HortiBts.Client.Services.MIDHSchemes;
@@ -26,6 +25,7 @@ using HortiBts.Client.Services.Reports.PreviousFY.Comparative;
 using HortiBts.Client.Services.Reports.PreviousFY.Yearly;
 using HortiBts.Client.Services.Reports.Scheme;
 using HortiBts.Client.Services.Schemes;
+using HortiBts.Client.Services.Soil;
 using HortiBts.Client.Services.SubDistricts;
 using HortiBts.Client.Services.Target;
 using HortiBts.Client.Services.Units;
@@ -65,6 +65,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 builder.Services.AddSingleton<LanguageService>();
 
 // ── Feature Services (Master Data) — API-backed implementations
+builder.Services.AddScoped<SoilDetailsApiService>();
 
 // Authentication and Authorization Related
 builder.Services.AddScoped<LoginHistoryApiService>();
@@ -87,8 +88,8 @@ builder.Services.AddScoped<DistrictDashboardApiService>();
 // Master Entry Related
 builder.Services.AddScoped<NoticesApiService>();
 builder.Services.AddScoped<SchemesApiService>();
-builder.Services.AddScoped<GirdawariApiService>();
-builder.Services.AddScoped<FarmersDetailsApiService>();
+
+builder.Services.AddScoped<FarmersDetailsByUFIDApiService>();
 builder.Services.AddScoped<FarmersVerificationForUFPApiService>();
 builder.Services.AddScoped<BenefitsApiService>();
 builder.Services.AddScoped<MidhSchemesApiService>();
@@ -119,5 +120,7 @@ builder.Services.AddScoped<SchemeWiseNewBeneficiaryApplicationApiService>();
 
 builder.Services.AddScoped<SchemeTypeWiseOldApplicationVerificationApiService>();
 builder.Services.AddScoped<SchemeWiseOldBeneficiaryApplicationApiService>();
+
+builder.Services.AddScoped<FarmersDetailsByApplicationIdApiService>();
 
 await builder.Build().RunAsync();

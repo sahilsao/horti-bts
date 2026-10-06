@@ -1,5 +1,4 @@
-﻿using HortiBts.Client.Pages.Farmers.FarmerDetails.Models;
-using HortiBts.Shared.Common;
+﻿using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.Components;
 using HortiBts.Shared.Dtos.MIDHComponents;
 using HortiBts.Shared.Dtos.MIDHSchemes;

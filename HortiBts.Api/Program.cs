@@ -9,7 +9,6 @@ using HortiBts.Api.Repositories.Dashboard.District;
 using HortiBts.Api.Repositories.Districts;
 using HortiBts.Api.Repositories.Farmers;
 using HortiBts.Api.Repositories.FinancialYears;
-using HortiBts.Api.Repositories.Girdawari;
 using HortiBts.Api.Repositories.HPMIS;
 using HortiBts.Api.Repositories.MIDHComponents;
 using HortiBts.Api.Repositories.MIDHSchemes;
@@ -30,6 +29,8 @@ using HortiBts.Api.Repositories.Target;
 using HortiBts.Api.Repositories.Units;
 using HortiBts.Api.Repositories.Users;
 using HortiBts.Api.Repositories.Villages;
+using HortiBts.Api.Services;
+using HortiBts.Api.Services.Soil;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -51,6 +52,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IDbConnectionFactory, MySqlConnectionFactory>();
 
 // ── Services
+builder.Services.AddHttpClient<ISoilDetailsService, SoilDetailsService>();
 
 // Authentication and Authorization Related
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
@@ -76,11 +78,7 @@ builder.Services.AddScoped<IDistrictDashboardRepository, DistrictDashboardReposi
 // Master Entry Related
 builder.Services.AddScoped<ISchemeRepository, SchemeRepository>();
 builder.Services.AddScoped<ISchemeDocRepository, SchemeDocRepository>();
-builder.Services.AddScoped<IFarmersDetailsRepository, FarmersDetailsRepository>();
-builder.Services.AddHttpClient<ICropDetailRepository, CropDetailRepository>(client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(30);
-}); //girdawari details
+builder.Services.AddScoped<IFarmersDetailsByUFIDRepository, FarmersDetailsByUFIDRepository>();
 builder.Services.AddScoped<IFarmersVerificationRepository, FarmersVerificationRepository>();
 builder.Services.AddScoped<IBenefitsRepository, BenefitsRepository>();
 builder.Services.AddScoped<INoticeRepository, NoticeRepository>();
@@ -114,6 +112,8 @@ builder.Services.AddScoped<ISchemeWiseNewBeneficiaryApplicationRepository, Schem
 
 builder.Services.AddScoped<ISchemeTypeWiseOldFarmerVerificationRepository, SchemeTypeWiseOldFarmerVerificationRepository>();
 builder.Services.AddScoped<ISchemeWiseOldBeneficiaryApplicationRepository, SchemeWiseOldBeneficiaryApplicationRepository>();
+
+builder.Services.AddScoped<IFarmersDetailsByApplicationIdRepository, FarmersDetailsByApplicationIdRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.

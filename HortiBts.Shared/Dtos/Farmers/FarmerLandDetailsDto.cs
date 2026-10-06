@@ -10,7 +10,7 @@
         public string? OwnerName { get; set; }
         public string? Ownertype { get; set; } // ownertype
         public string? FatherName { get; set; }
-        public long? PatwariHalka { get; set; } // patwari_halka
+        public int? PatwariHalka { get; set; } // patwari_halka
         public string? KhasraNo { get; set; } // khasra_no
         public decimal? Area { get; set; } // area
         public string? Type { get; set; } // type

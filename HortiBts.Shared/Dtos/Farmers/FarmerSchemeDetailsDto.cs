@@ -9,7 +9,7 @@
         public int VillageCode { get; set; } // village_code
         public short SchemeType { get; set; } // scheme_type
         public string? SchemeName { get; set; } // scheme_name
-        public short SchcmeId { get; set; } // schcme_id
+        public short SchemeId { get; set; } // schcme_id
         public short ComponentId { get; set; } // component_id
         public string? Cname { get; set; } // cname
         public SByte BenefitType { get; set; } // benefit_type

@@ -6,19 +6,19 @@ using HortiBts.Shared.Dtos.Farmers;
 
 namespace HortiBts.Api.Repositories.Farmers
 {
-    public interface IFarmersDetailsRepository
+    public interface IFarmersDetailsByUFIDRepository
     {
         /// <summary>Returns farmers basic details</summary>
-        Task<Result<List<FarmerBasicDetailsDto>>> GetFarmersBasicDetailsAsync(string UFID);
-        Task<Result<List<FarmerAddressDetailsDto>>> GetFarmersAddressDetailsAsync(string UFID);
-        Task<Result<List<FarmerBankDetailsDto>>> GetFarmersBankDetailsAsync(string UFID);
-        Task<Result<List<FarmerLandDetailsDto>>> GetFarmersLandDetailsAsync(string UFID, string FinYear);
-        Task<Result<List<FarmerSchemeDetailsDto>>> GetFarmersSchemeDetailsAsync(string UFID, string FinYear);
-        Task<Result<List<FarmerCropDetailsDto>>> GetFarmersCropDetailsAsync(string UFID, string FinYear);
+        Task<Result<List<FarmerBasicDetailsDto>>> GetFarmersBasicDetailsByUFIDAsync(string UFID);
+        Task<Result<List<FarmerAddressDetailsDto>>> GetFarmersAddressDetailsByUFIDAsync(string UFID);
+        Task<Result<List<FarmerBankDetailsDto>>> GetFarmersBankDetailsByUFIDAsync(string UFID);
+        Task<Result<List<FarmerLandDetailsDto>>> GetFarmersLandDetailsByUFIDAsync(string UFID, string FinYear);
+        Task<Result<List<FarmerSchemeDetailsDto>>> GetFarmersSchemeDetailsByUFIDAsync(string UFID, string FinYear);
+        Task<Result<List<FarmerCropDetailsDto>>> GetFarmersCropDetailsByUFIDAsync(string UFID, string FinYear);
     }
-    public class FarmersDetailsRepository(IDbConnectionFactory dbFactory, ILogger<FarmersDetailsRepository> logger) : IFarmersDetailsRepository
+    public class FarmersDetailsByUFIDRepository(IDbConnectionFactory dbFactory, ILogger<FarmersDetailsByUFIDRepository> logger) : IFarmersDetailsByUFIDRepository
     {
-        public async Task<Result<List<FarmerBasicDetailsDto>>> GetFarmersBasicDetailsAsync(string UFID)
+        public async Task<Result<List<FarmerBasicDetailsDto>>> GetFarmersBasicDetailsByUFIDAsync(string UFID)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace HortiBts.Api.Repositories.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerAddressDetailsDto>>> GetFarmersAddressDetailsAsync(string UFID)
+        public async Task<Result<List<FarmerAddressDetailsDto>>> GetFarmersAddressDetailsByUFIDAsync(string UFID)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace HortiBts.Api.Repositories.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerBankDetailsDto>>> GetFarmersBankDetailsAsync(string UFID)
+        public async Task<Result<List<FarmerBankDetailsDto>>> GetFarmersBankDetailsByUFIDAsync(string UFID)
         {
             try
             {
@@ -137,7 +137,7 @@ namespace HortiBts.Api.Repositories.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerLandDetailsDto>>> GetFarmersLandDetailsAsync(string UFID, string FinYear)
+        public async Task<Result<List<FarmerLandDetailsDto>>> GetFarmersLandDetailsByUFIDAsync(string UFID, string FinYear)
         {
             try
             {
@@ -182,7 +182,7 @@ namespace HortiBts.Api.Repositories.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerSchemeDetailsDto>>> GetFarmersSchemeDetailsAsync(string UFID, string FinYear)
+        public async Task<Result<List<FarmerSchemeDetailsDto>>> GetFarmersSchemeDetailsByUFIDAsync(string UFID, string FinYear)
         {
             try
             {
@@ -196,7 +196,7 @@ namespace HortiBts.Api.Repositories.Farmers
                     e.village_code AS VillageCode,
                     e.scheme_type AS SchemeType,
                     ms.scheme_name AS SchemeName,
-                    e.schcme_id AS SchcmeId,
+                    e.schcme_id AS SchemeId,
                     e.component_id AS ComponentId,
                     mc.cname AS Cname,
                     e.benefit_type AS BenefitType,
@@ -242,7 +242,7 @@ namespace HortiBts.Api.Repositories.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerCropDetailsDto>>> GetFarmersCropDetailsAsync(string UFID, string FinYear)
+        public async Task<Result<List<FarmerCropDetailsDto>>> GetFarmersCropDetailsByUFIDAsync(string UFID, string FinYear)
         {
             try
             {

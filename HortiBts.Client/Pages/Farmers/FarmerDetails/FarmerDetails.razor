@@ -7,7 +7,7 @@
 @using HortiBts.Client.Services.FinancialYears
 @using Microsoft.AspNetCore.Components.Web
 
-@inject FarmersDetailsApiService FarmersDetailsApiService
+@inject FarmersDetailsByUFIDApiService FarmersDetailsByUFIDApiService
 @inject FinancialYearsApiService FinancialYearApiService
 
 @inject ISnackbar Snackbar
@@ -302,7 +302,7 @@
                                     <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(context.DistrictName)</MudTd>
                                     <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(context.SubdistrictName)</MudTd>
                                     <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
-                                    <MudTd DataLabel="@Lang.Text("Crop Type", "फसल का प्रकार")">@Or(context.CropCategoryName)</MudTd>
+                                    <MudTd DataLabel="@Lang.Text("Crop Type", "फसल का प्रकार")">@Or(context.SubCropCategoryName)</MudTd>
                                     <MudTd DataLabel="@Lang.Text("Crop Name", "फसल का नाम")">@Or(context.CropName)</MudTd>
                                     <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(context.CropVariety)</MudTd>
                                     <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(context.CropSeasonName)</MudTd>
@@ -365,9 +365,9 @@
 
         try
         {
-            var resultBasicDetails = await FarmersDetailsApiService.GetFarmersBasicDetailsAsync(_searchUfId.Trim());
-            var resultAddressDetails = await FarmersDetailsApiService.GetFarmersAddressDetailsAsync(_searchUfId.Trim());
-            var resultBankDetails = await FarmersDetailsApiService.GetFarmersBankDetailsAsync(_searchUfId.Trim());
+            var resultBasicDetails = await FarmersDetailsByUFIDApiService.GetFarmersBasicDetailsByUFIDAsync(_searchUfId.Trim());
+            var resultAddressDetails = await FarmersDetailsByUFIDApiService.GetFarmersAddressDetailsByUFIDAsync(_searchUfId.Trim());
+            var resultBankDetails = await FarmersDetailsByUFIDApiService.GetFarmersBankDetailsByUFIDAsync(_searchUfId.Trim());
 
             var resultFinYears = await FinancialYearApiService.GetFinancialYearsForReportAsync();
 
@@ -393,7 +393,7 @@
 
                 // Land Details
                 var tasksLandDetails = _finYears
-                    .Select(fy => FarmersDetailsApiService.GetFarmersLandDetailsAsync(_searchUfId.Trim(), fy.Id.ToString()))
+                    .Select(fy => FarmersDetailsByUFIDApiService.GetFarmersLandDetailsByUFIDAsync(_searchUfId.Trim(), fy.Id.ToString()))
                     .ToList();
 
                 var resultLandDetails = await Task.WhenAll(tasksLandDetails);
@@ -405,7 +405,7 @@
 
                 // Scheme Details
                 var tasksSchemeDetails = _finYears
-                .Select(fy => FarmersDetailsApiService.GetFarmersSchemeDetailsAsync(_searchUfId.Trim(), fy.Id.ToString()))
+                .Select(fy => FarmersDetailsByUFIDApiService.GetFarmersSchemeDetailsByUFIDAsync(_searchUfId.Trim(), fy.Id.ToString()))
                 .ToList();
 
                 var resultSchemeDetails = await Task.WhenAll(tasksSchemeDetails);
@@ -417,7 +417,7 @@
 
                 // Crop Details
                 var tasksCropDetails = _finYears
-                .Select(fy => FarmersDetailsApiService.GetFarmersCropDetailsAsync(_searchUfId.Trim(), fy.Id.ToString()))
+                .Select(fy => FarmersDetailsByUFIDApiService.GetFarmersCropDetailsByUFIDAsync(_searchUfId.Trim(), fy.Id.ToString()))
                 .ToList();
 
                 var resultCropDetails = await Task.WhenAll(tasksCropDetails);

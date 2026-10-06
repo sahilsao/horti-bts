@@ -3,18 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.Farmers
 {
-    [Route("api/farmer-details")]
+    [Route("api/farmer-details-by-ufid")]
     [ApiController]
-    public class FarmersDetailsController(IFarmersDetailsRepository farmersDetailsRepository, ILogger<FarmersDetailsController> logger) : ControllerBase
+    public class FarmersDetailsByUFIDController(IFarmersDetailsByUFIDRepository farmersDetailsRepository, ILogger<FarmersDetailsByUFIDController> logger) : ControllerBase
     {
         [HttpGet("get-basic-details")]
         [EndpointSummary("Get farmer basic details")]
         [EndpointDescription("Retrieves the basic details of a farmer using their Unique Farmer ID (UFID).")]
-        public async Task<IActionResult> GetFarmersBasicDetails([FromQuery] string UFID)
+        public async Task<IActionResult> GetFarmersBasicByUFIDDetails([FromQuery] string UFID)
         {
             try
             {
-                var result = await farmersDetailsRepository.GetFarmersBasicDetailsAsync(UFID);
+                var result = await farmersDetailsRepository.GetFarmersBasicDetailsByUFIDAsync(UFID);
 
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
@@ -31,11 +31,11 @@ namespace HortiBts.Api.Controllers.Farmers
         [HttpGet("get-address-details")]
         [EndpointSummary("Get farmer address details")]
         [EndpointDescription("Retrieves the address details of a farmer using their Unique Farmer ID (UFID).")]
-        public async Task<IActionResult> GetFarmersAddressDetails([FromQuery] string UFID)
+        public async Task<IActionResult> GetFarmersAddressByUFIDDetails([FromQuery] string UFID)
         {
             try
             {
-                var result = await farmersDetailsRepository.GetFarmersAddressDetailsAsync(UFID);
+                var result = await farmersDetailsRepository.GetFarmersAddressDetailsByUFIDAsync(UFID);
 
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
@@ -52,11 +52,11 @@ namespace HortiBts.Api.Controllers.Farmers
         [HttpGet("get-bank-details")]
         [EndpointSummary("Get farmer bank details")]
         [EndpointDescription("Retrieves the bank details of a farmer using their Unique Farmer ID (UFID).")]
-        public async Task<IActionResult> GetFarmersBankDetails([FromQuery] string UFID)
+        public async Task<IActionResult> GetFarmersBankByUFIDDetails([FromQuery] string UFID)
         {
             try
             {
-                var result = await farmersDetailsRepository.GetFarmersBankDetailsAsync(UFID);
+                var result = await farmersDetailsRepository.GetFarmersBankDetailsByUFIDAsync(UFID);
 
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
@@ -73,11 +73,11 @@ namespace HortiBts.Api.Controllers.Farmers
         [HttpGet("get-land-details")]
         [EndpointSummary("Get farmer land details")]
         [EndpointDescription("Retrieves the land details of a farmer using their Unique Farmer ID (UFID).")]
-        public async Task<IActionResult> GetFarmersLandDetails([FromQuery] string UFID, string FinYear)
+        public async Task<IActionResult> GetFarmersLandByUFIDDetails([FromQuery] string UFID, string FinYear)
         {
             try
             {
-                var result = await farmersDetailsRepository.GetFarmersLandDetailsAsync(UFID, FinYear);
+                var result = await farmersDetailsRepository.GetFarmersLandDetailsByUFIDAsync(UFID, FinYear);
 
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
@@ -94,11 +94,11 @@ namespace HortiBts.Api.Controllers.Farmers
         [HttpGet("get-scheme-details")]
         [EndpointSummary("Get farmer scheme details")]
         [EndpointDescription("Retrieves the scheme details of a farmer using their Unique Farmer ID (UFID).")]
-        public async Task<IActionResult> GetFarmersSchemeDetails([FromQuery] string UFID, string FinYear)
+        public async Task<IActionResult> GetFarmersSchemeByUFIDDetails([FromQuery] string UFID, string FinYear)
         {
             try
             {
-                var result = await farmersDetailsRepository.GetFarmersSchemeDetailsAsync(UFID, FinYear);
+                var result = await farmersDetailsRepository.GetFarmersSchemeDetailsByUFIDAsync(UFID, FinYear);
 
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
@@ -119,7 +119,7 @@ namespace HortiBts.Api.Controllers.Farmers
         {
             try
             {
-                var result = await farmersDetailsRepository.GetFarmersCropDetailsAsync(UFID, FinYear);
+                var result = await farmersDetailsRepository.GetFarmersCropDetailsByUFIDAsync(UFID, FinYear);
 
                 if (!result.IsSuccess)
                     return Problem(detail: result.Error, statusCode: 500);
