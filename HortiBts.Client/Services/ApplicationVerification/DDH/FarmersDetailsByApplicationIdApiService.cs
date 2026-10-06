@@ -8,11 +8,11 @@ namespace HortiBts.Client.Services.Farmers
 {
     public class FarmersDetailsByApplicationIdApiService(HttpClient http)
     {
-        public async Task<Result<List<FarmerApplicationBasicDetailsDto>>> GetFarmersBasicDetailsByApplicationIdAsync(int ApplicationId)
+        public async Task<Result<List<FarmerApplicationBasicDetailsDto>>> GetFarmersBasicDetailsByApplicationIdAsync(int applicationId)
         {
             try
             {
-                var response = await http.GetAsync($"api/farmer-details-by-applicationid/get-basic-details?ApplicationId={ApplicationId}");
+                var response = await http.GetAsync($"api/farmer-details-by-application-id/get-basic-details?applicationId={applicationId}");
                 return await ApiResultHelper.ReadResultAsync<List<FarmerApplicationBasicDetailsDto>>(response);
             }
             catch (Exception ex)
@@ -21,11 +21,11 @@ namespace HortiBts.Client.Services.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerApplicationAddressDetailsDto>>> GetFarmersAddressDetailsByApplicationIdAsync(int ApplicationId)
+        public async Task<Result<List<FarmerApplicationAddressDetailsDto>>> GetFarmersAddressDetailsByApplicationIdAsync(int applicationId)
         {
             try
             {
-                var response = await http.GetAsync($"api/farmer-details-by-applicationid/get-address-details?ApplicationId={ApplicationId}");
+                var response = await http.GetAsync($"api/farmer-details-by-application-id/get-address-details?applicationId={applicationId}");
                 return await ApiResultHelper.ReadResultAsync<List<FarmerApplicationAddressDetailsDto>>(response);
             }
             catch (Exception ex)
@@ -34,11 +34,11 @@ namespace HortiBts.Client.Services.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerApplicationBankDetailsDto>>> GetFarmersBankDetailsByApplicationIdAsync(int ApplicationId)
+        public async Task<Result<List<FarmerApplicationBankDetailsDto>>> GetFarmersBankDetailsByApplicationIdAsync(int applicationId)
         {
             try
             {
-                var response = await http.GetAsync($"api/farmer-details-by-applicationid/get-bank-details?ApplicationId={ApplicationId}");
+                var response = await http.GetAsync($"api/farmer-details-by-application-id/get-bank-details?applicationId={applicationId}");
                 return await ApiResultHelper.ReadResultAsync<List<FarmerApplicationBankDetailsDto>>(response);
             }
             catch (Exception ex)
@@ -47,11 +47,11 @@ namespace HortiBts.Client.Services.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerApplicationLandDetailsDto>>> GetFarmersLandDetailsByApplicationIdAsync(int ApplicationId, int FinancialYear)
+        public async Task<Result<List<FarmerApplicationLandDetailsDto>>> GetFarmersLandDetailsByApplicationIdAsync(int applicationId, int financialYear)
         {
             try
             {
-                var response = await http.GetAsync($"api/farmer-details-by-applicationid/get-land-details?ApplicationId={ApplicationId}&FinancialYear={FinancialYear}");
+                var response = await http.GetAsync($"api/farmer-details-by-application-id/get-land-details?applicationId={applicationId}&financialYear={financialYear}");
                 return await ApiResultHelper.ReadResultAsync<List<FarmerApplicationLandDetailsDto>>(response);
             }
             catch (Exception ex)
@@ -60,11 +60,11 @@ namespace HortiBts.Client.Services.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerApplicationSchemeDetailsDto>>> GetFarmersSchemeDetailsByApplicationIdAsync(int ApplicationId, int FinancialYear)
+        public async Task<Result<List<FarmerApplicationSchemeDetailsDto>>> GetFarmersSchemeDetailsByApplicationIdAsync(int applicationId, int financialYear)
         {
             try
             {
-                var response = await http.GetAsync($"api/farmer-details-by-applicationid/get-scheme-details?ApplicationId={ApplicationId}&FinancialYear={FinancialYear}");
+                var response = await http.GetAsync($"api/farmer-details-by-application-id/get-scheme-details?applicationId={applicationId}&financialYear={financialYear}");
                 return await ApiResultHelper.ReadResultAsync<List<FarmerApplicationSchemeDetailsDto>>(response);
             }
             catch (Exception ex)
@@ -73,11 +73,11 @@ namespace HortiBts.Client.Services.Farmers
             }
         }
 
-        public async Task<Result<List<FarmerApplicationCropDetailsDto>>> GetFarmersCropDetailsByApplicationIdAsync(int ApplicationId, int FinancialYear)
+        public async Task<Result<List<FarmerApplicationCropDetailsDto>>> GetFarmersCropDetailsByApplicationIdAsync(int applicationId, int financialYear)
         {
             try
             {
-                var response = await http.GetAsync($"api/farmer-details-by-applicationid/get-crop-details?ApplicationId={ApplicationId}&FinancialYear={FinancialYear}");
+                var response = await http.GetAsync($"api/farmer-details-by-application-id/get-crop-details?applicationId={applicationId}&financialYear={financialYear}");
                 return await ApiResultHelper.ReadResultAsync<List<FarmerApplicationCropDetailsDto>>(response);
             }
             catch (Exception ex)

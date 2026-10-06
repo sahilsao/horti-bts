@@ -13,7 +13,7 @@ namespace HortiBts.Client.Services.Soil
             try
             {
                 var response = await http.GetAsync(
-                    $"api/soil?villageCode={Uri.EscapeDataString(villageCode)}&khasraNo={Uri.EscapeDataString(khasraNo)}",
+                    $"api/soildetails?villageCode={Uri.EscapeDataString(villageCode)}&khasraNo={Uri.EscapeDataString(khasraNo)}",
                     cancellationToken);
 
                 return await ApiResultHelper.ReadResultAsync<List<SoilDetailsDto>>(response);
