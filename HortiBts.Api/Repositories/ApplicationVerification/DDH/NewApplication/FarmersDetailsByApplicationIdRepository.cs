@@ -3,7 +3,7 @@ using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication;
 
-namespace HortiBts.Api.Repositories.ApplicationVerification.DDH
+namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
 {
     public interface IFarmersDetailsByApplicationIdRepository
     {

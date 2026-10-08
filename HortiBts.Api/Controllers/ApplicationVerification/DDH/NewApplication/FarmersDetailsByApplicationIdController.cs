@@ -1,4 +1,4 @@
-﻿using HortiBts.Api.Repositories.ApplicationVerification.DDH;
+﻿using HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.ApplicationVerification.DDH

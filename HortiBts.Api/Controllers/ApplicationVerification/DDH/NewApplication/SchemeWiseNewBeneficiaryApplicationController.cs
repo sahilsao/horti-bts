@@ -1,13 +1,13 @@
 using System;
-using HortiBts.Api.Repositories.ApplicationVerification.DDH;
-using HortiBts.Shared.Dtos.ApplicationVerification.DDH;
+using HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication;
+using HortiBts.Shared.Dtos.ApplicationVerification.DDH.NewApplication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
 {
     [Route("api/district")]
     [ApiController]
-    public class SchemeWiseNewBeneficiaryApplicationController(ISchemeWiseNewBeneficiaryApplicationRepository repository, ILogger<SchemeWiseNewBeneficiaryApplicationListDto> logger) : ControllerBase
+    public class SchemeWiseNewBeneficiaryApplicationController(ISchemeWiseNewBeneficiaryApplicationRepository repository, ILogger<SchemeWiseNewBeneficiaryApplicationController> logger) : ControllerBase
     {
 
 

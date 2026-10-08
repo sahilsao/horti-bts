@@ -1,13 +1,13 @@
 using System;
-using HortiBts.Api.Repositories.ApplicationVerification.DDH;
-using HortiBts.Shared.Dtos.ApplicationVerification.DDH;
+using HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication;
+using HortiBts.Shared.Dtos.ApplicationVerification.DDH.NewApplication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
 {
     [Route("api/district")]
     [ApiController]
-    public class SchemeTypeWiseNewFarmerVerificationController(ISchemeTypeWiseNewFarmerVerificationRepository repository, ILogger<SchemeTypeWiseNewApplicationsListDto> logger) : ControllerBase
+    public class SchemeTypeWiseNewFarmerVerificationController(ISchemeTypeWiseNewFarmerVerificationRepository repository, ILogger<SchemeTypeWiseNewFarmerVerificationController> logger) : ControllerBase
     {
         [HttpGet("scheme-type-wise-new-applications")]
         [EndpointSummary("Get scheme type wise new district applications")]

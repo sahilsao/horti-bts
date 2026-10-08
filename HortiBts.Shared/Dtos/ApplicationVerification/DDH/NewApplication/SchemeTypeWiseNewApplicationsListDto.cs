@@ -1,6 +1,6 @@
 using System;
 
-namespace HortiBts.Shared.Dtos.ApplicationVerification.DDH;
+namespace HortiBts.Shared.Dtos.ApplicationVerification.DDH.NewApplication;
 
 public class SchemeTypeWiseNewApplicationsListDto
 {

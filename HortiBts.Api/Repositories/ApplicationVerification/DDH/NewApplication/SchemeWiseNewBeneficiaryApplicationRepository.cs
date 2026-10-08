@@ -1,9 +1,9 @@
 using Dapper;
 using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
-using HortiBts.Shared.Dtos.ApplicationVerification.DDH;
+using HortiBts.Shared.Dtos.ApplicationVerification.DDH.NewApplication;
 
-namespace HortiBts.Api.Repositories.ApplicationVerification.DDH;
+namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication;
 
 public interface ISchemeWiseNewBeneficiaryApplicationRepository
 {

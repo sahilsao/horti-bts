@@ -1,6 +1,7 @@
 using Dapper;
 using HortiBts.Api.Data;
-using HortiBts.Api.Repositories.ApplicationVerification.DDH;
+using HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication;
+using HortiBts.Api.Repositories.ApplicationVerification.DDH.OldApplication;
 using HortiBts.Api.Repositories.Auth;
 using HortiBts.Api.Repositories.Benefits;
 using HortiBts.Api.Repositories.Components;
@@ -114,6 +115,8 @@ builder.Services.AddScoped<ISchemeTypeWiseOldFarmerVerificationRepository, Schem
 builder.Services.AddScoped<ISchemeWiseOldBeneficiaryApplicationRepository, SchemeWiseOldBeneficiaryApplicationRepository>();
 
 builder.Services.AddScoped<IFarmersDetailsByApplicationIdRepository, FarmersDetailsByApplicationIdRepository>();
+
+builder.Services.AddScoped<IApproveRejectFarmerApplicationByDDHRepository, ApproveRejectFarmerApplicationByDDHRepository>();
 
 // CORS: required because the Blazor client is a STANDALONE app (separate origin),
 // not hosted by this server project. Update the origin list for your actual client URLs.

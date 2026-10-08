@@ -1,7 +1,7 @@
 using HortiBts.Shared.Common;
-using HortiBts.Shared.Dtos.ApplicationVerification.DDH;
+using HortiBts.Shared.Dtos.ApplicationVerification.DDH.OldApplication;
 
-namespace HortiBts.Client.Services.ApplicationVerification.DDH;
+namespace HortiBts.Client.Services.ApplicationVerification.DDH.OldApplication;
 
 public class SchemeWiseOldBeneficiaryApplicationApiService(HttpClient http)
 {

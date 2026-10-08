@@ -1,6 +1,7 @@
 using HortiBts.Client;
 using HortiBts.Client.MultiLanguage;
-using HortiBts.Client.Services.ApplicationVerification.DDH;
+using HortiBts.Client.Services.ApplicationVerification.DDH.NewApplication;
+using HortiBts.Client.Services.ApplicationVerification.DDH.OldApplication;
 using HortiBts.Client.Services.Auth;
 using HortiBts.Client.Services.Benefits;
 using HortiBts.Client.Services.Common;
@@ -122,5 +123,7 @@ builder.Services.AddScoped<SchemeTypeWiseOldApplicationVerificationApiService>()
 builder.Services.AddScoped<SchemeWiseOldBeneficiaryApplicationApiService>();
 
 builder.Services.AddScoped<FarmersDetailsByApplicationIdApiService>();
+
+builder.Services.AddScoped<ApproveRejectFarmerApplicationByDDHApiService>();
 
 await builder.Build().RunAsync();

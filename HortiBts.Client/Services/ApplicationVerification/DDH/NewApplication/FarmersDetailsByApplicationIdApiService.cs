@@ -4,7 +4,7 @@ using HortiBts.Shared.Dtos.Dashboard.Admin;
 using HortiBts.Shared.Dtos.Farmers;
 using System.Net.Http.Json;
 
-namespace HortiBts.Client.Services.Farmers
+namespace HortiBts.Client.Services.ApplicationVerification.DDH.NewApplication
 {
     public class FarmersDetailsByApplicationIdApiService(HttpClient http)
     {
