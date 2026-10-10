@@ -1,4 +1,5 @@
 ﻿@page "/district/approve-reject-farmer-new-application/{ApplicationId:int}"
+@attribute [Authorize(Roles = "District")]
 @using HortiBts.Client.Services.ApplicationVerification.DDH.NewApplication
 @using HortiBts.Client.Services.Farmers
 @using HortiBts.Client.Services.FinancialYears
