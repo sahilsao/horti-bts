@@ -123,6 +123,7 @@ builder.Services.AddScoped<SchemeTypeWiseOldApplicationVerificationApiService>()
 builder.Services.AddScoped<SchemeWiseOldBeneficiaryApplicationApiService>();
 
 builder.Services.AddScoped<FarmersDetailsByApplicationIdApiService>();
+builder.Services.AddScoped<FarmersDetailsApiService>();
 
 builder.Services.AddScoped<ApproveRejectFarmerApplicationByDDHApiService>();
 

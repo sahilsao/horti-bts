@@ -115,6 +115,7 @@ builder.Services.AddScoped<ISchemeTypeWiseOldFarmerVerificationRepository, Schem
 builder.Services.AddScoped<ISchemeWiseOldBeneficiaryApplicationRepository, SchemeWiseOldBeneficiaryApplicationRepository>();
 
 builder.Services.AddScoped<IFarmersDetailsByApplicationIdRepository, FarmersDetailsByApplicationIdRepository>();
+builder.Services.AddScoped<IFarmersDetailsRepository, FarmersDetailsRepository>();
 
 builder.Services.AddScoped<IApproveRejectFarmerApplicationByDDHRepository, ApproveRejectFarmerApplicationByDDHRepository>();
 

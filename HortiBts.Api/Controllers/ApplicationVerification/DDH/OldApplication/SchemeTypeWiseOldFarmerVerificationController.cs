@@ -15,7 +15,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("scheme-type-wise-old-applications")]
         [EndpointSummary("Get scheme type wise district old applications")]
         [EndpointDescription("Retrieves the list of old applications for a filtered by district, sub-district, officer or village, depending on the search flag.")]
-        public async Task<IActionResult> GetSchemeTypeWiseOldDistrictApplicationsAsync(
+        public async Task<IActionResult> GetSchemeTypeWiseOldFarmerVerificationAsync(
             [FromQuery] int districtCode,
             [FromQuery] int subDistrictCode,
             [FromQuery] int villageCode,
@@ -26,7 +26,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
 
             try
             {
-                var result = await repository.GetSchemeTypeWiseOlFarmerVerificationAsync(districtCode, subDistrictCode, villageCode, officerCode, schemeTypeId, financialYear);
+                var result = await repository.GetSchemeTypeWiseOldFarmerVerificationAsync(districtCode, subDistrictCode, villageCode, officerCode, schemeTypeId, financialYear);
                 return Ok(result);
             }
             catch (Exception ex)

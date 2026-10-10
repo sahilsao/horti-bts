@@ -1,23 +1,23 @@
 ﻿using Dapper;
 using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
-using HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication;
+using HortiBts.Shared.Dtos.ApplicationVerification.NewFarmersApplication;
 
 namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
 {
     public interface IFarmersDetailsByApplicationIdRepository
     {
         /// <summary>Returns farmers basic details</summary>
-        Task<Result<List<FarmerApplicationBasicDetailsDto>>> GetFarmersBasicDetailsByApplicationIdAsync(int applicationId);
-        Task<Result<List<FarmerApplicationAddressDetailsDto>>> GetFarmersAddressDetailsByApplicationIdAsync(int applicationId);
-        Task<Result<List<FarmerApplicationBankDetailsDto>>> GetFarmersBankDetailsByApplicationIdAsync(int applicationId);
-        Task<Result<List<FarmerApplicationLandDetailsDto>>> GetFarmersLandDetailsByApplicationIdAsync(int applicationId, int financialYear);
-        Task<Result<List<FarmerApplicationSchemeDetailsDto>>> GetFarmersSchemeDetailsByApplicationIdAsync(int applicationId, int financialYear);
-        Task<Result<List<FarmerApplicationCropDetailsDto>>> GetFarmersCropDetailsByApplicationIdAsync(int applicationId, int financialYear);
+        Task<Result<List<NewFarmerApplicationBasicDetailsDto>>> GetFarmersBasicDetailsByApplicationIdAsync(int applicationId);
+        Task<Result<List<NewFarmerApplicationAddressDetailsDto>>> GetFarmersAddressDetailsByApplicationIdAsync(int applicationId);
+        Task<Result<List<NewFarmerApplicationBankDetailsDto>>> GetFarmersBankDetailsByApplicationIdAsync(int applicationId);
+        Task<Result<List<NewFarmerApplicationLandDetailsDto>>> GetFarmersLandDetailsByApplicationIdAsync(int applicationId, int financialYear);
+        Task<Result<List<NewFarmerApplicationSchemeDetailsDto>>> GetFarmersSchemeDetailsByApplicationIdAsync(int applicationId, int financialYear);
+        Task<Result<List<NewFarmerApplicationCropDetailsDto>>> GetFarmersCropDetailsByApplicationIdAsync(int applicationId, int financialYear);
     }
-    public class FarmersDetailsByApplicationIdRepository(IDbConnectionFactory dbFactory, ILogger<FarmersDetailsByApplicationIdRepository> logger) : IFarmersDetailsByApplicationIdRepository
+    public class FarmersDetailsByApplicationIdRepository(IDbConnectionFactory dbFactory) : IFarmersDetailsByApplicationIdRepository
     {
-        public async Task<Result<List<FarmerApplicationBasicDetailsDto>>> GetFarmersBasicDetailsByApplicationIdAsync(int applicationId)
+        public async Task<Result<List<NewFarmerApplicationBasicDetailsDto>>> GetFarmersBasicDetailsByApplicationIdAsync(int applicationId)
         {
             try
             {
@@ -49,17 +49,16 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
                 AND mc.subcaste_code=mf.subcategory
                 WHERE fa.application_id=@ApplicationId
                 """;
-                var result = await connection.QuerySingleAsync<FarmerApplicationBasicDetailsDto>(sql, new { ApplicationId = applicationId });
-                return Result<List<FarmerApplicationBasicDetailsDto>>.Success([result]);
+                var result = await connection.QuerySingleAsync<NewFarmerApplicationBasicDetailsDto>(sql, new { ApplicationId = applicationId });
+                return Result<List<NewFarmerApplicationBasicDetailsDto>>.Success([result]);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to fetch farmer basic details for applicationId {applicationId}", applicationId);
-                return Result<List<FarmerApplicationBasicDetailsDto>>.Failure($"Failed to fetch farmer basic details: {ex.Message}");
+                return Result<List<NewFarmerApplicationBasicDetailsDto>>.Failure($"Failed to fetch farmer basic details: {ex.Message}");
             }
         }
 
-        public async Task<Result<List<FarmerApplicationAddressDetailsDto>>> GetFarmersAddressDetailsByApplicationIdAsync(int applicationId)
+        public async Task<Result<List<NewFarmerApplicationAddressDetailsDto>>> GetFarmersAddressDetailsByApplicationIdAsync(int applicationId)
         {
             try
             {
@@ -90,17 +89,16 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
                 JOIN view_all_villages v ON v.village_code=fd.village_code
                 WHERE fa.application_id=@ApplicationId
                 """;
-                var result = await connection.QuerySingleAsync<FarmerApplicationAddressDetailsDto>(sql, new { ApplicationId = applicationId });
-                return Result<List<FarmerApplicationAddressDetailsDto>>.Success([result]);
+                var result = await connection.QuerySingleAsync<NewFarmerApplicationAddressDetailsDto>(sql, new { ApplicationId = applicationId });
+                return Result<List<NewFarmerApplicationAddressDetailsDto>>.Success([result]);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to fetch farmer address details for applicationId {applicationId}", applicationId);
-                return Result<List<FarmerApplicationAddressDetailsDto>>.Failure($"Failed to fetch farmer address details: {ex.Message}");
+                return Result<List<NewFarmerApplicationAddressDetailsDto>>.Failure($"Failed to fetch farmer address details: {ex.Message}");
             }
         }
 
-        public async Task<Result<List<FarmerApplicationBankDetailsDto>>> GetFarmersBankDetailsByApplicationIdAsync(int applicationId)
+        public async Task<Result<List<NewFarmerApplicationBankDetailsDto>>> GetFarmersBankDetailsByApplicationIdAsync(int applicationId)
         {
             try
             {
@@ -136,17 +134,16 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
                 JOIN rev_district v ON v.DistrictCensus=bd.bank_district
                 WHERE fa.application_id=@ApplicationId
                 """;
-                var result = await connection.QuerySingleAsync<FarmerApplicationBankDetailsDto>(sql, new { ApplicationId = applicationId });
-                return Result<List<FarmerApplicationBankDetailsDto>>.Success([result]);
+                var result = await connection.QuerySingleAsync<NewFarmerApplicationBankDetailsDto>(sql, new { ApplicationId = applicationId });
+                return Result<List<NewFarmerApplicationBankDetailsDto>>.Success([result]);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to fetch farmer bank details for applicationId {applicationId}", applicationId);
-                return Result<List<FarmerApplicationBankDetailsDto>>.Failure($"Failed to fetch farmer bank details: {ex.Message}");
+                return Result<List<NewFarmerApplicationBankDetailsDto>>.Failure($"Failed to fetch farmer bank details: {ex.Message}");
             }
         }
 
-        public async Task<Result<List<FarmerApplicationLandDetailsDto>>> GetFarmersLandDetailsByApplicationIdAsync(int applicationId, int financialYear)
+        public async Task<Result<List<NewFarmerApplicationLandDetailsDto>>> GetFarmersLandDetailsByApplicationIdAsync(int applicationId, int financialYear)
         {
             try
             {
@@ -194,17 +191,16 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
                 FROM temp_crop_details cd
                 WHERE cd.application_id=@ApplicationId)
                 """;
-                var result = await connection.QueryAsync<FarmerApplicationLandDetailsDto>(sql, new { ApplicationId = applicationId, FinancialYear = financialYear });
-                return Result<List<FarmerApplicationLandDetailsDto>>.Success(result.ToList());
+                var result = await connection.QueryAsync<NewFarmerApplicationLandDetailsDto>(sql, new { ApplicationId = applicationId, FinancialYear = financialYear });
+                return Result<List<NewFarmerApplicationLandDetailsDto>>.Success(result.ToList());
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to fetch farmer land details for applicationId {applicationId} and financial year {FinancialYear}", applicationId, financialYear);
-                return Result<List<FarmerApplicationLandDetailsDto>>.Failure($"Failed to fetch farmer land details: {ex.Message}");
+                return Result<List<NewFarmerApplicationLandDetailsDto>>.Failure($"Failed to fetch farmer land details: {ex.Message}");
             }
         }
 
-        public async Task<Result<List<FarmerApplicationSchemeDetailsDto>>> GetFarmersSchemeDetailsByApplicationIdAsync(int applicationId, int financialYear)
+        public async Task<Result<List<NewFarmerApplicationSchemeDetailsDto>>> GetFarmersSchemeDetailsByApplicationIdAsync(int applicationId, int financialYear)
         {
             try
             {
@@ -246,17 +242,16 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
                 WHERE e.application_id=@ApplicationId
                 AND e.financial_year=@FinancialYear
                 """;
-                var result = await connection.QueryAsync<FarmerApplicationSchemeDetailsDto>(sql, new { ApplicationId = applicationId, FinancialYear = financialYear });
-                return Result<List<FarmerApplicationSchemeDetailsDto>>.Success(result.ToList());
+                var result = await connection.QueryAsync<NewFarmerApplicationSchemeDetailsDto>(sql, new { ApplicationId = applicationId, FinancialYear = financialYear });
+                return Result<List<NewFarmerApplicationSchemeDetailsDto>>.Success(result.ToList());
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to fetch farmer scheme details for applicationId {applicationId} and financial year {FinancialYear}", applicationId, financialYear);
-                return Result<List<FarmerApplicationSchemeDetailsDto>>.Failure($"Failed to fetch farmer scheme details: {ex.Message}");
+                return Result<List<NewFarmerApplicationSchemeDetailsDto>>.Failure($"Failed to fetch farmer scheme details: {ex.Message}");
             }
         }
 
-        public async Task<Result<List<FarmerApplicationCropDetailsDto>>> GetFarmersCropDetailsByApplicationIdAsync(int applicationId, int financialYear)
+        public async Task<Result<List<NewFarmerApplicationCropDetailsDto>>> GetFarmersCropDetailsByApplicationIdAsync(int applicationId, int financialYear)
         {
             try
             {
@@ -298,13 +293,12 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
                 WHERE cd.application_id= @ApplicationId
                 AND cd.financial_year= @FinancialYear
                 """;
-                var result = await connection.QueryAsync<FarmerApplicationCropDetailsDto>(sql, new { ApplicationId = applicationId, FinancialYear = financialYear });
-                return Result<List<FarmerApplicationCropDetailsDto>>.Success(result.ToList());
+                var result = await connection.QueryAsync<NewFarmerApplicationCropDetailsDto>(sql, new { ApplicationId = applicationId, FinancialYear = financialYear });
+                return Result<List<NewFarmerApplicationCropDetailsDto>>.Success(result.ToList());
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Failed to fetch farmer crop details for applicationId {applicationId} and financial year {FinancialYear}", applicationId, financialYear);
-                return Result<List<FarmerApplicationCropDetailsDto>>.Failure($"Failed to fetch farmer crop details: {ex.Message}");
+                return Result<List<NewFarmerApplicationCropDetailsDto>>.Failure($"Failed to fetch farmer crop details: {ex.Message}");
             }
         }
     }

@@ -7,7 +7,7 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.OldApplication;
 
 public interface ISchemeTypeWiseOldFarmerVerificationRepository
 {
-    Task<Result<List<SchemeTypeWiseOldApplicationsListDto>>> GetSchemeTypeWiseOlFarmerVerificationAsync(
+    Task<Result<List<SchemeTypeWiseOldApplicationsListDto>>> GetSchemeTypeWiseOldFarmerVerificationAsync(
         int districtCode,
         int subDistrictCode,
         int villageCode,
@@ -20,7 +20,7 @@ public class SchemeTypeWiseOldFarmerVerificationRepository(
     IDbConnectionFactory connectionFactory)
     : ISchemeTypeWiseOldFarmerVerificationRepository
 {
-    public async Task<Result<List<SchemeTypeWiseOldApplicationsListDto>>> GetSchemeTypeWiseOlFarmerVerificationAsync(
+    public async Task<Result<List<SchemeTypeWiseOldApplicationsListDto>>> GetSchemeTypeWiseOldFarmerVerificationAsync(
         int districtCode,
         int subDistrictCode,
         int villageCode,

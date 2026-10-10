@@ -3,7 +3,7 @@
 @using HortiBts.Client.Services.Farmers
 @using HortiBts.Client.Services.FinancialYears
 @using HortiBts.Client.Services.Soil
-@using HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication
+@using HortiBts.Shared.Dtos.ApplicationVerification.NewFarmersApplication
 @using HortiBts.Shared.Models.Soil
 @using Microsoft.AspNetCore.Components.Web
 
@@ -94,17 +94,17 @@ else
         <MudTable Items="_farmerAddressDetails" Hover="true" Dense="true" Bordered="true" Striped="true">
             <HeaderContent>
                 <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
-                <MudTh>@Lang.Text("Address", "पता")</MudTh>
-                <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
-                <MudTh>@Lang.Text("Block", "विकासखण्ड")</MudTh>
                 <MudTh>@Lang.Text("District", "जिला")</MudTh>
+                <MudTh>@Lang.Text("Block", "विकासखण्ड")</MudTh>
+                <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
+                <MudTh>@Lang.Text("Address", "पता")</MudTh>
             </HeaderContent>
             <RowTemplate Context="a">
                 <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerAddressDetails.IndexOf(a) + 1)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Address", "पता")">@FormatAddress(a)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(a.VillageName)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(a.SubdistrictName)</MudTd>
                 <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(a.DistrictName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(a.SubdistrictName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(a.VillageName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Address", "पता")">@FormatAddress(a)</MudTd>
             </RowTemplate>
         </MudTable>
        
@@ -177,21 +177,31 @@ else
                 <MudTh>@Lang.Text("Area (in hectares)", "रकबा (हेक्टेयर में)")</MudTh>
                 <MudTh>@Lang.Text("Year", "वर्ष")</MudTh>
             </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerLandDetails.IndexOf(context) + 1)</MudTd>
-                <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(context.DistrictName)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(context.SubdistrictName)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Land Owner Name", "भू-स्वामी का नाम")">@Or(context.OwnerName)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Father Name", "पिता का नाम")">@Or(context.FatherName)</MudTd>
-                <MudTd DataLabel="@Lang.Text("Land Owner Type", "भू-स्वामी प्रकार")">@Or(context.Ownertype)</MudTd>
+            <RowTemplate Context="l">
+                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerLandDetails.IndexOf(l) + 1)</MudTd>
+                <MudTd DataLabel="@Lang.Text("District", "जिला")">@Or(l.DistrictName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Block", "विकासखण्ड")">@Or(l.SubdistrictName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(l.VillageName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Land Owner Name", "भू-स्वामी का नाम")">@Or(l.OwnerName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Father Name", "पिता का नाम")">@Or(l.FatherName)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Land Owner Type", "भू-स्वामी प्रकार")">@Or(l.Ownertype)</MudTd>
                 <MudTd DataLabel="@Lang.Text("Patwari Halka Number", "पटवारी हल्का क्रमांक")">
-                    @Or(context.PatwariHalka.ToString())</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(context.KhasraNo)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Area (in hectares)", "रकबा (हेक्टेयर में)")">@context.Area?.ToString("N2")
+                    @Or(l.PatwariHalka.ToString())</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(l.KhasraNo)</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Area (in hectares)", "रकबा (हेक्टेयर में)")">@l.Area?.ToString("N2")
                     </MudTd>
-                    <MudTd DataLabel="@Lang.Text("Year", "वर्ष")"> @Or(context.FinancialYearStr) </MudTd>
+                    <MudTd DataLabel="@Lang.Text("Year", "वर्ष")"> @Or(l.FinancialYearStr) </MudTd>
                 </RowTemplate>
+                <FooterContent>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd>@Lang.Text("Total", "योग")</MudTd>
+                    <MudTd>@_farmerLandDetails.Sum(x => x.Area)</MudTd>
+                    <MudTd></MudTd>
+                </FooterContent>
             </MudTable>
            
         }
@@ -205,35 +215,37 @@ else
 
         @if (_farmerGirdawariDetails.Any())
         {
-            @* ---------- Land Details Result ---------- *@
+            @* ---------- Girdawari Details Result ---------- *@
             
             <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Girdawari Details", "गिरदावरी विवरण")</strong>
             </MudText>
                 
             <MudTable Items="@_farmerGirdawariDetails" Hover="true" Dense="true" Bordered="true" Striped="true">
                 <HeaderContent>
-                    <MudTh>क्रमांक</MudTh>
-                    <MudTh>सीज़न</MudTh>
-                    <MudTh>फसल</MudTh>
-                    <MudTh>खसरा क्रमांक</MudTh>
-                    <MudTh>रकबा</MudTh>
-                    <MudTh>ग्राम</MudTh>
-                    <MudTh>वर्ष</MudTh>
+                    <MudTh>@Lang.Text("S.No.", "क्रमांक")</MudTh>
+                    <MudTh>@Lang.Text("Season", "सीज़न")</MudTh>
+                    <MudTh>@Lang.Text("Crop", "फसल")</MudTh>
+                    <MudTh>@Lang.Text("Khasra Number", "खसरा क्रमांक")</MudTh>
+                    <MudTh>@Lang.Text("Area", "रकबा")</MudTh>
+                    <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
+                    <MudTh>@Lang.Text("Year", "वर्ष")</MudTh>
                 </HeaderContent>
-                <RowTemplate Context="row">
-                    <MudTd DataLabel="क्रमांक">@(_farmerGirdawariDetails.IndexOf(row) + 1)</MudTd>
-                    <MudTd DataLabel="सीज़न"></MudTd>
-                    <MudTd DataLabel="फसल">@row.SubCropName</MudTd>
-                    <MudTd DataLabel="खसरा क्रमांक">@row.Khasra_No</MudTd>
-                    <MudTd DataLabel="रकबा">@row.SubCropArea</MudTd>
-                    <MudTd DataLabel="ग्राम">@row.VillageName</MudTd>
-                    <MudTd DataLabel="वर्ष"></MudTd>
+                <RowTemplate Context="g">
+                    <MudTd DataLabel="@Lang.Text("S.No.", "क्रमांक")">
+                        @(_farmerGirdawariDetails.IndexOf(g) + 1)
+                    </MudTd>
+                    <MudTd DataLabel="@Lang.Text("Season", "सीज़न")"></MudTd>
+                    <MudTd DataLabel="@Lang.Text("Crop", "फसल")">@g.SubCropName</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Khasra Number", "खसरा क्रमांक")">@g.Khasra_No</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@g.SubCropArea</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@g.VillageName</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Year", "वर्ष")"></MudTd>
                 </RowTemplate>
                 <FooterContent>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
-                    <MudTd>योग</MudTd>
+                    <MudTd>@Lang.Text("Total", "योग")</MudTd>
                     <MudTd>@_farmerGirdawariDetails.Sum(x => decimal.TryParse(x.SubCropArea, out var value) ? value : 0)</MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
@@ -242,7 +254,6 @@ else
                     <MudTablePager PageSizeOptions="new[] { 5, 10, 25, 50 }" />
                 </PagerContent>
             </MudTable>
-           
         }
 
         else
@@ -255,32 +266,44 @@ else
 
         @if (_farmerSchemeDetails.Any())
         {
-            @* ---------- Land Details Result ---------- *@
+            @* ---------- Scheme Details Result ---------- *@
             
             <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Scheme and Component Details", "योजना एवं घटक विवरण")</strong></MudText>
            
             <MudTable Items="@_farmerSchemeDetails" Hover="true" Dense="true" Bordered="true" Striped="true">
                 <HeaderContent>
-                    <MudTh>क्रमांक</MudTh>
-                    <MudTh>योजना का नाम</MudTh>
-                    <MudTh>घटक</MudTh>
-                    <MudTh>खसरा क्रमांक</MudTh>
-                    <MudTh>रकबा</MudTh>
-                    <MudTh>वर्ष</MudTh>
+                    <MudTh>@Lang.Text("S.No.", "क्रमांक")</MudTh>
+                    <MudTh>@Lang.Text("Scheme Name", "योजना का नाम")</MudTh>
+                    <MudTh>@Lang.Text("Component", "घटक")</MudTh>
+                    <MudTh>@Lang.Text("Khasra Number", "खसरा क्रमांक")</MudTh>
+                    <MudTh>@Lang.Text("Area", "रकबा")</MudTh>
+                    <MudTh>@Lang.Text("Financial Year", "वित्तीय वर्ष")</MudTh>
                 </HeaderContent>
-                <RowTemplate Context="row">
-                    <MudTd DataLabel="क्रमांक">@(_farmerSchemeDetails.IndexOf(row) + 1)</MudTd>
-                    <MudTd DataLabel="सीज़न">@row.SchemeTypeName - @row.SchemeName</MudTd>
-                    <MudTd DataLabel="घटक">@row.Cname</MudTd>
-                    <MudTd DataLabel="खसरा क्रमांक">@row.KhasraNo</MudTd>
-                    <MudTd DataLabel="रकबा">@row.Area</MudTd>
-                    <MudTd DataLabel="वर्ष">@row.FinancialYearStr</MudTd>
+                <RowTemplate Context="s">
+                    <MudTd DataLabel="@Lang.Text("S.No.", "क्रमांक")">
+                        @(_farmerSchemeDetails.IndexOf(s) + 1)
+                    </MudTd>
+                    <MudTd DataLabel="@Lang.Text("Scheme Name", "योजना का नाम")">
+                        @s.SchemeTypeName - @s.SchemeName
+                    </MudTd>
+                    <MudTd DataLabel="@Lang.Text("Component", "घटक")">
+                        @s.Cname
+                    </MudTd>
+                    <MudTd DataLabel="@Lang.Text("Khasra Number", "खसरा क्रमांक")">
+                        @s.KhasraNo
+                    </MudTd>
+                    <MudTd DataLabel="@Lang.Text("Area", "रकबा")">
+                        @s.Area
+                    </MudTd>
+                    <MudTd DataLabel="@Lang.Text("Financial Year", "वित्तीय वर्ष")">
+                        @s.FinancialYearStr
+                    </MudTd>
                 </RowTemplate>
                 <FooterContent>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
-                    <MudTd>योग</MudTd>
+                    <MudTd>@Lang.Text("Total", "योग")</MudTd>
                     <MudTd>@_farmerSchemeDetails.Sum(x => x.Area)</MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
@@ -308,6 +331,7 @@ else
             <MudTable Items="_farmerCropDetails" Hover="true" Dense="true" Bordered="true" Striped="true">
                 <HeaderContent>
                     <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+                    <MudTh>@Lang.Text("Village", "ग्राम")</MudTh>
                     <MudTh>@Lang.Text("Crop Type", "फसल का प्रकार")</MudTh>
                     <MudTh>@Lang.Text("Crop Name", "फसल का नाम")</MudTh>
                     <MudTh>@Lang.Text("Variety", "किस्म")</MudTh>
@@ -316,17 +340,27 @@ else
                     <MudTh>@Lang.Text("Area", "रकबा")</MudTh>
                     <MudTh>@Lang.Text("Year", "वर्ष")</MudTh>
                 </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerCropDetails.IndexOf(context) + 1)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(context.VillageName)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Crop Type", "फसल का प्रकार")">@Or(context.SubCropCategoryName)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Crop Name", "फसल का नाम")">@Or(context.CropName)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(context.CropVariety)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(context.KhasraNo)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@Or(context.CropArea?.ToString("N2"))</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(context.CropSeason.ToString())</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Year", "वर्ष")">@Or(context.FinancialYearStr?.ToString())</MudTd>
+                <RowTemplate Context="c">
+                    <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerCropDetails.IndexOf(c) + 1)</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(c.VillageName)</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Crop Type", "फसल का प्रकार")">@Or(c.SubCropCategoryName)</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Crop Name", "फसल का नाम")">@Or(c.CropName)</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(c.CropVariety)</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(c.KhasraNo)</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@Or(c.CropArea?.ToString("N2"))</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(c.CropSeason.ToString())</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Year", "वर्ष")">@Or(c.FinancialYearStr?.ToString())</MudTd>
                 </RowTemplate>
+                <FooterContent>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd>@Lang.Text("Total", "योग")</MudTd>
+                    <MudTd>@_farmerCropDetails.Sum(x => x.CropArea)</MudTd>
+                    <MudTd></MudTd>
+                </FooterContent>
             </MudTable>
            
         }
@@ -363,13 +397,13 @@ else
     
 @code {
     private int _searchApplicationId { get; set; }
-    private List<FarmerApplicationBasicDetailsDto> _farmerBasicDetails = new();
-    private List<FarmerApplicationAddressDetailsDto> _farmerAddressDetails = new();
-    private List<FarmerApplicationBankDetailsDto> _farmerBankDetails = new();
-    private List<FarmerApplicationLandDetailsDto> _farmerLandDetails = new();
+    private List<NewFarmerApplicationBasicDetailsDto> _farmerBasicDetails = new();
+    private List<NewFarmerApplicationAddressDetailsDto> _farmerAddressDetails = new();
+    private List<NewFarmerApplicationBankDetailsDto> _farmerBankDetails = new();
+    private List<NewFarmerApplicationLandDetailsDto> _farmerLandDetails = new();
     private List<SoilDetailsDto> _farmerGirdawariDetails = new();
-    private List<FarmerApplicationSchemeDetailsDto> _farmerSchemeDetails = new();
-    private List<FarmerApplicationCropDetailsDto> _farmerCropDetails = new();
+    private List<NewFarmerApplicationSchemeDetailsDto> _farmerSchemeDetails = new();
+    private List<NewFarmerApplicationCropDetailsDto> _farmerCropDetails = new();
     private bool _isLoading;
     private string _remarks = string.Empty;
 
@@ -501,7 +535,7 @@ FarmersDetailsByApplicationIdApiService.GetFarmersSchemeDetailsByApplicationIdAs
     private string Or(string? value)
     => string.IsNullOrWhiteSpace(value) ? "-" : value;
 
-    private static string FormatAddress(FarmerApplicationAddressDetailsDto a)
+    private static string FormatAddress(NewFarmerApplicationAddressDetailsDto a)
     => $"मकान संख्या/गली : {a.HouseNo}, वार्ड संख्या : {a.WardNo}, {a.Address}, पिनकोड: {a.Pincode}";
 
     private string StateLabel(string? stateName)

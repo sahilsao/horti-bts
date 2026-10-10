@@ -2,7 +2,7 @@ using System.Security.Claims;
 using HortiBts.Api.Helpers;
 using HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication;
 using HortiBts.Shared.Common;
-using HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication;
+using HortiBts.Shared.Dtos.ApplicationVerification.NewFarmersApplication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +16,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [EndpointSummary("Approve or reject a farmer application by DDH`")]
         [EndpointDescription("approves or rejects a farmer application by DDH based on the provided application ID, remark, status, IP address, and user ID.")]
 
-        public async Task<IActionResult> ApproveReject([FromBody] ApproveRejectFarmerApplicationRequestDto request)
+        public async Task<IActionResult> ApproveReject([FromBody] ApproveRejectNewFarmerApplicationRequestDto request)
         {
             try
             {

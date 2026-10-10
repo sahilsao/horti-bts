@@ -1,6 +1,6 @@
-﻿namespace HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication
+﻿namespace HortiBts.Shared.Dtos.ApplicationVerification.NewFarmersApplication
 {
-    public record FarmerApplicationBasicDetailsDto
+    public record NewFarmerApplicationBasicDetailsDto
     {
         public int? ApplicationId { get; set; } // application_id
         public int UfId { get; set; } // uf_id

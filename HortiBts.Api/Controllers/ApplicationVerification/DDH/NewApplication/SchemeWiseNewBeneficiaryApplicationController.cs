@@ -14,7 +14,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("scheme-wise-new-beneficiaries-applications")]
         [EndpointSummary("Get beneficiary list of new applications")]
         [EndpointDescription("Retrieves the list of new beneficiaries applications for a specified district, scheme, and financial year.")]
-        public async Task<IActionResult> GetSchemeWiseDistrictApplicationsAsync([FromQuery] int schemeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
+        public async Task<IActionResult> GetSchemeWiseNewBeneficiaryApplicationsAsync([FromQuery] int schemeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
         {
             try
             {

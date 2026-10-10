@@ -10,7 +10,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("get-basic-details")]
         [EndpointSummary("Get farmer basic details by application ID")]
         [EndpointDescription("Retrieves the basic details of a farmer using their Unique Farmer Application ID.")]
-        public async Task<IActionResult> GetFarmersBasicByApplicationIdDetails([FromQuery] int applicationId)
+        public async Task<IActionResult> GetFarmersBasicDetailsByApplicationId([FromQuery] int applicationId)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("get-address-details")]
         [EndpointSummary("Get farmer address details by application ID")]
         [EndpointDescription("Retrieves the address details of a farmer using their Unique Farmer Application ID.")]
-        public async Task<IActionResult> GetFarmersAddressByApplicationIdDetails([FromQuery] int applicationId)
+        public async Task<IActionResult> GetFarmersAddressDetailsByApplicationId([FromQuery] int applicationId)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("get-bank-details")]
         [EndpointSummary("Get farmer bank details by application ID")]
         [EndpointDescription("Retrieves the bank details of a farmer using their Unique Farmer Application ID (ApplicationId).")]
-        public async Task<IActionResult> GetFarmersBankByApplicationIdDetails([FromQuery] int applicationId)
+        public async Task<IActionResult> GetFarmersBankDetailsByApplicationId([FromQuery] int applicationId)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("get-land-details")]
         [EndpointSummary("Get farmer land details by application ID")]
         [EndpointDescription("Retrieves the land details of a farmer using their Unique Farmer Application ID (ApplicationId).")]
-        public async Task<IActionResult> GetFarmersLandByApplicationIdDetails([FromQuery] int applicationId, [FromQuery] int financialYear)
+        public async Task<IActionResult> GetFarmersLandDetailsByApplicationId([FromQuery] int applicationId, [FromQuery] int financialYear)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("get-scheme-details")]
         [EndpointSummary("Get farmer scheme details by application ID")]
         [EndpointDescription("Retrieves the scheme details of a farmer using their Unique Farmer Application ID (ApplicationId).")]
-        public async Task<IActionResult> GetFarmersSchemeByApplicationIdDetails([FromQuery] int applicationId, [FromQuery] int financialYear)
+        public async Task<IActionResult> GetFarmersSchemeDetailsByApplicationId([FromQuery] int applicationId, [FromQuery] int financialYear)
         {
             try
             {
@@ -115,7 +115,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("get-crop-details")]
         [EndpointSummary("Get farmer crop details by application ID")]
         [EndpointDescription("Retrieves the crop details of a farmer using their Unique Farmer Application ID (ApplicationId).")]
-        public async Task<IActionResult> GetFarmersCropByApplicationIdDetails([FromQuery] int applicationId, [FromQuery] int financialYear)
+        public async Task<IActionResult> GetFarmersCropDetailsByApplicationId([FromQuery] int applicationId, [FromQuery] int financialYear)
         {
             try
             {

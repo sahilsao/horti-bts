@@ -1,8 +1,8 @@
 using System;
 
-namespace HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication;
+namespace HortiBts.Shared.Dtos.ApplicationVerification.NewFarmersApplication;
 
-public class ApproveRejectFarmerApplicationResponseDto
+public class ApproveRejectNewFarmerApplicationResponseDto
 {
     public int ApplicationId { get; set; }
     public int Status { get; set; }

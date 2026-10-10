@@ -13,7 +13,7 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
         [HttpGet("scheme-wise-old-beneficiaries-applications")]
         [EndpointSummary("Get beneficiary list of old applications")]
         [EndpointDescription("Retrieves the list of old beneficiaries applications for a specified district, scheme, and financial year.")]
-        public async Task<IActionResult> GetSchemeWiseDistrictApplicationsAsync([FromQuery] int schemeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
+        public async Task<IActionResult> GetSchemeWiseOldBeneficiaryApplicationsAsync([FromQuery] int schemeId, [FromQuery] int districtCode, [FromQuery] int financialYear)
         {
             try
             {

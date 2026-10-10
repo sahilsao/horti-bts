@@ -1,6 +1,6 @@
-﻿namespace HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication
+﻿namespace HortiBts.Shared.Dtos.ApplicationVerification.NewFarmersApplication
 {
-    public record FarmerApplicationGirdawariDetailsDto
+    public record NewFarmerApplicationGirdawariDetailsDto
     {
         public int? Status { get; set; }
         public int? CropSeason { get; set; }

@@ -1,8 +1,8 @@
 using System;
 
-namespace HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication;
+namespace HortiBts.Shared.Dtos.ApplicationVerification.OldFarmersApplication;
 
-public class ApproveRejectFarmerApplicationRequestDto
+public class ApproveRejectOldFarmerApplicationRequestDto
 {
     public int ApplicationId { get; set; }
     public string Remark { get; set; } = string.Empty;

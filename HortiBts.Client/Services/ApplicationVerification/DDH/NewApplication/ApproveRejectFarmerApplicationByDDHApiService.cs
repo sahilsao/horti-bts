@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http.Json;
 using HortiBts.Shared.Common;
-using HortiBts.Shared.Dtos.ApplicationVerification.FarmersApplication;
+using HortiBts.Shared.Dtos.ApplicationVerification.NewFarmersApplication;
 
 namespace HortiBts.Client.Services.ApplicationVerification.DDH.NewApplication;
 
@@ -11,7 +11,7 @@ public class ApproveRejectFarmerApplicationByDDHApiService(HttpClient http)
     {
         try
         {
-            var request = new ApproveRejectFarmerApplicationRequestDto
+            var request = new ApproveRejectNewFarmerApplicationRequestDto
             {
                 ApplicationId = applicationId,
                 Status = status,
