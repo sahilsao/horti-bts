@@ -356,8 +356,8 @@
             <MudTd DataLabel="@Lang.Text("Subsidy Amount", "अनुदान राशि")">₹@context.TotalCashDisbursedFyb1?.ToString("N2")</MudTd>
         </RowTemplate>
         <FooterContent>
-            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
             <MudTd></MudTd>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
             @* Back Year 4 *@
             <MudTd><b>@_filteredReportData.Sum(x => x.TotalFarmerCountFyb4 ?? 0)</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.TotalApplicationCountFyb4 ?? 0)</b></MudTd>

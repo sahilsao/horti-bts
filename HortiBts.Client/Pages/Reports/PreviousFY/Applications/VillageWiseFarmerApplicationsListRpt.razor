@@ -177,8 +177,8 @@
                                 @context.Area?.ToString("N2")</MudTd>
                             </RowTemplate>
                             <FooterContent>
-                                <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
                                 <MudTd></MudTd>
+                                <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
                                 <MudTd><b>@_filteredReportData.Sum(x => x.FCount ?? 0)</b></MudTd>
                                 <MudTd><b>@_filteredReportData.Sum(x => x.SCount ?? 0)</b></MudTd>
                                 <MudTd><b>@_filteredReportData.Sum(x => x.Area ?? 0).ToString("N2") @Lang.Text("(Hect.)", "(हेक्ट.)")</b>

@@ -132,5 +132,26 @@ namespace HortiBts.Api.Controllers.ApplicationVerification.DDH
                 return Problem(detail: "An unexpected error occurred while processing your request.", statusCode: 500);
             }
         }
+
+        [HttpGet("get-application-details")]
+        [EndpointSummary("Get farmer application details by application ID")]
+        [EndpointDescription("Retrieves the application details of a farmer using their Unique Farmer Application ID (ApplicationId).")]
+        public async Task<IActionResult> GetFarmersApplicationDetailsByApplicationId([FromQuery] int applicationId)
+        {
+            try
+            {
+                var result = await farmersDetailsRepository.GetFarmersApplicationDetailsByApplicationIdAsync(applicationId);
+
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving farmer application details for ApplicationId: {ApplicationId}", applicationId);
+                return Problem(detail: "An unexpected error occurred while processing your request.", statusCode: 500);
+            }
+        }
     }
 }

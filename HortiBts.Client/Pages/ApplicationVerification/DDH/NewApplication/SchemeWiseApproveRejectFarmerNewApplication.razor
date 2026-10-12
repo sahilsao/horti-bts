@@ -5,6 +5,7 @@
 @using HortiBts.Client.Services.FinancialYears
 @using HortiBts.Client.Services.Soil
 @using HortiBts.Shared.Dtos.ApplicationVerification.NewFarmersApplication
+@using HortiBts.Shared.Dtos.FinancialYear
 @using HortiBts.Shared.Models.Soil
 @using Microsoft.AspNetCore.Components.Web
 
@@ -199,8 +200,11 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
-                    <MudTd>@Lang.Text("Total", "योग")</MudTd>
-                    <MudTd>@_farmerLandDetails.Sum(x => x.Area)</MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+                    <MudTd><b>@_farmerLandDetails.Sum(x => x.Area)?.ToString("N2")</b></MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
             </MudTable>
@@ -246,8 +250,8 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
-                    <MudTd>@Lang.Text("Total", "योग")</MudTd>
-                    <MudTd>@_farmerGirdawariDetails.Sum(x => decimal.TryParse(x.SubCropArea, out var value) ? value : 0)</MudTd>
+                    <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+                    <MudTd><b>@_farmerGirdawariDetails.Sum(x => decimal.TryParse(x.SubCropArea, out var value) ? value : 0)</b></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
@@ -304,8 +308,8 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
-                    <MudTd>@Lang.Text("Total", "योग")</MudTd>
-                    <MudTd>@_farmerSchemeDetails.Sum(x => x.Area)</MudTd>
+                    <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+                    <MudTd><b>@_farmerSchemeDetails.Sum(x => x.Area)</b></MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
                 <PagerContent>
@@ -346,20 +350,21 @@ else
                     <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(c.VillageName)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Crop Type", "फसल का प्रकार")">@Or(c.SubCropCategoryName)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Crop Name", "फसल का नाम")">@Or(c.CropName)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(c.CropVariety)</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(c.CropVariety)</MudTd>                    
+                    <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(c.CropSeasonName!.ToString())</MudTd>
                     <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(c.KhasraNo)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@Or(c.CropArea?.ToString("N2"))</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(c.CropSeason.ToString())</MudTd>
                     <MudTd DataLabel="@Lang.Text("Year", "वर्ष")">@Or(c.FinancialYearStr?.ToString())</MudTd>
                 </RowTemplate>
-                <FooterContent>
+                <FooterContent>                    
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
-                    <MudTd>@Lang.Text("Total", "योग")</MudTd>
-                    <MudTd>@_farmerCropDetails.Sum(x => x.CropArea)</MudTd>
+                    <MudTd></MudTd>                    
+                    <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+                    <MudTd><b>@_farmerCropDetails.Sum(x => x.CropArea)?.ToString("N2")</b></MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
             </MudTable>
@@ -398,6 +403,7 @@ else
     
 @code {
     private int _searchApplicationId { get; set; }
+    private List<FinancialYearDto> _finyears = [];
     private List<NewFarmerApplicationBasicDetailsDto> _farmerBasicDetails = new();
     private List<NewFarmerApplicationAddressDetailsDto> _farmerAddressDetails = new();
     private List<NewFarmerApplicationBankDetailsDto> _farmerBankDetails = new();
@@ -414,6 +420,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadFinancialYearsAsync();
+
         if (ApplicationId > 0)
         {
             _searchApplicationId = ApplicationId;
@@ -421,6 +429,16 @@ else
         }
     }
 
+     private async Task LoadFinancialYearsAsync()
+    {
+        var result = await FinancialYearApiService.GetFinancialYearsForReportAsync();
+
+        if (result.IsSuccess && result.Data is not null)
+            _finyears = result.Data.Take(1).ToList();
+        else
+            Snackbar.Add(Lang.Text("Failed to load financial years.", "वित्त वर्ष लोड करने में विफल।"), Severity.Warning);
+
+    }
     private async Task SearchAsync()
     {
         if (_searchApplicationId <= 0)
@@ -448,7 +466,7 @@ else
 
             var resultLandDetails =
             await FarmersDetailsByApplicationIdApiService.GetFarmersLandDetailsByApplicationIdAsync(_searchApplicationId,
-17);
+_finyears.FirstOrDefault()!.Id);
 
 
             if (resultBasicDetails.IsSuccess && resultBasicDetails.Data is not null && resultBasicDetails.Data.Any())
@@ -482,7 +500,7 @@ else
 
             var resultSchemeDetails =
             await
-FarmersDetailsByApplicationIdApiService.GetFarmersSchemeDetailsByApplicationIdAsync(_searchApplicationId, 17);
+FarmersDetailsByApplicationIdApiService.GetFarmersSchemeDetailsByApplicationIdAsync(_searchApplicationId, _finyears.FirstOrDefault()!.Id);
             {
                 if (resultSchemeDetails.IsSuccess && resultSchemeDetails.Data is not null && resultSchemeDetails.Data.Any())
                 {
@@ -492,7 +510,7 @@ FarmersDetailsByApplicationIdApiService.GetFarmersSchemeDetailsByApplicationIdAs
 
             var resultCropDetails =
             await FarmersDetailsByApplicationIdApiService.GetFarmersCropDetailsByApplicationIdAsync(_searchApplicationId,
-17);
+_finyears.FirstOrDefault()!.Id);
             {
                 if (resultCropDetails.IsSuccess && resultCropDetails.Data is not null && resultCropDetails.Data.Any())
                 {

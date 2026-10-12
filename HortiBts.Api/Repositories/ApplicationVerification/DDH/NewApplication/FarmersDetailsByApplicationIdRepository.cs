@@ -14,6 +14,8 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
         Task<Result<List<NewFarmerApplicationLandDetailsDto>>> GetFarmersLandDetailsByApplicationIdAsync(int applicationId, int financialYear);
         Task<Result<List<NewFarmerApplicationSchemeDetailsDto>>> GetFarmersSchemeDetailsByApplicationIdAsync(int applicationId, int financialYear);
         Task<Result<List<NewFarmerApplicationCropDetailsDto>>> GetFarmersCropDetailsByApplicationIdAsync(int applicationId, int financialYear);
+        Task<Result<List<NewFarmerApplicationDetailsDto>>> GetFarmersApplicationDetailsByApplicationIdAsync(int applicationId);
+
     }
     public class FarmersDetailsByApplicationIdRepository(IDbConnectionFactory dbFactory) : IFarmersDetailsByApplicationIdRepository
     {
@@ -299,6 +301,40 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.NewApplication
             catch (Exception ex)
             {
                 return Result<List<NewFarmerApplicationCropDetailsDto>>.Failure($"Failed to fetch farmer crop details: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<List<NewFarmerApplicationDetailsDto>>> GetFarmersApplicationDetailsByApplicationIdAsync(int applicationId)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT 
+                    fa.application_id AS ApplicationId,
+                    fa.hf_id AS HfId,
+                    fa.fd_id AS FdId,
+                    fa.bd_id AS BdId,
+                    fa.status AS Status,
+                    mf.farmer_name_eng AS FarmerNameEng,
+                    mf.farmer_name_hi AS FarmerNameHi,
+                    fa.financial_year AS FinancialYear,
+                    fa.rheo_approval_status AS RheoApprovalStatus,
+                    fa.ddh_approval_status AS DdhApprovalStatus,
+                    fa.rheo_remark AS RheoRemark,
+                    fa.ddh_remark AS DdhRemark,
+                    fa.remark AS Remark
+                FROM temp_farmer_application fa
+                INNER
+                JOIN temp_mas_farmer mf ON mf.hf_id= fa.hf_id
+                WHERE fa.application_id= @ApplicationId
+                """;
+                var result = await connection.QueryAsync<NewFarmerApplicationDetailsDto>(sql, new { ApplicationId = applicationId});
+                return Result<List<NewFarmerApplicationDetailsDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<NewFarmerApplicationDetailsDto>>.Failure($"Failed to fetch farmer application details: {ex.Message}");
             }
         }
     }

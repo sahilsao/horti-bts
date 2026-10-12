@@ -85,5 +85,18 @@ namespace HortiBts.Client.Services.ApplicationVerification.DDH.NewApplication
                 return Result<List<NewFarmerApplicationCropDetailsDto>>.Failure($"Failed to fetch farmer crop details: {ex.Message}");
             }
         }
+
+        public async Task<Result<List<NewFarmerApplicationDetailsDto>>> GetFarmersApplicationDetailsByApplicationIdAsync(int applicationId)
+        {
+            try
+            {
+                var response = await http.GetAsync($"api/farmer-details-by-application-id/get-application-details?applicationId={applicationId}");
+                return await ApiResultHelper.ReadResultAsync<List<NewFarmerApplicationDetailsDto>>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<NewFarmerApplicationDetailsDto>>.Failure($"Failed to fetch farmer application details: {ex.Message}");
+            }
+        }
     }
 }

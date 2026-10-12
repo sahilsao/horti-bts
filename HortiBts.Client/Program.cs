@@ -128,3 +128,7 @@ builder.Services.AddScoped<FarmersDetailsApiService>();
 builder.Services.AddScoped<ApproveRejectFarmerApplicationByDDHApiService>();
 
 await builder.Build().RunAsync();
+
+builder.Logging.AddFilter(
+    "Microsoft.AspNetCore.Authorization",
+    LogLevel.Warning);

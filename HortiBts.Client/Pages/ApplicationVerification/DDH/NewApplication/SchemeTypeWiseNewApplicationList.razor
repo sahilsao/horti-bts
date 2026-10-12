@@ -178,7 +178,7 @@
                 @if (context.DdhPending > 0)
                 {
                     <MudTooltip Text="@Lang.Text("View Applications", "आवेदन देखें")">
-                        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary" Size="Size.Small"
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary"
                                        Href="@($"/district/scheme-wise-new-application-beneficiary-list/{context.SchemeTypeId}/{context.SchemeId}/{_currentUser.UserId}/{_selectedFinancialYear}")" />
                     </MudTooltip>
                 }
@@ -189,8 +189,8 @@
             </MudTd>
         </RowTemplate>
         <FooterContent>
+            <MudTd></MudTd>            
             <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
-            <MudTd></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.TotalApplications ?? 0)</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.RheoPending ?? 0)</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.RheoApproved ?? 0)</b></MudTd>

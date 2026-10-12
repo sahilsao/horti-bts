@@ -13,6 +13,8 @@ public class NoticesController(INoticeRepository repository, IHttpContextAccesso
 
     // GET api/notices
     [HttpGet]
+    [EndpointSummary("Get all notice documents")]
+    [EndpointDescription("Retrieves all notice documents.")]
     public async Task<ActionResult<IEnumerable<NoticesDto>>> GetAll()
     {
         try

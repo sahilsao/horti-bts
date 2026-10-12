@@ -1,4 +1,10 @@
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Shared.Dtos.FinancialYear
 @using Microsoft.AspNetCore.Components.Authorization
+@inject IUserContextService UserContextService
+@inject FinancialYearsApiService FinancialYearsApiService
+
 <MudNavMenu Bordered="true" MultiExpansion="false" Margin="Margin.Normal" Color="Color.Primary">
     <AuthorizeView Roles="District">
         <Authorized>
@@ -46,6 +52,55 @@
                     </MudNavLink>
                 </ChildContent>
             </MudNavGroup>
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
+                <TitleContent>
+                    @Lang.Text("Reports", "रिपोर्ट्स")
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2026-27)</MudChip>
+                </TitleContent>
+                <ChildContent>
+                    <MudNavGroup Title="@Lang.Text("Applications Reports", "आवेदन रिपोर्ट्स")" Ripple
+                                 Icon="material-symbols-outlined/order_approve">
+                        @if (_finyears.FirstOrDefault() is { } financialYear)
+                        {
+                            <MudNavLink
+                                Href="@($"/reports/applications/current/farmerwise-farmer-applications-list/{_currentUser.UserId}/0/0/0/{financialYear.Id}")"
+                                Match="NavLinkMatch.Prefix" Ripple="true" Icon="material-symbols-outlined/domain">
+
+                                @Lang.Text(
+                                    "Farmer Wise Applications List",
+                                    "किसानवार आवेदन सूची")
+
+                            </MudNavLink>
+                        }
+                    </MudNavGroup>
+                </ChildContent>
+            </MudNavGroup>
         </Authorized>
     </AuthorizeView>
 </MudNavMenu>
+
+
+@code {
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private List<FinancialYearDto> _finyears = [];
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCurrentUserAsync();
+        await LoadFinancialYearsAsync();
+    }
+
+    private async Task LoadCurrentUserAsync()
+    {
+        _currentUser = await UserContextService.GetCurrentUserAsync();
+    }
+
+    private async Task LoadFinancialYearsAsync()
+    {
+        var result = await FinancialYearsApiService.GetFinancialYearsForReportAsync();
+
+        if (result.IsSuccess && result.Data is not null)
+            _finyears = result.Data.Take(1).ToList();
+
+    }
+}

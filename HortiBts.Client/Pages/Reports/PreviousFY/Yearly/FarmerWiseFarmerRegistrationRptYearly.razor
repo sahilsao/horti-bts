@@ -322,7 +322,6 @@
             <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")">@context.VillageName</MudTd>
             <MudTd DataLabel="@Lang.Text("UFID", "यू.एफ.आईडी")">
                 <MudLink Href="@($"/report/farmer-details/{context.Ufid}")"
-                         Target="_blank"
                          Color="Color.Info">
                     @context.Ufid
                 </MudLink>
@@ -339,11 +338,11 @@
             <MudTd DataLabel="@Lang.Text("Beneficiary area (in hectares)", "लाभान्वित रकबा(हेक्टेयर में)")">@context.Area?.ToString("N2")</MudTd>
         </RowTemplate>
         <FooterContent>
+            <MudTd></MudTd>
+            <MudTd></MudTd>
             <MudTd>
                 <b>@Lang.Text("Total", "योग")</b>
             </MudTd>
-            <MudTd></MudTd>
-            <MudTd></MudTd>
             <MudTd>
                 <b>@_filteredReportData.Where(x => !string.IsNullOrWhiteSpace(x.Ufid.ToString())).Select(x => x.Ufid).Distinct().Count()</b>
                 <span> @Lang.Text("Farmers", "कृषक")</span>

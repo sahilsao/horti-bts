@@ -407,7 +407,6 @@
             <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@context.VillageName</MudTd>
             <MudTd DataLabel="@Lang.Text("UFID", "यू.एफ.आईडी")">
                 <MudLink Href="@($"/report/farmer-details/{context.UFID}")"
-                         Target="_blank"
                          Color="Color.Info">
                     @context.UFID
                 </MudLink>
@@ -442,8 +441,8 @@
             <MudTd DataLabel="@Lang.Text("Total Land Area", "कुल भूमि क्षेत्रफल")">@context.TotalLandArea?.ToString("N2")</MudTd>
         </RowTemplate>
         <FooterContent>
-            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
             <MudTd></MudTd>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
             <MudTd></MudTd>
             <MudTd></MudTd>
             <MudTd></MudTd>

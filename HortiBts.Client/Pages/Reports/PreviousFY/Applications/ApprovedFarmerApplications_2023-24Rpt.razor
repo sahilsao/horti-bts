@@ -275,7 +275,7 @@
                                                         <RowTemplate>
                                                             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
                                                             <MudTd DataLabel="@Lang.Text("UFID", "यू.एफ.आईडी")">
-                                                                <MudLink Href="@($"/report/farmer-details/{context.UfId}")" Target="_blank" Color="Color.Info">
+                                                                <MudLink Href="@($"/report/farmer-details/{context.UfId}")" Color="Color.Info">
                                                                     @context.UfId
                                                                 </MudLink>
                                                             </MudTd>
@@ -298,11 +298,11 @@
                                                                         </MudTd>
                                                                     </RowTemplate>
                                                                     <FooterContent>
+                                                                        <MudTd></MudTd>
+                                                                        <MudTd></MudTd>                                                                        
                                                                         <MudTd>
                                                                             <b>@Lang.Text("Total", "योग")</b>
                                                                         </MudTd>
-                                                                        <MudTd></MudTd>
-                                                                        <MudTd></MudTd>
                                                                         <MudTd>
                                                                             <b>@_filteredReportData.Where(x => !string.IsNullOrWhiteSpace(x.UfId!.ToString())).Select(x =>
                                                                                                                                                                                 x.UfId).Distinct().Count()</b>

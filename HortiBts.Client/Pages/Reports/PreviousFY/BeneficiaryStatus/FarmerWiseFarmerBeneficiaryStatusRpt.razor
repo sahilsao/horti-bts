@@ -214,8 +214,8 @@
             </MudTd>
         </RowTemplate>
         <FooterContent>
-            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
             <MudTd></MudTd>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
             <MudTd>
                 <b>@_filteredReportData.Where(x => !string.IsNullOrWhiteSpace(x.UfId.ToString())).Select(x
                                                                                                                     => x.UfId).Distinct().Count()</b>

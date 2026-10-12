@@ -142,8 +142,8 @@
             <MudTd DataLabel="@Lang.Text("Number of applications approved by the DDH", "डीडीएच द्वारा स्वीकृत आवेदनों की संख्या")">@context.DApproved</MudTd>
         </RowTemplate>
         <FooterContent>
-            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
             <MudTd></MudTd>
+            <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.Target ?? 0)</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.FCount ?? 0)</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.SCount ?? 0)</b></MudTd>

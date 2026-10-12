@@ -198,15 +198,17 @@ else
                     </MudTd>
                     <MudTd DataLabel="@Lang.Text("Verified against land records", "भू-अभिलेख से सत्यापित")"> @Or(l.IsVerified) </MudTd>
                 </RowTemplate>
-                 <FooterContent>
-                    <MudTd></MudTd>
-                    <MudTd></MudTd>
-                    <MudTd></MudTd>
-                    <MudTd></MudTd>
-                    <MudTd></MudTd>
+                 <FooterContent>                    
                      <MudTd>@Lang.Text("Total","योग")</MudTd>
-                    <MudTd>@_farmerLandDetails.Sum(x => x.Area)</MudTd>
-                    <MudTd>@_farmerLandDetails.Sum(x => (x.Area * 2.47105m))</MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd>@_farmerLandDetails.Sum(x => x.Area)?.ToString("N2")</MudTd>
+                    <MudTd>@_farmerLandDetails.Sum(x => (x.Area ?? 0m) * 2.47105m).ToString("N4")</MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
             </MudTable>           
@@ -225,7 +227,7 @@ else
             @* ---------- Scheme Details Result ---------- *@
             
             <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Scheme and Component Details", "योजना एवं घटक विवरण")</strong>
-           @Lang.Text("Details of benefits availed by the farmer under government schemes.","कृषक द्वारा शासकीय योजना द्वारा लिए जाने वाले लाभ का विवरण।")
+           (@Lang.Text("Details of benefits availed by the farmer under government schemes.","कृषक द्वारा शासकीय योजना द्वारा लिए जाने वाले लाभ का विवरण।"))
            </MudText>
             <MudTable Items="@_farmerSchemeDetails" Hover="true" Dense="true" Bordered="true" Striped="true">
                 <HeaderContent>
@@ -250,15 +252,15 @@ else
                     <MudTd DataLabel=@Lang.Text("Area (in acres)", "रकबा (एकड़ में)")>@((s.Area * 2.47105m)?.ToString("N4"))</MudTd>
                     <MudTd DataLabel=@Lang.Text("Number (optional)", "संख्या (वैकल्पिक)")>@s.Quantity</MudTd>
                 </RowTemplate>
-                <FooterContent>
-                    <MudTd></MudTd>
-                    <MudTd></MudTd>
-                    <MudTd></MudTd>
-                    <MudTd></MudTd>
-                    <MudTd></MudTd>
+                <FooterContent>                    
                      <MudTd>@Lang.Text("Total","योग")</MudTd>
-                    <MudTd>@_farmerSchemeDetails.Sum(x => x.Area)</MudTd>
-                    <MudTd>@_farmerSchemeDetails.Sum(x => (x.Area * 2.47105m))</MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd></MudTd>
+                    <MudTd>@_farmerSchemeDetails.Sum(x => x.Area)?.ToString("N2")</MudTd>
+                    <MudTd>@_farmerSchemeDetails.Sum(x => (x.Area ?? 0m) * 2.47105m).ToString("N4")</MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
                 <PagerContent>
@@ -315,8 +317,8 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                      <MudTd>@Lang.Text("Total","योग")</MudTd>
-                    <MudTd>@_farmerCropDetails.Sum(x => x.CropArea)</MudTd>
-                    <MudTd>@_farmerCropDetails.Sum(x => (x.CropArea * 2.47105m))</MudTd>
+                    <MudTd>@_farmerCropDetails.Sum(x => x.CropArea)?.ToString("N2")</MudTd>
+                    <MudTd>@_farmerCropDetails.Sum(x => (x.CropArea ?? 0m) * 2.47105m).ToString("N4")</MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
             </MudTable>
@@ -336,7 +338,7 @@ else
             @* ---------- Machinery Details Result ---------- *@
             
             <MudText Typo="Typo.subtitle1" Class="pa-4 pb-0"><strong>@Lang.Text("Machinery Details", "उपकरण विवरण")</strong>                
-            @Lang.Text("(Equipment available to the farmer through self-purchase.)","(कृषक के पास स्वयं के क्रय से उपलब्ध उपकरण।)")
+            (@Lang.Text("Equipment available to the farmer through self-purchase.","कृषक के पास स्वयं के क्रय से उपलब्ध उपकरण।"))
             </MudText>
             <MudTable Items="_farmerMachineryDetails" Hover="true" Dense="true" Bordered="true" Striped="true">
                 <HeaderContent>

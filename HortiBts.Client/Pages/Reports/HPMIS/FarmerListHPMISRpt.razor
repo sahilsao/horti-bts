@@ -180,7 +180,7 @@
             <MudTd DataLabel="@Lang.Text("Season", "सीज़न")">@context.SeasonNameHi</MudTd>
             <MudTd DataLabel="@Lang.Text("Crop", "फसल")">@context.CropName</MudTd>
             <MudTd DataLabel="@Lang.Text("Crop Area (in hectares)", "फसल रकबा (हेक्टेयर में)")">
-                @context.CropArea?.ToString("N4")
+                @context.CropArea?.ToString("N2")
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Expected Production (in quintal)", "अनुमानित उत्पादन (क्विंटल में)")">
                 @context.ExpectedProduction?.ToString("N2")
@@ -194,7 +194,7 @@
         </RowTemplate>
         <FooterContent>
             <MudTd colspan="7"><b>@Lang.Text("Total", "योग")</b></MudTd>
-            <MudTd><b>@_filteredReportData.Sum(x => x.CropArea ?? 0).ToString("N4")</b></MudTd>
+            <MudTd><b>@_filteredReportData.Sum(x => x.CropArea ?? 0).ToString("N2")</b></MudTd>
             <MudTd><b>@_filteredReportData.Sum(x => x.ExpectedProduction ?? 0).ToString("N2")</b></MudTd>
         </FooterContent>
         <PagerContent>

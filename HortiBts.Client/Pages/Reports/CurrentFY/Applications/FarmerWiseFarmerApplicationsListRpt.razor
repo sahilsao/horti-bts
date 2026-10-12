@@ -12,8 +12,11 @@
 @using HortiBts.Shared.Dtos.Officers
 @using HortiBts.Shared.Dtos.Reports.CurrentFY.Applications
 @using HortiBts.Shared.Dtos.SubDistricts
-@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Components.Authorization
 
+@attribute [Authorize(Roles = "Admin, District")]
+
+@inject IUserContextService UserContextService
 @inject DistrictsApiService DistrictsApiService
 @inject SubDistrictsApiService SubDistrictsApiService
 @inject OfficersApiService OfficersApiService
@@ -45,27 +48,29 @@
 </MudText>
 
 <MudGrid Spacing="3" Class="mb-4">
-    <MudItem xs="12" sm="4">
-        <MudSelect T="int?"
-                   Value="_selectedDistrictCensus"
-                   Label="@Lang.Text("District", "जिला")"
-                   Variant="Variant.Outlined"
-                   ValueChanged="OnDistrictChanged">
+    
+    <AuthorizeView Roles="Admin">
+        <MudItem xs="12" sm="4">
+            <MudSelect T="int?"
+                    Value="_selectedDistrictCensus"
+                    Label="@Lang.Text("District", "जिला")"
+                    Variant="Variant.Outlined"
+                    ValueChanged="OnDistrictChanged">
 
-            <MudSelectItem T="int?" Value="0">
-                @Lang.Text("All", "सभी")
-            </MudSelectItem>
-
-
-            @foreach (var d in _districts)
-            {
-                <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
-                    @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                <MudSelectItem T="int?" Value="0">
+                    @Lang.Text("All", "सभी")
                 </MudSelectItem>
-            }
-        </MudSelect>
-    </MudItem>
 
+
+                @foreach (var d in _districts)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                        @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+    </AuthorizeView>
     <MudItem xs="12" sm="4">
         <MudSelect T="int?"
                    Value="_selectedSubDistrictCode"
@@ -128,7 +133,6 @@
         </MudSelect>
     </MudItem>
 
-
     <MudItem xs="12" sm="4">
         <MudSelect T="int?"
                    Label="@Lang.Text("Select Financial Year", "वित्त वर्ष चुने")"
@@ -143,7 +147,6 @@
             }
         </MudSelect>
     </MudItem>   
-
 </MudGrid>
 <MudStack Row="true" Spacing="1">
     <MudButton Variant="Variant.Filled"
@@ -203,6 +206,9 @@
             <MudTh><MudTableSortLabel SortBy="new Func<FarmerWiseFarmerApplicationsDto, object>(x => x.TotalLandKhasra!)">@Lang.Text("Total Khasra", "कुल खसरा")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<FarmerWiseFarmerApplicationsDto, object>(x => x.TotalLandArea!)">@Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्टेयर में)")</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel SortBy="new Func<FarmerWiseFarmerApplicationsDto, object>(x => x.Area!)">@Lang.Text("Beneficiary area (in hectares)", "लाभान्वित रकबा(हेक्टेयर में)")</MudTableSortLabel></MudTh>
+            <AuthorizeView Roles="District" Context="authState">
+                <MudTh>@Lang.Text("View Application Letter", "आवेदन पत्र देखें")</MudTh>
+            </AuthorizeView>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
@@ -210,12 +216,11 @@
             <MudTd DataLabel="@Lang.Text("Application No", "आवेदन क्रमांक")">@context.ApplicationId</MudTd>
             <MudTd DataLabel="@Lang.Text("UFID", "यू.एफ.आईडी")">
                 <MudLink Href="@($"/report/farmer-details/{context.UfId}")"
-                         Target="_blank"
                          Color="Color.Info">
                     @context.UfId
                 </MudLink>
             </MudTd>
-            <MudTd DataLabel="@Lang.Text("Farmer Name", "किसान का नाम")">@context.FarmerNameEng</MudTd>
+            <MudTd DataLabel="@Lang.Text("Farmer Name", "किसान का नाम")">@context.FarmerNameEng / @context.FarmerNameHi</MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Father Name", "पिता का नाम")">@context.FatherName</MudTd>
             <MudTd DataLabel="@Lang.Text("Mobile No", "मोबाइल नंबर")">@context.MobileNo</MudTd>
             <MudTd DataLabel="@Lang.Text("Scheme", "योजना")">@context.SchemeName - @context.ComponentName</MudTd>            
@@ -223,26 +228,35 @@
             <MudTd DataLabel="@Lang.Text("Beneficiary Khasra", "लाभान्वित खसरा")">@context.KhasraNo</MudTd>
             <MudTd DataLabel="@Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्टेयर में)")">@context.TotalLandArea?.ToString("N2")</MudTd>
             <MudTd DataLabel="@Lang.Text("Beneficiary area (in hectares)", "लाभान्वित रकबा(हेक्टेयर में)")">@context.Area?.ToString("N2")</MudTd>
+            <AuthorizeView Roles="District" Context="authState">
+                <MudTd DataLabel="@Lang.Text("View Application Letter", "आवेदन पत्र देखें")">
+                    <MudIconButton
+                    Href="@($"/reports/farmer-application-letter-details/{context.ApplicationId}")"
+                    Icon="@Icons.Material.Filled.Visibility"
+                    Color="Color.Primary"
+                    Size="Size.Small" />
+                </MudTd>
+            </AuthorizeView>
         </RowTemplate>
         <FooterContent>
+            <MudTd></MudTd>
+            <MudTd></MudTd>
+            <MudTd></MudTd>
             <MudTd>
                 <b>@Lang.Text("Total", "योग")</b>
             </MudTd>
-            <MudTd></MudTd>
-            <MudTd></MudTd>
-            <MudTd></MudTd>
             <MudTd>
                 <b>@_filteredReportData.Where(x => !string.IsNullOrWhiteSpace(x.UfId!.ToString())).Select(x => x.UfId).Distinct().Count()</b>
                 <span> @Lang.Text("Farmers", "कृषक")</span>
             </MudTd>
-            <MudTd></MudTd>
-            <MudTd></MudTd>
+            <MudTd></MudTd>            
+            <MudTd></MudTd>   
             <MudTd>
                 <b>@_filteredReportData.Where(x => !string.IsNullOrWhiteSpace(x.ComponentName)).Select(x => x.ComponentName).Distinct().Count()</b>
                 <span> @Lang.Text("Schemes", "योजनाएं")</span>
             </MudTd>
-            <MudTd></MudTd>
-            <MudTd></MudTd>
+            <MudTd></MudTd>            
+            <MudTd></MudTd>   
             <MudTd>
                 <b>
                     @_filteredReportData.Sum(x => x.TotalLandArea ?? 0).ToString("N2") @Lang.Text("(Hect.)", "(हेक्ट.)")
@@ -253,6 +267,9 @@
                     @_filteredReportData.Sum(x => x.Area ?? 0).ToString("N2") @Lang.Text("(Hect.)", "(हेक्ट.)")
                 </b>
             </MudTd>
+            <AuthorizeView Roles="District" Context="authState">
+               <MudTd></MudTd>
+            </AuthorizeView>
         </FooterContent>
 
         <PagerContent>
@@ -294,29 +311,25 @@
     private string _searchString = string.Empty;
 
     protected override async Task OnInitializedAsync()
-    {
+    {   
         await LoadDistrictsAsync();
         await LoadFinancialYearsAsync();
+        
+        _selectedDistrictCensus = DistrictCode;
+        await OnDistrictChanged(_selectedDistrictCensus);
 
-        if (DistrictCode > 0 && SubDistrictCode > 0 && OfficerCode > 0 && FinancialYear > 0)
-        {
-            _selectedDistrictCensus = DistrictCode;
-            await OnDistrictChanged(_selectedDistrictCensus);
+        _selectedSubDistrictCode = SubDistrictCode;
+        await OnSubDistrictChanged(_selectedSubDistrictCode);
 
-            _selectedSubDistrictCode = SubDistrictCode;
-            await OnSubDistrictChanged(_selectedSubDistrictCode);
+        _selectedOfficerCode = OfficerCode;
+        await OnOfficerChanged(_selectedOfficerCode);
 
-            _selectedOfficerCode = OfficerCode;
-            await OnOfficerChanged(_selectedOfficerCode);
+        _selectedVillageCode = VillageCode;
 
-            _selectedVillageCode = VillageCode;
+        _selectedFinancialYear = FinancialYear;
 
-            _selectedFinancialYear = FinancialYear;
-
-            await LoadReport();
-        }
+        await LoadReport();
     }
-
     private async Task LoadDistrictsAsync()
     {
         var result = await DistrictsApiService.GetDistrictsAsync();
