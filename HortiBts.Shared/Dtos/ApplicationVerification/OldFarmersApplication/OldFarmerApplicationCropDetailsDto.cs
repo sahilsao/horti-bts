@@ -15,6 +15,7 @@
         public string? SubCropCategoryName { get; set; } // subcrop
         public string? CropVariety { get; set; } // ccrop_veriety
         public int? CropSeason { get; set; } // crop_season
+        public string? CropSeasonName { get; set; } // crop_season
         public decimal? CropArea { get; set; } // ccrop_area
         public string? VillageType { get; set; } // village_type
         public int? IsJoin { get; set; } // is_join

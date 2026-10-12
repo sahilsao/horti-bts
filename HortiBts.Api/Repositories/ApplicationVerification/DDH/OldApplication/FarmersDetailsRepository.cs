@@ -255,6 +255,7 @@ namespace HortiBts.Api.Repositories.ApplicationVerification.DDH.OldApplication
                     mcc.subcrop AS SubCropCategoryName,
                     cd.ccrop_veriety AS CropVariety,
                     cd.crop_season AS CropSeason,
+                    (CASE WHEN cd.crop_season=1 THEN 'खरीफ़' WHEN cd.crop_season=2 THEN 'रबी' WHEN cd.crop_season=3 THEN 'ज़ायद'END ) AS CropSeasonName,
                     cd.ccrop_area AS CropArea,
                     cd.village_type AS VillageType,
                     cd.is_join AS IsJoin,

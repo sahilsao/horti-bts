@@ -194,12 +194,12 @@ else
                     <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(l.KhasraNo)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Area (in hectares)", "रकबा (हेक्टेयर में)")">@l.Area?.ToString("N2")
                     </MudTd>
-                       <MudTd DataLabel="@Lang.Text("Area (in acres)", "रकबा (एकड़ में)")"> @((l.Area * 2.47105m)?.ToString("N4"))
+                       <MudTd DataLabel="@Lang.Text("Area (in acres)", "रकबा (एकड़ में)")"> @((l.Area * 2.47105m)?.ToString("N2"))
                     </MudTd>
                     <MudTd DataLabel="@Lang.Text("Verified against land records", "भू-अभिलेख से सत्यापित")"> @Or(l.IsVerified) </MudTd>
                 </RowTemplate>
                  <FooterContent>                    
-                     <MudTd>@Lang.Text("Total","योग")</MudTd>
+                    <MudTd>@Lang.Text("Total","योग")</MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
@@ -208,7 +208,7 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd>@_farmerLandDetails.Sum(x => x.Area)?.ToString("N2")</MudTd>
-                    <MudTd>@_farmerLandDetails.Sum(x => (x.Area ?? 0m) * 2.47105m).ToString("N4")</MudTd>
+                    <MudTd>@_farmerLandDetails.Sum(x => (x.Area ?? 0m) * 2.47105m).ToString("N2")</MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
             </MudTable>           
@@ -249,7 +249,7 @@ else
                     <MudTd DataLabel=@Lang.Text("Component Name", "घटक")>@s.Cname</MudTd>
                     <MudTd DataLabel=@Lang.Text("Khasra No", "खसरा क्रमांक")>@s.KhasraNo</MudTd>
                     <MudTd DataLabel=@Lang.Text("Area (selected area in hectares)", "रकबा (चयनित रकबा हेक्टेयर में)")>@s.Area?.ToString("N2")</MudTd>
-                    <MudTd DataLabel=@Lang.Text("Area (in acres)", "रकबा (एकड़ में)")>@((s.Area * 2.47105m)?.ToString("N4"))</MudTd>
+                    <MudTd DataLabel=@Lang.Text("Area (in acres)", "रकबा (एकड़ में)")>@((s.Area * 2.47105m)?.ToString("N2"))</MudTd>
                     <MudTd DataLabel=@Lang.Text("Number (optional)", "संख्या (वैकल्पिक)")>@s.Quantity</MudTd>
                 </RowTemplate>
                 <FooterContent>                    
@@ -260,7 +260,7 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd>@_farmerSchemeDetails.Sum(x => x.Area)?.ToString("N2")</MudTd>
-                    <MudTd>@_farmerSchemeDetails.Sum(x => (x.Area ?? 0m) * 2.47105m).ToString("N4")</MudTd>
+                    <MudTd>@_farmerSchemeDetails.Sum(x => (x.Area ?? 0m) * 2.47105m).ToString("N2")</MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
                 <PagerContent>
@@ -301,14 +301,15 @@ else
                 <RowTemplate Context="c">
                     <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_farmerCropDetails.IndexOf(c) + 1)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(c.VillageName)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(c.CropSeason.ToString())</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(c.CropSeasonName?.ToString())</MudTd>
                     <MudTd DataLabel="@Lang.Text("Crop Type", "फसल का प्रकार")">@Or(c.SubCropCategoryName)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Crop Name", "फसल का नाम")">@Or(c.CropName)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(c.CropVariety)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(c.KhasraNo)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Area (in hectares)", "रकबा (हेक्टेयर में)")">@Or(c.CropArea?.ToString("N2"))</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Area (in acres)", "रकबा (एकड़ में)")">@Or((c.CropArea * 2.47105m)?.ToString("N4"))</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Seed Production", "बीज उत्पादन")">@Or(c.IsSeed?.ToString())</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Area (in acres)", "रकबा (एकड़ में)")">@Or((c.CropArea * 2.47105m)?.ToString("N2"))</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Combined Khasra", "संयुक्त खसरा")">@Or(((c.IsJoin == 0) ? "नहीं" : "हाँ"))</MudTd>
+                    <MudTd DataLabel="@Lang.Text("Seed Production", "बीज उत्पादन")">@Or(((c.IsSeed== 0) ? "नहीं" : "हाँ"))</MudTd>
                 </RowTemplate>
                  <FooterContent>
                     <MudTd></MudTd>
@@ -316,9 +317,10 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
+                    <MudTd></MudTd>
                      <MudTd>@Lang.Text("Total","योग")</MudTd>
                     <MudTd>@_farmerCropDetails.Sum(x => x.CropArea)?.ToString("N2")</MudTd>
-                    <MudTd>@_farmerCropDetails.Sum(x => (x.CropArea ?? 0m) * 2.47105m).ToString("N4")</MudTd>
+                    <MudTd>@_farmerCropDetails.Sum(x => (x.CropArea ?? 0m) * 2.47105m).ToString("N2")</MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
             </MudTable>
