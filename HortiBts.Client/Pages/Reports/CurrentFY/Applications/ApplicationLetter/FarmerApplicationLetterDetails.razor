@@ -390,7 +390,7 @@ else
 
     private List<NewFarmerApplicationCropDetailsDto> _farmerCropDetails = new();
     private List<NewFarmerApplicationDetailsDto> _farmerApplicationDetails = new();
-    private bool _isLoading;
+    private bool _isLoading = true;
     private string _remarks = string.Empty;
 
 
@@ -399,14 +399,25 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadFinancialYearsAsync();
-
-        if (ApplicationId > 0)
+        try
         {
-            _searchApplicationId = ApplicationId;
+            await LoadFinancialYearsAsync();
 
-            await SearchAsync();
+            if (ApplicationId > 0)
+            {
+                _searchApplicationId = ApplicationId;
+                await SearchAsync(); // sets _isLoading = false in its finally
+                return;
+            }
         }
+        catch
+        {
+            Snackbar.Add(
+                Lang.Text("Failed to load application details.", "आवेदन विवरण लोड करने में विफल।"),
+                Severity.Error);
+        }
+
+        _isLoading = false; // reached only when no search ran or something failed
     }
 
     private async Task LoadFinancialYearsAsync()
