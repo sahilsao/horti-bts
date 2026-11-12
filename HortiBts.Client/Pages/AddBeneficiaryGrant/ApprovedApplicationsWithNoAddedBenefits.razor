@@ -1,4 +1,4 @@
-﻿@* @page "/district/approved-applications-with-no-added-benefits"
+﻿@page "/district/approved-applications-with-no-added-benefits"
 @attribute [Authorize(Roles = "District")]
 @using HortiBts.Client.Services.AddBeneficiaryGrant
 @using HortiBts.Client.Services.Auth
@@ -76,7 +76,7 @@
         <ToolBarContent>
             <MudText Typo="Typo.h6">
                 @Lang.Text("List of Farmers ", "कृषकों की सूची ")
-                (वर्ष @_finyears.FirstOrDefault()?.FinancialYear)
+                (@_finyears.FirstOrDefault()?.FinancialYear)
             </MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
@@ -371,4 +371,4 @@
             $"SchemeWiseBeneficiary_ApplicationsReport.xlsx");
     }
 
-} *@
+}

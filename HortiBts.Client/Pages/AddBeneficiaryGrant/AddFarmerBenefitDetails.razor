@@ -1,11 +1,14 @@
-﻿@* @page "/district/add-farmer-benefit-details/{ApplicationId:int}/{FinancialYear:int}"
+﻿@page "/district/add-farmer-benefit-details/{ApplicationId:int}/{FinancialYear:int}"
 @attribute [Authorize(Roles = "District")]
 
 @using HortiBts.Client.Services.AddBeneficiaryGrant
+@using HortiBts.Client.Services.Benefits
 @using HortiBts.Shared.Dtos.AddBeneficiaryGrant
+@using HortiBts.Shared.Dtos.Benefits
 @using MudBlazor.Extensions
 @inject ApprovedApplicationsWithNoAddedBenefitsApiService ApprovedApplicationsWithNoAddedBenefitsApiService
 @inject ISnackbar Snackbar
+@inject BenefitsApiService BenefitsApiService
 
 <PageTitle>@Lang.Text("Add beneficiary grant (2026-27)", "लाभार्थी अनुदान जोड़ें (2026-27)")
 </PageTitle>
@@ -154,61 +157,85 @@
                 <MudTd><b>@_reportData.Sum(x => x.Quantity)</b></MudTd>
             </FooterContent>
         </MudTable>
-
-        <MudPaper Elevation="1" Outlined="true" Class="pa-4 mt-4">
-            <MudForm @ref="_form">
-                <MudGrid Spacing="3">
-                    @* 1. Textbox *@
-                    <MudItem xs="12" sm="6">
-                        <MudTextField T="decimal?" Label="@Lang.Text("Area", "रकबा")" Variant="Variant.Outlined"
-                                      Margin="Margin.Dense" @bind-Value="item.Area" Required="true" />
-                    </MudItem>
-
-                    @* 2. Textbox *@
-                    <MudItem xs="12" sm="6">
-                        <MudTextField T="int?" Label="@Lang.Text("Material number (if applicable)", "सामग्री संख्या (यदि हो तो) ")" Variant="Variant.Outlined"
-                                      Margin="Margin.Dense" @bind-Value="item.Quantity" Required="true" />
-                    </MudItem>
-
-                    @* 3. Dropdown *@
-                    <MudItem xs="12" sm="6">
-                        <MudSelect T="int?" Label="@Lang.Text("Select Benefit", "लाभ चुनें")" Variant="Variant.Outlined"
-                                   Margin="Margin.Dense" @bind-Value="_formData.SelectedOption" Required="true">
-                            <MudSelectItem T="int?" Value="1">Option 1</MudSelectItem>
-                            <MudSelectItem T="int?" Value="2">Option 2</MudSelectItem>
-                            <MudSelectItem T="int?" Value="3">Option 3</MudSelectItem>
-                        </MudSelect>
-                    </MudItem>
-
-                    @* 4. Textbox *@
-                    <MudItem xs="12" sm="6">
-                        <MudTextField T="string" Label="@Lang.Text("Field 4", "फ़ील्ड 4")" Variant="Variant.Outlined"
-                                      Margin="Margin.Dense" @bind-Value="_formData.Field4" />
-                    </MudItem>
-
-                    @* 5. Textbox *@
-                    <MudItem xs="12" sm="6">
-                        <MudTextField T="string" Label="@Lang.Text("Field 5", "फ़ील्ड 5")" Variant="Variant.Outlined"
-                                      Margin="Margin.Dense" @bind-Value="_formData.Field5" />
-                    </MudItem>
-
-                    @* 6. Textarea *@
-                    <MudItem xs="12">
-                        <MudTextField T="string" Label="@Lang.Text("Description", "विवरण")" Variant="Variant.Outlined"
-                                      Margin="Margin.Dense" Lines="3" AutoGrow="true" @bind-Value="_formData.Description" />
-                    </MudItem>
-
-                    @* Submit button *@
-                    <MudItem xs="12" Class="d-flex justify-end">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitFormAsync">
-                            @Lang.Text("Submit", "जमा करें")
-                        </MudButton>
-                    </MudItem>
-
-                </MudGrid>
-            </MudForm>
-        </MudPaper>
     }
+
+    <MudText Typo="Typo.h6" Align="Align.Center" Class="mt-4 mb-3">
+        @Lang.Text("Benefit Details", "अनुदान विवरण")
+    </MudText>
+
+    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary" Class="mb-3">
+        @Lang.Text(
+            "Secure the grant amount for the approved application.",
+            "स्वीकृत आवेदन का अनुदान राशि सुरक्षित करें।")
+    </MudText>
+
+    <MudForm @ref="_form" Model="@this">
+        <MudPaper Outlined="true" Class="pa-4">
+            <MudGrid Spacing="3" Class="mb-4">
+                <MudItem xs="12" sm="4">
+                    <MudNumericField T="decimal?" @bind-Value="_area" Format="N2" Immediate="true"
+                                     Label="@Lang.Text("Area", "रकबा")" Variant="Variant.Outlined"
+                                     Required="true" RequiredError="@Lang.Text("Area is required.", "रकबा भरना अनिवार्य है|")" Min="0" />
+
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudNumericField T="decimal?" @bind-Value="_itemNumber" Immediate="true"
+                                     Label="@Lang.Text("Item Number (if any)", "सामग्री संख्या (यदि कोई हो)")" Variant="Variant.Outlined"
+                                     Required="true" RequiredError="@Lang.Text("Item Number is required.", "सामग्री भरना अनिवार्य है|")" Min="0" />
+
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="int" Label="@Lang.Text("Benefit", "लाभ")" Variant="Variant.Outlined" MultiSelection="true"
+                               @bind-SelectedValues="_selectedBenefitIds" ToStringFunc="@GetBenefitName"
+                               MultiSelectionTextFunc="@GetSelectedBenefitText" Required="true" Clearable="true"
+                               RequiredError="@Lang.Text("Select a benefit.", "लाभ चुनना अनिवार्य है |")">
+                        @foreach (var b in _benefits)
+                        {
+                            <MudSelectItem T="int" Value="@b.BenefitId">@b.BenefitNameHi</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudNumericField T="decimal?" @bind-Value="_totalCostAmount" Format="N2" Immediate="true"
+                                     Label="@Lang.Text("Total Cost Amount", "कुल लागत राशि")" Variant="Variant.Outlined"
+                                     Required="true" RequiredError="@Lang.Text("Total Cost Amount is required.", "कुल लागत राशि भरना अनिवार्य है|")"
+                                     Min="0" />
+
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudNumericField T="decimal?" @bind-Value="_totalSubsidyAmount" Format="N2" Immediate="true"
+                                     Label="@Lang.Text("Total Subsidy Amount", "कुल अनुदान राशि")" Variant="Variant.Outlined"
+                                     Required="true" RequiredError="@Lang.Text("Total Subsidy Amount is required.", "कुल अनुदान राशि भरना अनिवार्य है|")"
+                                     Min="0" />
+
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudTextField T="string" Label="@Lang.Text("Remarks", "टिप्पणी")" Variant="Variant.Outlined"
+                                  @bind-Value="_remarks" Lines="3" />
+                </MudItem>
+            </MudGrid>
+            <MudStack Row="true" Spacing="1">
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveBenefit" Disabled="_isLoading">
+                    @if (_isLoading)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        <span>@Lang.Text("Saving...", "सुरक्षित हो रहा है...")</span>
+                    }
+                    else
+                    {
+                        <span>@Lang.Text("Save", "सुरक्षित करे")</span>
+                    }
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+                    @Lang.Text("Reset", "रीसेट")
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudForm>
 }
 
 @code {
@@ -218,15 +245,25 @@
 
     [Parameter]
     public int FinancialYear { get; set; }
-
+    private List<BenefitsListDto> _benefits = new();
     private List<ApprovedApplicationsWithNoAddedBenefitsByApplicationIdDto> _reportData = new();
     private bool _isLoading = false;
-
     private MudForm? _form;
-
+    private decimal? _area { get; set; }
+    private decimal? _itemNumber { get; set; }
+    private decimal? _totalCostAmount { get; set; }
+    private decimal? _totalSubsidyAmount { get; set; }
+    private string? _remarks { get; set; }
+    private IReadOnlyCollection<int> _selectedBenefitIds = [];
+    
     protected override async Task OnInitializedAsync()
     {
         await LoadReport();
+        await LoadBenefits();
+        if (_reportData.Count > 0)
+        {
+            await LoadForEdit(_reportData[0]);
+        }
     }
     private async Task LoadReport()
     {
@@ -276,16 +313,74 @@
         }
     }
 
-    private async Task SubmitFormAsync()
+    private async Task LoadBenefits()
     {
-        if (_form is null)
-            return;
-
-        await _form.Validate();
-
-        if (!_form.IsValid)
-            return;
-
-        // Process _formData here
+        var result = await BenefitsApiService.GetBenefitsListAsync();
+        if (result.IsSuccess && result.Data is not null)
+            _benefits = result.Data.Where(b => b.BenefitTypeId == 1).ToList();
+        else
+            Snackbar.Add(Lang.Text("Failed to load benefits list.", "लाभ सूची लोड करने में विफल।"), Severity.Error);
     }
-} *@
+
+    private string GetBenefitName(int id)
+    => _benefits.FirstOrDefault(b => b.BenefitId == id)?.BenefitNameHi?.Trim() ?? id.ToString();
+
+    private string GetSelectedBenefitText(IReadOnlyList<string> selectedTexts)
+        => string.Join(", ", selectedTexts);
+
+    private async Task SaveBenefit()
+    {
+        await Form!.ValidateAsync();
+        if (!Form.IsValid)
+            return;
+
+        _isLoading = true;
+        try
+        {
+            @* // call your actual save API here, e.g.:
+            var result = await BenefitsApiService.SaveBenefitAsync(new AddBenefitDto
+            {
+                BenefitId = _selectedBenefitId,
+                BenefitTypeId = _selectedBenefitTypeId!.Value,
+                BenefitNameEn = _BenefitNameEn!,
+                BenefitNameHi = _BenefitNameHi!
+            });
+
+            if (result.IsSuccess)
+            {
+                Snackbar.Add(Lang.Text("Benefit saved successfully.", "लाभ सफलतापूर्वक सुरक्षित किया गया।"), Severity.Success);
+                Reset();
+                await LoadReport();
+            }
+            else
+            {
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to save benefit.", "लाभ सुरक्षित करने में विफल।"), Severity.Error);
+            } *@
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to save benefit.", "लाभ सुरक्षित करने में विफल।"), Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task Reset()
+    {
+        _area = null;
+        _itemNumber = null;
+        _selectedBenefitIds = new HashSet<int>();
+        if (_form is not null)
+        {
+            await _form.ResetAsync(); // clears values and validation state
+        }
+    }
+
+    private async Task LoadForEdit(ApprovedApplicationsWithNoAddedBenefitsByApplicationIdDto _reportData)
+    {
+        _area = _reportData.Area;
+        Form?.ResetValidationAsync();
+    }
+}
