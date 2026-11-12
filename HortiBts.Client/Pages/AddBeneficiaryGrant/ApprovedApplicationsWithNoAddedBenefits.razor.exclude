@@ -1,0 +1,374 @@
+﻿@* @page "/district/approved-applications-with-no-added-benefits"
+@attribute [Authorize(Roles = "District")]
+@using HortiBts.Client.Services.AddBeneficiaryGrant
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.FinancialYears
+@using HortiBts.Client.Services.Reports
+@using HortiBts.Shared.Dtos.AddBeneficiaryGrant
+@using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Shared.Dtos.FinancialYear
+@inject DistrictsApiService DistrictsApiService
+@inject FinancialYearsApiService FinancialYearApiService
+@inject ApprovedApplicationsWithNoAddedBenefitsApiService ApprovedApplicationsWithNoAddedBenefitsApiService
+@inject ISnackbar Snackbar
+@inject IUserContextService UserContextService
+@inject ExcelExportService ExcelExport
+
+<PageTitle>@Lang.Text("Farmers list for adding beneficiary grant (2026-27)", "लाभार्थी अनुदान जोड़ने हेतु कृषक सूची (2026-27)")
+</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="material-symbols-outlined/send_money" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Farmers list for adding beneficiary grant (2026-27) (2026-27)", "लाभार्थी अनुदान जोड़ने हेतु कृषक सूची (2026-27)")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("add Beneficiary grant to approved applications", "स्वीकृत आवेदनों में लाभार्थी अनुदान जोड़ें।")
+</MudText>
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" @bind-Value="_selectedDistrictCensus" Label="@Lang.Text("District", "जिला")"
+                   Variant="Variant.Outlined">
+
+            @foreach (var d in _districts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                    @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
+
+<MudStack Row="true" Spacing="1">
+    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="LoadReport" Disabled="_isLoading">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            <span>@Lang.Text("Loading...", "लोड हो रहा है...")</span>
+        }
+        else
+        {
+            <span>@Lang.Text("Search", "खोज करे")</span>
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+        @Lang.Text("Reset", "रीसेट")
+    </MudButton>
+</MudStack>
+
+@if (_reportData.Any())
+{
+    <MudText Typo="Typo.body2" Class="mt-4">@Lang.Text("Farmers have been selected on a first-come, first-served basis. Entries for the grants under each scheme must be made individually.", "कृपया पहले आओ पहले पाओ के आधार पर कृषकों का चयन किया गया है| प्रत्येक योजना के अनुदान की एंट्री के लिए एक एक कर एंट्री किया जाना है|")</MudText>
+    <MudTable Items="_filteredReportData" SortLabel="Sort By" Bordered="true" HeaderClass="report-header-row" Dense="true"
+              Hover="true" Elevation="1" Class="mt-4">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">
+                @Lang.Text("List of Farmers ", "कृषकों की सूची ")
+                (वर्ष @_finyears.FirstOrDefault()?.FinancialYear)
+            </MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+            <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
+                <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
+            </MudTooltip>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.ApplicationId!)">
+                    @Lang.Text("Application Number", "आवेदन क्रमांक")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.VillageName!)">
+                    @Lang.Text("Village Name", "ग्राम का नाम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => Lang.Text(x.FarmerNameEng!, x.FarmerNameHi!))">
+                    @Lang.Text("Farmer Name", "कृषक का नाम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.FatherName!)">
+                    @Lang.Text("Father Name", "पिता का नाम")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.MobileNo!)">
+                    @Lang.Text("Mobile Number", "मोबाइल नंबर")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.SchemeName!)">
+                    @Lang.Text("Scheme", "योजना")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.Area!)">
+                    @Lang.Text("Area (for the scheme) (in hectares)", "रकबा (योजना के लिए) (हेक्ट. में)")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.KhasraNo!)">
+                    @Lang.Text("Khasra number against which the benefit has been availed", "खसरा नंबर जिसमे लाभ लिया गया है")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.TotalLandKhasra!)">
+                    @Lang.Text("Total Land Khasra", "कुल खसरा भूमि")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.TotalLandArea!)">
+                    @Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्ट. में)")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.IfscCode!)">
+                    @Lang.Text("IFSC Code", "आईएफएससी कोड")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.AccountNo!)">
+                    @Lang.Text("Account Number", "खाता क्रमांक")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel
+                    SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.RegDate!)">
+                    @Lang.Text("Registration Date", "पंजीयन दिनांक")
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>@Lang.Text("Status (Add Beneficiary Grant)", "स्थिति (लाभार्थी अनुदान जोड़ें)")</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@Lang.Text("Application Number", "आवेदन क्रमांक")"> @context.ApplicationId </MudTd>
+            <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")"> @context.VillageName </MudTd>
+            <MudTd DataLabel="@Lang.Text("Farmer Name", "कृषक का नाम")">@context.FarmerNameEng/@context.FarmerNameHi</MudTd>
+            <MudTd DataLabel="@Lang.Text("Father Name", "पिता का नाम")">@context.FatherName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Mobile Number", "मोबाइल नंबर")">@context.MobileNo</MudTd>
+            <MudTd DataLabel="@Lang.Text("Scheme", "योजना")">@context.SchemeName</MudTd>
+            <MudTd DataLabel="@Lang.Text("Area (for the scheme) (in hectares)", "रकबा (योजना के लिए) (हेक्ट. में)")">
+                @context.Area?.ToString("N2")
+            </MudTd>
+            <MudTd
+                DataLabel="@Lang.Text("Khasra number against which the benefit has been availed", "खसरा नंबर जिसमे लाभ लिया गया है")">
+                @context.KhasraNo
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Total Land Khasra", "कुल खसरा भूमि")">@context.TotalLandKhasra</MudTd>
+            <MudTd DataLabel="@Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्ट. में)")">
+                @context.TotalLandArea?.ToString("N2")
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("IFSC Code", "आईएफएससी कोड")">@context.IfscCode</MudTd>
+            <MudTd DataLabel="@Lang.Text("Account Number", "खाता क्रमांक")">@context.AccountNo</MudTd>
+            <MudTd DataLabel="@Lang.Text("Registration Date", "पंजीयन दिनांक")">@context.RegDate.ToString("dd/MM/yyyy")
+            </MudTd>
+            <MudTd DataLabel="@Lang.Text("Status (Add Beneficiary Grant)", "स्थिति (लाभार्थी अनुदान जोड़ें)")">
+                <MudTooltip Text="@Lang.Text("View Applications", "आवेदन देखें")">
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary"
+                                   Href="@($"district/add-farmer-benefit-details/{context.ApplicationId}/{_finyears.FirstOrDefault()?.Id}")" />
+                </MudTooltip>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50 }" />
+        </PagerContent>
+    </MudTable>
+}
+
+
+@code {
+    private List<DistrictsDto> _districts = [];
+    private List<FinancialYearDto> _finyears = [];
+
+    private int? _selectedDistrictCensus;
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+
+    private List<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto> _reportData = new();
+    private bool _isLoading = false;
+    private string _searchString = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        _currentUser = await UserContextService.GetCurrentUserAsync();
+        await LoadDistrictsAsync();
+        await LoadFinancialYearsAsync();
+    }
+
+    private async Task LoadDistrictsAsync()
+    {
+        var result = await DistrictsApiService.GetDistrictsAsync();
+
+        if (result.IsSuccess)
+        {
+            _districts = result.Data!
+                .Where(x => x.DistrictCensus.ToString() == _currentUser.UserId)
+                .ToList();
+
+            _selectedDistrictCensus = _districts.FirstOrDefault()?.DistrictCensus;
+        }
+        else
+        {
+            Snackbar.Add(
+                Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"),
+                Severity.Warning);
+        }
+    }
+
+    private async Task LoadFinancialYearsAsync()
+    {
+        var result = await FinancialYearApiService.GetFinancialYearsForReportAsync();
+
+        if (result.IsSuccess && result.Data is not null)
+            _finyears = result.Data!;
+        else
+            Snackbar.Add(Lang.Text("Failed to load financial years.", "वित्त वर्ष लोड करने में विफल।"), Severity.Warning);
+
+    }
+
+    private async Task LoadReport()
+    {
+        if (_selectedDistrictCensus is null)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "Please select a district.",
+                    "कृपया एक जिला चुनें।"),
+                Severity.Warning);
+            return;
+        }
+
+        _isLoading = true;
+
+        try
+        {
+            int currentFY = _finyears.FirstOrDefault()?.Id ?? 0;
+            var result =
+             await
+                ApprovedApplicationsWithNoAddedBenefitsApiService.GetApprovedApplicationsWithNoAddedBenefitsByDistrictCodeAsync(_selectedDistrictCensus.Value,
+                currentFY);
+
+            if (result.IsSuccess && result.Data is not null)
+            {
+                if (result.Data.Any())
+                {
+                    _reportData = result.Data;
+                  
+                }
+                else
+                {
+                    _reportData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
+            }
+            else
+            {
+                Snackbar.Add(
+                    Lang.Text(
+                        "Failed to load report data.",
+                        "रिपोर्ट डेटा लोड करने में विफल।"),
+                    Severity.Warning);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "An error occurred while loading the report.",
+                    "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task Reset()
+    {
+        _selectedDistrictCensus = null;
+        _reportData.Clear();
+    }
+
+    private IEnumerable<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto> _filteredReportData =>
+    _reportData.Where(t =>
+    string.IsNullOrWhiteSpace(_searchString)
+    || (t.ApplicationId?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.VillageName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.FarmerNameEng?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.FarmerNameHi?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.FatherName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.MobileNo?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.SchemeName?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.Area?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.KhasraNo?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.TotalLandKhasra?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.TotalLandArea?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.IfscCode?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.AccountNo?.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+    || (t.RegDate.ToString()?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private List<ExcelColumn<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto>> GetColumns() => new()
+    {
+        @* new() { HeaderEn = "Scheme", HeaderHi = "योजना",
+                ValueSelector = x => x.SchemeName! },
+        new() { HeaderEn = "Applications Count", HeaderHi = "आवेदनों की संख्या",
+                ValueSelector = x => x.TotalApplications ?? 0,
+                TotalSelector = list => list.Sum(x => x.TotalApplications ?? 0) },
+        new() { HeaderEn = "Pending", HeaderHi = "लंबित",
+                ValueSelector = x => x.RheoPending ?? 0,
+                TotalSelector = list => list.Sum(x => x.RheoPending ?? 0) },
+        new() { HeaderEn = "Approved", HeaderHi = "स्वीकृत",
+                ValueSelector = x => x.RheoApproved ?? 0,
+                TotalSelector = list => list.Sum(x => x.RheoApproved ?? 0) },
+        new() { HeaderEn = "Rejected", HeaderHi = "अस्वीकृत",
+                ValueSelector = x => x.RheoRejected ?? 0,
+                TotalSelector = list => list.Sum(x => x.RheoRejected ?? 0) },
+        new() { HeaderEn = "Pending", HeaderHi = "लंबित",
+                ValueSelector = x => x.RheoPending ?? 0,
+                TotalSelector = list => list.Sum(x => x.DdhPending ?? 0) },
+        new() { HeaderEn = "Approved", HeaderHi = "स्वीकृत",
+                ValueSelector = x => x.RheoApproved ?? 0,
+                TotalSelector = list => list.Sum(x => x.DdhApproved ?? 0) },
+        new() { HeaderEn = "Rejected", HeaderHi = "अस्वीकृत",
+                ValueSelector = x => x.RheoRejected ?? 0,
+                TotalSelector = list => list.Sum(x => x.DdhRejected ?? 0) }, *@
+    };
+    private async Task ExportToExcel()
+    {
+        await ExcelExport.ExportAsync(
+            _filteredReportData.ToList(),
+            GetColumns(),
+            Lang.Text("Scheme Wise Beneficiary Applications Report", "योजनावार लाभार्थी आवेदन रिपोर्ट"),
+            (en, hi) => Lang.Text(en, hi),
+            $"SchemeWiseBeneficiary_ApplicationsReport.xlsx");
+    }
+
+} *@

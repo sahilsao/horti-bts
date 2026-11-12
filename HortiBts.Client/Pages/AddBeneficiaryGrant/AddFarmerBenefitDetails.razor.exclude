@@ -1,0 +1,291 @@
+﻿@* @page "/district/add-farmer-benefit-details/{ApplicationId:int}/{FinancialYear:int}"
+@attribute [Authorize(Roles = "District")]
+
+@using HortiBts.Client.Services.AddBeneficiaryGrant
+@using HortiBts.Shared.Dtos.AddBeneficiaryGrant
+@using MudBlazor.Extensions
+@inject ApprovedApplicationsWithNoAddedBenefitsApiService ApprovedApplicationsWithNoAddedBenefitsApiService
+@inject ISnackbar Snackbar
+
+<PageTitle>@Lang.Text("Add beneficiary grant (2026-27)", "लाभार्थी अनुदान जोड़ें (2026-27)")
+</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="material-symbols-outlined/send_money" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Add beneficiary grant (2026-27)", "लाभार्थी अनुदान जोड़ें (2026-27)")
+</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("add Beneficiary grant to approved applications", "स्वीकृत आवेदनों में लाभार्थी अनुदान जोड़ें।")
+</MudText>
+
+<style>
+    .report-header-row th,
+    .mud-table-container td {
+        border: 1px solid var(--mud-palette-table-lines) !important;
+    }
+
+    .mud-table-container table {
+        border-collapse: collapse;
+    }
+</style>
+
+@if (_reportData.Any())
+{
+    <MudText Typo="Typo.h6" Align="Align.Center" Class="mt-4 mb-3">
+        @Lang.Text("Scheme Details", "योजना का विवरण")
+    </MudText>
+
+    <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary" Class="mb-3">
+        @Lang.Text(
+            "Details of the benefits to be availed by the farmer under the government scheme.",
+            "कृषक द्वारा शासकीय योजना के अंतर्गत लिए जाने वाले लाभ का विवरण।")
+    </MudText>
+
+    @foreach (var item in _reportData)
+    {
+        <MudPaper Elevation="1" Outlined="true" Class="pa-4 mt-4">
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="4">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        @Lang.Text("Application Number", "आवेदन क्रमांक")
+                    </MudText>
+                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold">
+                        @item.ApplicationId
+                    </MudText>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        @Lang.Text("Area", "रकबा")
+                    </MudText>
+                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold">
+                        @item.Area?.ToString("N2") @Lang.Text("Hectare", "हेक्टेयर")
+                    </MudText>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        @Lang.Text("Mobile Number", "मोबाइल नंबर")
+                    </MudText>
+                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold">
+                        @item.MobileNo
+                    </MudText>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <MudTable Items="_reportData" SortLabel="Sort By" Bordered="true" HeaderClass="report-header-row" Dense="true"
+                  Hover="true" Elevation="1" Class="mt-4">
+            <HeaderContent>
+                <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.VillageName!)">
+                        @Lang.Text("Village Name", "ग्राम का नाम")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.SchemeType!)">
+                        @Lang.Text("Scheme Type", "योजना का प्रकार")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.SchemeName!)">
+                        @Lang.Text("Scheme", "योजना")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.ComponentName!)">
+                        @Lang.Text("Component", "घटक")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.KhasraNo!)">
+                        @Lang.Text("Khasra number", "खसरा नंबर")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.Area!)">
+                        @Lang.Text("Area (selected area) (in hectares)", "रकबा (चयनित रकबा) (हेक्ट. में)")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.Area!)">
+                        @Lang.Text("Area (selected area) (in acres)", "रकबा (चयनित रकबा) (एकड़ में)")
+                    </MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel
+                        SortBy="new Func<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto, object>(x => x.Quantity!)">
+                        @Lang.Text("Quantity (optional)", "संख्या (वैकल्पिक)")
+                    </MudTableSortLabel>
+                </MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_reportData.ToList().IndexOf(context) + 1)</MudTd>
+                <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")"> @context.VillageName </MudTd>
+                <MudTd DataLabel="@Lang.Text("Scheme Type", "योजना का प्रकार")">@context.SchemeTypeName</MudTd>
+                <MudTd DataLabel="@Lang.Text("Scheme", "योजना")">@context.SchemeName</MudTd>
+                <MudTd DataLabel="@Lang.Text("Component", "घटक")">@context.ComponentName</MudTd>
+                <MudTd DataLabel="@Lang.Text("Khasra number", "खसरा नंबर")">@context.KhasraNo</MudTd>
+                <MudTd DataLabel="@Lang.Text("Area (selected area) (in hectares)", "रकबा (चयनित रकबा) (हेक्ट. में)")">
+                    @context.Area?.ToString("N2")
+                </MudTd>
+                <MudTd DataLabel="@Lang.Text("Area (selected area) (in acres)", "रकबा (चयनित रकबा) (एकड़ में)")">
+                    @((context.Area * 2.47105m)?.ToString("N2"))
+                </MudTd>
+                <MudTd DataLabel="@Lang.Text("Quantity (optional)", "संख्या (वैकल्पिक)")">@context.Quantity</MudTd>
+            </RowTemplate>
+            <FooterContent>
+                <MudTd></MudTd>
+                <MudTd></MudTd>
+                <MudTd></MudTd>
+                <MudTd></MudTd>
+                <MudTd></MudTd>
+                <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
+                <MudTd><b>@_reportData.Sum(x => x.Area)?.ToString("N2")</b></MudTd>
+                <MudTd><b>@_reportData.Sum(x => x.Area * 2.47105m)?.ToString("N2")</b></MudTd>
+                <MudTd><b>@_reportData.Sum(x => x.Quantity)</b></MudTd>
+            </FooterContent>
+        </MudTable>
+
+        <MudPaper Elevation="1" Outlined="true" Class="pa-4 mt-4">
+            <MudForm @ref="_form">
+                <MudGrid Spacing="3">
+                    @* 1. Textbox *@
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="decimal?" Label="@Lang.Text("Area", "रकबा")" Variant="Variant.Outlined"
+                                      Margin="Margin.Dense" @bind-Value="item.Area" Required="true" />
+                    </MudItem>
+
+                    @* 2. Textbox *@
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="int?" Label="@Lang.Text("Material number (if applicable)", "सामग्री संख्या (यदि हो तो) ")" Variant="Variant.Outlined"
+                                      Margin="Margin.Dense" @bind-Value="item.Quantity" Required="true" />
+                    </MudItem>
+
+                    @* 3. Dropdown *@
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="int?" Label="@Lang.Text("Select Benefit", "लाभ चुनें")" Variant="Variant.Outlined"
+                                   Margin="Margin.Dense" @bind-Value="_formData.SelectedOption" Required="true">
+                            <MudSelectItem T="int?" Value="1">Option 1</MudSelectItem>
+                            <MudSelectItem T="int?" Value="2">Option 2</MudSelectItem>
+                            <MudSelectItem T="int?" Value="3">Option 3</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+
+                    @* 4. Textbox *@
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" Label="@Lang.Text("Field 4", "फ़ील्ड 4")" Variant="Variant.Outlined"
+                                      Margin="Margin.Dense" @bind-Value="_formData.Field4" />
+                    </MudItem>
+
+                    @* 5. Textbox *@
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" Label="@Lang.Text("Field 5", "फ़ील्ड 5")" Variant="Variant.Outlined"
+                                      Margin="Margin.Dense" @bind-Value="_formData.Field5" />
+                    </MudItem>
+
+                    @* 6. Textarea *@
+                    <MudItem xs="12">
+                        <MudTextField T="string" Label="@Lang.Text("Description", "विवरण")" Variant="Variant.Outlined"
+                                      Margin="Margin.Dense" Lines="3" AutoGrow="true" @bind-Value="_formData.Description" />
+                    </MudItem>
+
+                    @* Submit button *@
+                    <MudItem xs="12" Class="d-flex justify-end">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitFormAsync">
+                            @Lang.Text("Submit", "जमा करें")
+                        </MudButton>
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+        </MudPaper>
+    }
+}
+
+@code {
+    
+    [Parameter]
+    public int ApplicationId { get; set; }
+
+    [Parameter]
+    public int FinancialYear { get; set; }
+
+    private List<ApprovedApplicationsWithNoAddedBenefitsByApplicationIdDto> _reportData = new();
+    private bool _isLoading = false;
+
+    private MudForm? _form;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReport();
+    }
+    private async Task LoadReport()
+    {
+        _isLoading = true;
+
+        try
+        {
+            
+            var result =
+             await
+                ApprovedApplicationsWithNoAddedBenefitsApiService.GetApprovedApplicationsWithNoAddedBenefitsByApplicationIdsync(ApplicationId,
+                FinancialYear);
+
+            if (result.IsSuccess && result.Data is not null)
+            {
+                if (result.Data.Any())
+                {
+                    _reportData = result.Data;
+                  
+                }
+                else
+                {
+                    _reportData = [];
+                    Snackbar.Add(Lang.Text("No data found.", "कोई डेटा नहीं मिला।"), Severity.Info);
+                }
+            }
+            else
+            {
+                Snackbar.Add(
+                    Lang.Text(
+                        "Failed to load report data.",
+                        "रिपोर्ट डेटा लोड करने में विफल।"),
+                    Severity.Warning);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add(
+                Lang.Text(
+                    "An error occurred while loading the report.",
+                    "रिपोर्ट लोड करते समय एक त्रुटि हुई।"),
+                Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SubmitFormAsync()
+    {
+        if (_form is null)
+            return;
+
+        await _form.Validate();
+
+        if (!_form.IsValid)
+            return;
+
+        // Process _formData here
+    }
+} *@

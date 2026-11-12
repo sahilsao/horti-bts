@@ -251,7 +251,8 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
-                    <MudTd><b>@_farmerGirdawariDetails.Sum(x => decimal.TryParse(x.SubCropArea, out var value) ? value : 0)</b></MudTd>
+                    <MudTd><b>@_farmerGirdawariDetails.Sum(x => decimal.TryParse(x.SubCropArea, out var value) ? value : 0)</b>
+                    </MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
@@ -309,7 +310,7 @@ else
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
-                    <MudTd><b>@_farmerSchemeDetails.Sum(x => x.Area)</b></MudTd>
+                    <MudTd><b>@_farmerSchemeDetails.Sum(x => x.Area)?.ToString("N2")</b></MudTd>
                     <MudTd></MudTd>
                 </FooterContent>
                 <PagerContent>
@@ -350,19 +351,19 @@ else
                     <MudTd DataLabel="@Lang.Text("Village", "ग्राम")">@Or(c.VillageName)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Crop Type", "फसल का प्रकार")">@Or(c.SubCropCategoryName)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Crop Name", "फसल का नाम")">@Or(c.CropName)</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(c.CropVariety)</MudTd>                    
+                    <MudTd DataLabel="@Lang.Text("Variety", "किस्म")">@Or(c.CropVariety)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Season", "मौसम")">@Or(c.CropSeasonName!.ToString())</MudTd>
                     <MudTd DataLabel="@Lang.Text("Khasra No.", "खसरा क्रमांक")">@Or(c.KhasraNo)</MudTd>
                     <MudTd DataLabel="@Lang.Text("Area", "रकबा")">@Or(c.CropArea?.ToString("N2"))</MudTd>
                     <MudTd DataLabel="@Lang.Text("Year", "वर्ष")">@Or(c.FinancialYearStr?.ToString())</MudTd>
                 </RowTemplate>
-                <FooterContent>                    
+                <FooterContent>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
                     <MudTd></MudTd>
-                    <MudTd></MudTd>                    
+                    <MudTd></MudTd>
                     <MudTd><b>@Lang.Text("Total", "योग")</b></MudTd>
                     <MudTd><b>@_farmerCropDetails.Sum(x => x.CropArea)?.ToString("N2")</b></MudTd>
                     <MudTd></MudTd>
@@ -411,7 +412,7 @@ else
     private List<SoilDetailsDto> _farmerGirdawariDetails = new();
     private List<NewFarmerApplicationSchemeDetailsDto> _farmerSchemeDetails = new();
     private List<NewFarmerApplicationCropDetailsDto> _farmerCropDetails = new();
-    private bool _isLoading;
+    private bool _isLoading = true;
     private string _remarks = string.Empty;
 
 
@@ -420,16 +421,28 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadFinancialYearsAsync();
-
-        if (ApplicationId > 0)
+        try
         {
-            _searchApplicationId = ApplicationId;
-            await SearchAsync();
+            await LoadFinancialYearsAsync();
+
+            if (ApplicationId > 0)
+            {
+                _searchApplicationId = ApplicationId;
+                await SearchAsync();
+                return;
+            }
         }
+        catch
+        {
+            Snackbar.Add(
+                Lang.Text("Failed to load application details.", "आवेदन विवरण लोड करने में विफल।"),
+                Severity.Error);
+        }
+
+        _isLoading = false; // reached only when no search ran or something failed
     }
 
-     private async Task LoadFinancialYearsAsync()
+    private async Task LoadFinancialYearsAsync()
     {
         var result = await FinancialYearApiService.GetFinancialYearsForReportAsync();
 
@@ -500,7 +513,8 @@ _finyears.FirstOrDefault()!.Id);
 
             var resultSchemeDetails =
             await
-FarmersDetailsByApplicationIdApiService.GetFarmersSchemeDetailsByApplicationIdAsync(_searchApplicationId, _finyears.FirstOrDefault()!.Id);
+FarmersDetailsByApplicationIdApiService.GetFarmersSchemeDetailsByApplicationIdAsync(_searchApplicationId,
+_finyears.FirstOrDefault()!.Id);
             {
                 if (resultSchemeDetails.IsSuccess && resultSchemeDetails.Data is not null && resultSchemeDetails.Data.Any())
                 {

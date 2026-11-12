@@ -75,6 +75,17 @@
                     </MudNavGroup>
                 </ChildContent>
             </MudNavGroup>
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.AddCard">
+                <TitleContent>
+                    @Lang.Text("Add beneficiary grant", "लाभार्थी अनुदान जोड़ें")
+                </TitleContent>
+                <ChildContent>
+                    <MudNavLink Href="/district/approved-applications-with-no-added-benefits"
+                                Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/send_money">
+                        @Lang.Text("Add beneficiary grant (2026-27)", "लाभार्थी अनुदान जोड़ें (2026-27)")
+                    </MudNavLink>
+                </ChildContent>
+            </MudNavGroup>
         </Authorized>
     </AuthorizeView>
 </MudNavMenu>

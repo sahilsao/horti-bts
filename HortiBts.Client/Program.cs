@@ -1,5 +1,6 @@
 using HortiBts.Client;
 using HortiBts.Client.MultiLanguage;
+using HortiBts.Client.Services.AddBeneficiaryGrant;
 using HortiBts.Client.Services.ApplicationVerification.DDH.NewApplication;
 using HortiBts.Client.Services.ApplicationVerification.DDH.OldApplication;
 using HortiBts.Client.Services.Auth;
@@ -36,12 +37,14 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
+using MudShadcn;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddMudServices();
+builder.Services.AddMudShadcn(); 
 // ── Auth
 
 builder.Services.AddScoped<TokenAuthenticationStateProvider>();
@@ -72,8 +75,6 @@ builder.Services.AddScoped<SoilDetailsApiService>();
 builder.Services.AddScoped<LoginHistoryApiService>();
 
 // Common Related
-
-
 builder.Services.AddScoped<DistrictsApiService>();
 builder.Services.AddScoped<SubDistrictsApiService>();
 builder.Services.AddScoped<VillagesApiService>();
@@ -108,9 +109,11 @@ builder.Services.AddScoped<ComparativeFarmerRegistrationApiService>();
 builder.Services.AddScoped<FarmerBeneficiaryStatusApiService>();
 builder.Services.AddScoped<FarmerApplicationsListApiService>();
 builder.Services.AddScoped<NewFarmerApplicationsListApiService>();
+
 // HPMIS
 builder.Services.AddScoped<FarmersListHPMISApiService>();
 builder.Services.AddScoped<FarmersDetailsHPMISApiService>();
+
 // Scheme & Component
 builder.Services.AddScoped<BacklogYearlySchemeWiseRegistrationApiService>();
 builder.Services.AddScoped<BacklogYearlyComponentWiseRegistrationApiService>();
@@ -126,9 +129,10 @@ builder.Services.AddScoped<FarmersDetailsByApplicationIdApiService>();
 builder.Services.AddScoped<FarmersDetailsApiService>();
 
 builder.Services.AddScoped<ApproveRejectFarmerApplicationByDDHApiService>();
+builder.Services.AddScoped<ApprovedApplicationsWithNoAddedBenefitsApiService>();
+
+builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization.DefaultAuthorizationService", LogLevel.Warning);
 
 await builder.Build().RunAsync();
 
-builder.Logging.AddFilter(
-    "Microsoft.AspNetCore.Authorization",
-    LogLevel.Warning);
+

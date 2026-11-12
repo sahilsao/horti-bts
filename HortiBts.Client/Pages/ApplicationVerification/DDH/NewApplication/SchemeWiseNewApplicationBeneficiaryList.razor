@@ -199,20 +199,20 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="@Lang.Text("S.No.", "क्रमाँक")">@(_filteredReportData.ToList().IndexOf(context) + 1)</MudTd>
-            <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")"> @context.VillageName </MudTd>
             <MudTd DataLabel="@Lang.Text("Application Number", "आवेदन क्रमांक")"> @context.ApplicationId </MudTd>
+            <MudTd DataLabel="@Lang.Text("Village Name", "ग्राम का नाम")"> @context.VillageName </MudTd>
             <MudTd DataLabel="@Lang.Text("Farmer Name", "कृषक का नाम")">@context.FarmerNameEng/@context.FarmerNameHi</MudTd>
             <MudTd DataLabel="@Lang.Text("Father Name", "पिता का नाम")">@context.FatherName</MudTd>
             <MudTd DataLabel="@Lang.Text("Mobile Number", "मोबाइल नंबर")">@context.MobileNo</MudTd>
             <MudTd DataLabel="@Lang.Text("Scheme", "योजना")">@context.SchemeName</MudTd>
             <MudTd DataLabel="@Lang.Text("Area (for the scheme) (in hectares)", "रकबा (योजना के लिए) (हेक्ट. में)")">
-                @context.Area
+                @context.Area?.ToString("N2")
                 </MudTd>
                 <MudTd                    DataLabel="@Lang.Text("Khasra number against which the benefit has been availed", "खसरा नंबर जिसमे लाभ लिया गया है")">
                     @context.KhasraNo
                     </MudTd>
                     <MudTd DataLabel="@Lang.Text("Total Land Khasra", "कुल खसरा भूमि")">@context.TotalLandKhasra</MudTd>
-                    <MudTd DataLabel="@Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्ट. में)")">@context.TotalLandArea
+                    <MudTd DataLabel="@Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्ट. में)")">@context.TotalLandArea?.ToString("N2")
                     </MudTd>
                     <MudTd DataLabel="@Lang.Text("IFSC Code", "आईएफएससी कोड")">@context.IfscCode</MudTd>
                     <MudTd DataLabel="@Lang.Text("Account Number", "खाता क्रमांक")">@context.AccountNo</MudTd>
@@ -222,7 +222,6 @@
                             <MudIconButton
                                 Icon="@Icons.Material.Filled.Visibility"
                                 Color="Color.Primary"
-                                Size="Size.Small"
                                 Href="@($"district/approve-reject-farmer-new-application/{context.ApplicationId}")" />
                         </MudTooltip>
                     </MudTd>

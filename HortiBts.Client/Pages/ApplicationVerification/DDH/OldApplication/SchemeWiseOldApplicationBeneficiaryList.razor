@@ -207,13 +207,13 @@
             <MudTd DataLabel="@Lang.Text("Mobile Number", "मोबाइल नंबर")">@context.MobileNo</MudTd>
             <MudTd DataLabel="@Lang.Text("Scheme", "योजना")">@context.SchemeName</MudTd>
             <MudTd DataLabel="@Lang.Text("Area (for the scheme) (in hectares)", "रकबा (योजना के लिए) (हेक्ट. में)")">
-                @context.Area
+                @context.Area?.ToString("N2")
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Khasra number against which the benefit has been availed", "खसरा नंबर जिसमे लाभ लिया गया है")">
                 @context.KhasraNo
             </MudTd>
             <MudTd DataLabel="@Lang.Text("Total Land Khasra", "कुल खसरा भूमि")">@context.TotalLandKhasra</MudTd>
-            <MudTd DataLabel="@Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्ट. में)")">@context.TotalLandArea</MudTd>
+            <MudTd DataLabel="@Lang.Text("Total area (in hectares)", "कुल रकबा (हेक्ट. में)")">@context.TotalLandArea?.ToString("N2")</MudTd>
             <MudTd DataLabel="@Lang.Text("IFSC Code", "आईएफएससी कोड")">@context.IfscCode</MudTd>
             <MudTd DataLabel="@Lang.Text("Account Number", "खाता क्रमांक")">@context.AccountNo</MudTd>
             <MudTd DataLabel="@Lang.Text("Status (Accept/Reject the farmer)", "स्थिति (कृषक का स्वीकृत/निरस्त करें)")">

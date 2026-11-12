@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
 	<PropertyGroup>
@@ -17,13 +18,14 @@
 		<BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="ClosedXML" Version="0.105.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.13" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.13" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.13" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.13" />
-		<PackageReference Include="MudBlazor" Version="9.11.0" />
-	</ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.15" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.15" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.15" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.15" />
+		<PackageReference Include="MudBlazor" Version="9.12.0" />
+		<PackageReference Include="MudShadcn" Version="1.2.0" />
+</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\HortiBts.Shared\HortiBts.Shared.csproj" />
