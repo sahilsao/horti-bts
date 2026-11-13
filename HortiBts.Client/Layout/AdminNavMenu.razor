@@ -3,28 +3,28 @@
     <AuthorizeView Roles="Admin">
         <Authorized>
             <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.Prefix" Ripple
-                        Icon="@Icons.Material.Outlined.Dashboard">
+                        Icon="@Icons.Material.Filled.Dashboard">
                 @Lang.Text("Dashboard", "डैशबोर्ड")
             </MudNavLink>
             <MudNavLink Href="/admin/farmer-details" Match="NavLinkMatch.Prefix" Ripple
-                        Icon="@Icons.Material.Outlined.PersonSearch">
+                        Icon="@Icons.Material.Filled.PersonSearch">
                 @Lang.Text("Farmer Details", "कृषक विवरण")
             </MudNavLink>
             <MudNavLink Href="/admin/farmer-verification" Match="NavLinkMatch.Prefix" Ripple
-                        Icon="@Icons.Material.Outlined.DomainVerification">
+                        Icon="@Icons.Material.Filled.DomainVerification">
                 @Lang.Text("Farmer Verification", "कृषक भौतिक सत्यापन")
             </MudNavLink>
-            <MudNavGroup Title="@Lang.Text("Master Entry", "मास्टर एंट्री")" Ripple Icon="@Icons.Material.Outlined.Edit">
+            <MudNavGroup Title="@Lang.Text("Master Entry", "मास्टर एंट्री")" Ripple Icon="@Icons.Material.Filled.Edit">
                 <MudNavLink Href="/admin/add-benefit" Match="NavLinkMatch.Prefix" Ripple
-                            Icon="@Icons.Material.Outlined.AddAlarm">
+                            Icon="@Icons.Material.Filled.AddAlarm">
                     @Lang.Text("Add Benefit", "लाभ जोड़ें")
                 </MudNavLink>
                 <MudNavLink Href="/admin/add-scheme" Match="NavLinkMatch.Prefix" Ripple
-                            Icon="@Icons.Material.Outlined.PostAdd">
+                            Icon="@Icons.Material.Filled.PostAdd">
                     @Lang.Text("Add Scheme", "योजना जोड़ें")
                 </MudNavLink>
                 <MudNavLink Href="/admin/add-component" Match="NavLinkMatch.Prefix" Ripple
-                            Icon="@Icons.Material.Outlined.BookmarkAdd">
+                            Icon="@Icons.Material.Filled.BookmarkAdd">
                     @Lang.Text("Add Component", "घटक जोड़ें")
                 </MudNavLink>
                 <MudNavLink Href="/admin/add-target" Match="NavLinkMatch.Prefix" Ripple
@@ -49,13 +49,13 @@
                 </MudNavLink>
             </MudNavGroup>
             <MudNavGroup Title="@Lang.Text("Notice Board", "नोटिस बोर्ड")" Ripple
-                         Icon="@Icons.Material.Outlined.Notifications">
+                         Icon="@Icons.Material.Filled.Notifications">
                 <MudNavLink Href="/admin/add-notices" Match="NavLinkMatch.Prefix" Ripple
-                            Icon="@Icons.Material.Outlined.EditNotifications">
+                            Icon="@Icons.Material.Filled.EditNotifications">
                     @Lang.Text("Add Notices", "नोटिस जोड़े")
                 </MudNavLink>
             </MudNavGroup>
-            <MudNavGroup Ripple Icon="@Icons.Material.Outlined.FileOpen">
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
                 <TitleContent>
                     @Lang.Text("Reports", "रिपोर्ट्स")
                     <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2026-27)</MudChip>
@@ -83,14 +83,14 @@
                 </ChildContent>
             </MudNavGroup>
             
-            <MudNavGroup Ripple Icon="@Icons.Material.Outlined.FileOpen">
+            <MudNavGroup Ripple Icon="@Icons.Material.Filled.FileOpen">
                 <TitleContent>
                     @Lang.Text("Reports", "रिपोर्ट्स")
                     <MudChip T="string" Size="Size.Small" Color="Color.Primary">FY (2019-20 to 2025-26)</MudChip>
                 </TitleContent>
                 <ChildContent>
                     <MudNavGroup Title="@Lang.Text("Yearly Reports", "वार्षिक रिपोर्ट्स")" Ripple
-                                 Icon="@Icons.Material.Outlined.DocumentScanner">
+                                 Icon="@Icons.Material.Filled.DocumentScanner">
                         <MudNavLink Href="/reports/yearly/previous/districtwise-farmer-registration-report"
                                     Match="NavLinkMatch.Prefix" Ripple Icon="material-symbols-outlined/lab_profile">
                             @Lang.Text("District-wise Farmer Registration Report (Yearly)", "जिलावार कृषक पंजीयन रिपोर्ट (वार्षिक)")
@@ -190,32 +190,32 @@
                 </ChildContent>
             </MudNavGroup>
             <MudNavGroup Title="@Lang.Text("RHEO Report", "आर.एच.ई.ओ. रिपोर्ट")" Ripple
-                         Icon="@Icons.Material.Outlined.ListAlt">
+                         Icon="@Icons.Material.Filled.ListAlt">
                 <MudNavLink Href="/reports/rheo-list" Match="NavLinkMatch.Prefix" Ripple
                             Icon="material-symbols-outlined/patient_list">
                     @Lang.Text("RHEO List", "आर.एच.ई.ओ. सूची")
                 </MudNavLink>
             </MudNavGroup>
             <MudNavGroup Title="@Lang.Text("HPMIS Report", "HPMIS रिपोर्ट")" Ripple
-                         Icon="@Icons.Material.Outlined.AccountTree">
+                         Icon="@Icons.Material.Filled.AccountTree">
                 <MudNavLink Href="/reports/hpmis/farmers-list" Match="NavLinkMatch.Prefix" Ripple
-                            Icon="@Icons.Material.Outlined.PersonSearch">
+                            Icon="@Icons.Material.Filled.PersonSearch">
                     @Lang.Text("Farmers List", "किसान सूची")
                 </MudNavLink>
             </MudNavGroup>
             <MudNavGroup Title="@Lang.Text("Scheme/Component Wise Report", "योजनावार/घटकवार रिपोर्ट")" Ripple
-                         Icon="@Icons.Material.Outlined.Schema">
+                         Icon="@Icons.Material.Filled.Schema">
                 <MudNavLink Href="/reports/scheme/schemewise-farmer-registration-report" Match="NavLinkMatch.Prefix"
-                            Ripple Icon="@Icons.Material.Outlined.FilterList">
+                            Ripple Icon="@Icons.Material.Filled.FilterList">
                     @Lang.Text("Scheme-Wise Farmer Registration Report", "योजनावार कृषक पंजीयन रिपोर्ट")
                 </MudNavLink>
                 <MudNavLink Href="/reports/scheme/componentwise-farmer-registration-report" Match="NavLinkMatch.Prefix"
-                            Ripple Icon="@Icons.Material.Outlined.LineStyle">
+                            Ripple Icon="@Icons.Material.Filled.LineStyle">
                     @Lang.Text("Component-Wise Farmer Registration Report", "घटकवार कृषक पंजीयन रिपोर्ट")
                 </MudNavLink>
             </MudNavGroup>
             <MudNavLink Href="/admin/reset-others-password" Match="NavLinkMatch.Prefix"
-                        Ripple Icon="@Icons.Material.Outlined.LockReset">
+                        Ripple Icon="@Icons.Material.Filled.LockReset">
                 @Lang.Text("Reset Password (District/RHEO)", "रिसेट पासवर्ड (जिला/आर.एच.ई.ओ.)")
             </MudNavLink>
         </Authorized>

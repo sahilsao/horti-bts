@@ -12,7 +12,7 @@
 <PageTitle>@Lang.Text("Farmer Details (HPMIS)", "कृषक विवरण (HPMIS)")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Outlined.Person" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Filled.Person" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Farmer Details (HPMIS)", "कृषक विवरण (HPMIS)")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -26,13 +26,13 @@
             <MudTextField @bind-Value="_searchApplicationId"
                           Placeholder="@Lang.Text("Enter the Application ID", "आवेदन क्रमांक दर्ज करें")" Variant="Variant.Text"
                           Immediate="true" OnKeyDown="OnSearchBoxKeyDown" Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Outlined.Search" Disabled="_isLoading" Margin="Margin.Dense" />
+                          AdornmentIcon="@Icons.Material.Filled.Search" Disabled="_isLoading" Margin="Margin.Dense" />
 
             
             @if (_hasSearched)
             {
                 <MudTooltip Text="@Lang.Text("Reset", "रीसेट")">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Close" Size="Size.Small" OnClick="Reset"
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" OnClick="Reset"
                                    Disabled="_isLoading" />
                 </MudTooltip>
             }
@@ -59,7 +59,7 @@
 {
     <MudPaper Class="pa-8 d-flex flex-column align-center" Elevation="0"
               Style="border:1px dashed var(--mud-palette-lines-default); border-radius:12px;">
-        <MudIcon Icon="@Icons.Material.Outlined.PersonSearch" Size="Size.Large" Class="mud-text-secondary mb-2" />
+        <MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" Class="mud-text-secondary mb-2" />
         <MudText Typo="Typo.body1" Class="mud-text-secondary">
             @Lang.Text("No details found for the entered Application ID.", "दर्ज किए गए आवेदन क्रमांक के लिए कोई विवरण नहीं मिला")
         </MudText>

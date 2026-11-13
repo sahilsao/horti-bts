@@ -187,7 +187,7 @@
             </MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Outlined.Search"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
                           Immediate="true" Class="mr-4" />
             <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
                 <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
@@ -232,7 +232,7 @@
                 <MudTd DataLabel="@Lang.Text("View Application Letter", "आवेदन पत्र देखें")">
                     <MudIconButton
                     Href="@($"/reports/farmer-application-letter-details/{context.ApplicationId}")"
-                    Icon="@Icons.Material.Outlined.Visibility"
+                    Icon="@Icons.Material.Filled.Visibility"
                     Color="Color.Primary"
                     Size="Size.Small" />
                 </MudTd>

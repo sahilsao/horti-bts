@@ -124,7 +124,7 @@
     private bool _captchaError = false;
     private bool _isLoading = false;
     private bool _isShow = false;
-    private string _passwordInputIcon = Icons.Material.Outlined.VisibilityOff;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     private int? _selectedDistrictCensus;
 
@@ -151,13 +151,13 @@
         if (_isShow)
         {
             _isShow = false;
-            _passwordInputIcon = Icons.Material.Outlined.VisibilityOff;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
             _passwordInput = InputType.Password;
         }
         else
         {
             _isShow = true;
-            _passwordInputIcon = Icons.Material.Outlined.Visibility;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
             _passwordInput = InputType.Text;
         }
     }

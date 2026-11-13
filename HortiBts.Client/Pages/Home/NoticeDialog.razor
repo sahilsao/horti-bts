@@ -57,7 +57,7 @@
             <MudList T="string">
                 @foreach (var doc in Documents)
                 {
-                    <MudListItem T="string" IconColor="Color.Error" Icon="@Icons.Material.Outlined.PictureAsPdf"
+                    <MudListItem T="string" IconColor="Color.Error" Icon="@Icons.Material.Filled.PictureAsPdf"
                                  OnClick="@(() => OnOpenDocument.InvokeAsync(doc.Path))">
                         @(!string.IsNullOrWhiteSpace(doc.FileName) ? doc.FileName : Lang.Text("Document", "दस्तावेज़"))
                     </MudListItem>

@@ -29,12 +29,12 @@
             </MudText>
             <MudStack Row="true" Spacing="3" Class="flex-wrap mb-4">
                 <MudButton Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Large"
-                           StartIcon="@Icons.Material.Outlined.HowToReg"
+                           StartIcon="@Icons.Material.Filled.HowToReg"
                            Href="https://cghorticulture.gov.in/bts/#/public/application-form" Target="_self">
                     @Lang.Text("Apply for the year 2026-27", "वर्ष 2026-27 हेतु आवेदन करे")
                 </MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Info" Size="Size.Large"
-                           StartIcon="@Icons.Material.Outlined.HourglassTop"
+                           StartIcon="@Icons.Material.Filled.HourglassTop"
                            Href="https://cghorticulture.gov.in/bts/#/public/application-status" Target="_self">
                     @Lang.Text("Application Status", "आवेदन की स्थिति")
                 </MudButton>
@@ -90,7 +90,7 @@
                         {
                             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="py-2">
                                 <MudText Typo="Typo.body2">@SchemeDisplayName(scheme)</MudText>
-                                <MudIconButton Icon="@Icons.Material.Outlined.RemoveRedEye" Size="Size.Small" Color="Color.Primary"
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Primary"
                                                OnClick="@(() => OpenSchemeDialog(scheme, "SCHEME_NEW"))" />
                             </MudStack>
                             <MudDivider />
@@ -112,7 +112,7 @@
                         {
                             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="py-2">
                                 <MudText Typo="Typo.body2">@SchemeDisplayName(scheme)</MudText>
-                                <MudIconButton Icon="@Icons.Material.Outlined.RemoveRedEye" Size="Size.Small" Color="Color.Primary"
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Color="Color.Primary"
                                                OnClick="@(() => OpenSchemeDialog(scheme, "SCHEME"))" />
                             </MudStack>
                             <MudDivider />
@@ -130,7 +130,7 @@
                 {
                     <MudItem xs="12" sm="6">
                         <MudStack Row="true" Spacing="2">
-                            <MudIcon Icon="@Icons.Material.Outlined.CheckCircle" Color="Color.Success" Class="mt-1" />
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Class="mt-1" />
                             <MudText Typo="Typo.body2">@Lang.Text(point.En, point.Hi)</MudText>
                         </MudStack>
                     </MudItem>
@@ -160,7 +160,7 @@
                         <MudListItem T="Manual"
                                      Value="@manual"
                                      OnClick="@(() => GetPdf(manual.File, "manual"))"
-                                     Icon="@Icons.Material.Outlined.PictureAsPdf"
+                                     Icon="@Icons.Material.Filled.PictureAsPdf"
                                      IconColor="Color.Error"
                                      IconSize="Size.Medium"
                                      Text="@Lang.Text(manual.TitleEn, manual.TitleHi)"
@@ -295,12 +295,12 @@
 
     private string ManualIcon(string type) => type switch
     {
-        "GN" => Icons.Material.Outlined.Subject,
-        "EV" => Icons.Material.Outlined.Event,
-        "AN" => Icons.Material.Outlined.WatchLater,
-        "AL" => Icons.Material.Outlined.AddAlert,
-        "NW" => Icons.Material.Outlined.Message,
-        _ => Icons.Material.Outlined.Info
+        "GN" => Icons.Material.Filled.Subject,
+        "EV" => Icons.Material.Filled.Event,
+        "AN" => Icons.Material.Filled.WatchLater,
+        "AL" => Icons.Material.Filled.AddAlert,
+        "NW" => Icons.Material.Filled.Message,
+        _ => Icons.Material.Filled.Info
     };
 
     private Color ManualColor(string type) => type switch

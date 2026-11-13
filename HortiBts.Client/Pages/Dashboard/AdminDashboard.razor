@@ -11,7 +11,7 @@
 
 <PageTitle>@Lang.Text("Admin Dashboard", "एडमिन डैशबोर्ड")</PageTitle>
 <MudText Typo="Typo.h5" Class="mb-6 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Outlined.Agriculture" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Filled.Agriculture" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Admin - Horticulture Farmer Dashboard", "एडमिन - उद्यानिकी कृषक डैशबोर्ड")
 </MudText>
 
@@ -28,7 +28,7 @@
                     <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Primary">@_totRheo</MudText>
                 </div>
                 <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Large">
-                    <MudIcon Icon="@Icons.Material.Outlined.AccountBalance" />
+                    <MudIcon Icon="@Icons.Material.Filled.AccountBalance" />
                 </MudAvatar>
             </MudCardContent>
         </MudCard>
@@ -45,7 +45,7 @@
                     <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Success">@_totRegFarmers</MudText>
                 </div>
                 <MudAvatar Color="Color.Success" Variant="Variant.Filled" Size="Size.Large">
-                    <MudIcon Icon="@Icons.Material.Outlined.People" />
+                    <MudIcon Icon="@Icons.Material.Filled.People" />
                 </MudAvatar>
             </MudCardContent>
         </MudCard>
@@ -62,7 +62,7 @@
                     <MudText Typo="Typo.h4" Class="mt-1" Color="Color.Warning">@_totRegBacklogFarmers</MudText>
                 </div>
                 <MudAvatar Color="Color.Warning" Variant="Variant.Filled" Size="Size.Large">
-                    <MudIcon Icon="@Icons.Material.Outlined.PendingActions" />
+                    <MudIcon Icon="@Icons.Material.Filled.PendingActions" />
                 </MudAvatar>
             </MudCardContent>
         </MudCard>
@@ -72,7 +72,7 @@
 <!-- ===================== CURRENT YEAR ===================== -->
 <MudDivider Class="my-4" />
 <MudText Typo="Typo.h6" Class="mb-3 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Outlined.CalendarToday" Color="Color.Tertiary" />
+    <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Color="Color.Tertiary" />
     @(_finyears.Count > 0 ? _finyears[0].FinancialYear : "")
 </MudText>
 
@@ -84,7 +84,7 @@
                     <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Applications", "कुल आवेदन")</MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalApplications</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.Description" Color="Color.Info" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Info" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -98,7 +98,7 @@
                     </MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalRheoApproved</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.VerifiedUser" Color="Color.Success" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.VerifiedUser" Color="Color.Success" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -110,7 +110,7 @@
                     <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Approved Farmers (DDH)", "कुल स्वीकृत कृषक (DDH)")</MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalDdhApproved</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.CheckCircle" Color="Color.Success" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -122,7 +122,7 @@
                     <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Centrally Sponsored Scheme (Total Applications)", "केंद्र प्रवर्तित योजना (कुल आवेदन)")</MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalCentralSponsored</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.AccountBalance" Color="Color.Primary" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Primary" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -134,7 +134,7 @@
                     <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("State-Sponsored Scheme (Total applications)", "राज्य पोषित योजना (कुल आवेदन)")</MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_currentYearDashboard.TotalStateSponsored</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.LocationCity" Color="Color.Secondary" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Secondary" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -143,7 +143,7 @@
 <!-- ===================== PREVIOUS YEAR ===================== -->
 <MudDivider Class="my-4" />
 <MudText Typo="Typo.h6" Class="mb-3 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Outlined.History" Color="Color.Default" />
+    <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Default" />
     @(_finyears.Count > 0 ? _finyears[1].FinancialYear : "")
 </MudText>
 
@@ -155,7 +155,7 @@
                     <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Applications", "कुल आवेदन")</MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalApplications</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.Description" Color="Color.Info" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Info" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -169,7 +169,7 @@
                     </MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalRheoApproved</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.VerifiedUser" Color="Color.Success" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.VerifiedUser" Color="Color.Success" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -181,7 +181,7 @@
                     <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Total Approved Farmers (DDH)", "कुल स्वीकृत कृषक (DDH)")</MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalDdhApproved</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.CheckCircle" Color="Color.Success" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -193,7 +193,7 @@
                     <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("Centrally Sponsored Scheme (Total Applications)", "केंद्र प्रवर्तित योजना (कुल आवेदन)")</MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalCentralSponsored</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.AccountBalance" Color="Color.Primary" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Color="Color.Primary" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>
@@ -205,7 +205,7 @@
                     <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@Lang.Text("State-Sponsored Scheme (Total applications)", "राज्य पोषित योजना (कुल आवेदन)")</MudText>
                     <MudText Typo="Typo.h4" Class="mt-1">@_previousYearDashboard.TotalStateSponsored</MudText>
                 </div>
-                <MudIcon Icon="@Icons.Material.Outlined.LocationCity" Color="Color.Secondary" Size="Size.Large" />
+                <MudIcon Icon="@Icons.Material.Filled.LocationCity" Color="Color.Secondary" Size="Size.Large" />
             </MudCardContent>
         </MudCard>
     </MudItem>

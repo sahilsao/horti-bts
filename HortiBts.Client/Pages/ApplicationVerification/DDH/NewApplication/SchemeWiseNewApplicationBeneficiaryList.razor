@@ -21,7 +21,7 @@
 </PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Outlined.ViewList" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Filled.ViewList" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("New Application Beneficiary List (2025-26 / 2026-27)", "नविन आवेदन लाभार्थी सूची (2025-26 / 2026-27)")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -119,7 +119,7 @@
             </MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Outlined.Search" Immediate="true" Class="mr-4" />
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
             <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
                 <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
             </MudTooltip>
@@ -220,7 +220,7 @@
                     <MudTd DataLabel="@Lang.Text("Status (Accept/Reject the farmer)", "स्थिति (कृषक का स्वीकृत/निरस्त करें)")">
                         <MudTooltip Text="@Lang.Text("View Applications", "आवेदन देखें")">
                             <MudIconButton
-                                Icon="@Icons.Material.Outlined.Visibility"
+                                Icon="@Icons.Material.Filled.Visibility"
                                 Color="Color.Primary"
                                 Href="@($"district/approve-reject-farmer-new-application/{context.ApplicationId}")" />
                         </MudTooltip>

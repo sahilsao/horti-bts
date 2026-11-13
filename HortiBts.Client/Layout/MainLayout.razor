@@ -20,14 +20,14 @@
 <MudLayout Style="min-height:100vh; display:flex; flex-direction:column;">
 
     <MudScrollToTop>
-        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Outlined.KeyboardArrowUp" />
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
     </MudScrollToTop>
 
     <!-- App Bar -->
     <MudAppBar Elevation="1">
 
-        <MudToggleIconButton @bind-Toggled="_drawerOpen" Icon="@Icons.Material.Outlined.Menu"
-                             ToggledIcon="@Icons.Material.Outlined.Menu" />
+        <MudToggleIconButton @bind-Toggled="_drawerOpen" Icon="@Icons.Material.Filled.Menu"
+                             ToggledIcon="@Icons.Material.Filled.Menu" />
 
         <MudAvatar Size="Size.Medium" Class="ms-2 mr-2">
             <MudImage Src="images/icons/Coat_of_arms_of_Chhattisgarh.jpg" Alt="Logo" Height="40" />
@@ -56,7 +56,7 @@
         <!-- Dark Mode -->
         <MudTooltip Text="@(_isDarkMode ? Lang.Text("Light Mode", "लाइट मोड") : Lang.Text("Dark Mode", "डार्क मोड"))">
             <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode" Color="Color.Primary"
-                                 Icon="@Icons.Material.Outlined.DarkMode" ToggledIcon="@Icons.Material.Outlined.LightMode" />
+                                 Icon="@Icons.Material.Filled.DarkMode" ToggledIcon="@Icons.Material.Filled.LightMode" />
         </MudTooltip>
 
         <!-- Language -->
@@ -68,12 +68,12 @@
 
         <!-- Settings -->
         <MudTooltip Text="@Lang.Text("Open Settings", "सेटिंग्स खोले")">
-            <MudMenu Icon="@Icons.Material.Outlined.Settings" Color="Color.Primary" AriaLabel="Open user menu">
+            <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" AriaLabel="Open user menu">
 
-                <MudMenuItem Icon="@Icons.Material.Outlined.DisplaySettings" IconColor="Color.Primary"
+                <MudMenuItem Icon="@Icons.Material.Filled.DisplaySettings" IconColor="Color.Primary"
                              Href="admin/update-password" Label="@Lang.Text("Update Admin Password", "एडमिन पासवर्ड अपडेट")" />
 
-                <MudMenuItem Icon="@Icons.Material.Outlined.Logout" IconColor="Color.Primary" OnClick="Logout"
+                <MudMenuItem Icon="@Icons.Material.Filled.Logout" IconColor="Color.Primary" OnClick="Logout"
                              Label="@Lang.Text("Log Out", "लॉग आउट")" />
 
             </MudMenu>
