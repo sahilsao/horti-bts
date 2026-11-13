@@ -25,7 +25,7 @@
 <PageTitle>@Lang.Text("Farmer Verification", "कृषक भौतिक सत्यापन")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Filled.DomainVerification" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Outlined.DomainVerification" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Farmer Verification", "कृषक भौतिक सत्यापन")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -106,7 +106,7 @@
             <MudSpacer />
             <MudTextField @bind-Value="_searchString"
                           Placeholder="@Lang.Text("Search by UFID & Farmer Name", "यु.एफ.आई.डी और किसान के नाम से खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mt-0" />
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Outlined.Search" Immediate="true" Class="mt-0" />
         </ToolBarContent>
         <Columns>
             <PropertyColumn Property="x => x.UfId" Title="@Lang.Text("UFID", "यूएफ आईडी")" />
@@ -121,7 +121,7 @@
 
             <TemplateColumn Title="@Lang.Text("View", "देखें")" Sortable="false">
                 <CellTemplate>
-                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary" Size="Size.Small"
+                    <MudIconButton Icon="@Icons.Material.Outlined.Visibility" Color="Color.Primary" Size="Size.Small"
                                    OnClick="@(() => ViewDetails(context.Item))" />
                 </CellTemplate>
             </TemplateColumn>

@@ -16,7 +16,7 @@
 <PageTitle>@Lang.Text("Add Notices", "नोटिस जोड़ें")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Filled.EditNotifications" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Outlined.EditNotifications" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Add Notices", "नोटिस जोड़ें")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -83,7 +83,7 @@
                                   Class="pa-6 d-flex flex-column align-center justify-center gap-2 rounded-lg"
                                   Style="border-style:dashed; border-width:2px; cursor:pointer; min-height:140px;"
                                   @onclick="@uploader.OpenFilePickerAsync">
-                            <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Size="Size.Large"
+                            <MudIcon Icon="@Icons.Material.Outlined.CloudUpload" Size="Size.Large"
                                      Color="Color.Primary" />
                             <MudText Typo="Typo.body2" Align="Align.Center">
                                 @Lang.Text("Click or drag a PDF here to upload", "अपलोड हेतु यहाँ पीडीएफ खींचें या क्लिक करें")
@@ -97,14 +97,14 @@
                         @if (selectedFile is not null)
                         {
                             <MudPaper Outlined="true" Class="pa-3 mt-2 d-flex align-center gap-3 rounded-lg">
-                                <MudIcon Icon="@Icons.Material.Filled.PictureAsPdf" Color="Color.Error" Size="Size.Large" />
+                                <MudIcon Icon="@Icons.Material.Outlined.PictureAsPdf" Color="Color.Error" Size="Size.Large" />
                                 <MudStack Spacing="0" Class="flex-grow-1" Style="min-width:0;">
                                     <MudText Typo="Typo.body2" Class="text-truncate">@selectedFile.Name</MudText>
                                     <MudText Typo="Typo.caption" Class="mud-text-secondary">
                                         @FormatFileSize(selectedFile.Size)</MudText>
                                     </MudStack>
                                     <MudTooltip Text="@Lang.Text("Remove file", "फ़ाइल हटाएं")">
-                                        <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" Color="Color.Error"
+                                        <MudIconButton Icon="@Icons.Material.Outlined.Close" Size="Size.Small" Color="Color.Error"
                                                        OnClick="@RemovePdf" />
                                     </MudTooltip>
                                 </MudPaper>
@@ -118,7 +118,7 @@
                     @if (pdfError is not null)
                     {
                         <MudText Typo="Typo.caption" Color="Color.Error" Class="mt-1 d-flex align-center gap-1">
-                            <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Size="Size.Small" />
+                            <MudIcon Icon="@Icons.Material.Outlined.ErrorOutline" Size="Size.Small" />
                             @pdfError
                         </MudText>
                     }
@@ -155,7 +155,7 @@
                 <MudText Typo="Typo.h6">@Lang.Text("Notices", "नोटिस")</MudText>
                 <MudSpacer />
                 <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
-                              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" />
+                              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Outlined.Search" Immediate="true" />
             </ToolBarContent>
             <HeaderContent>
                 <MudTh>@Lang.Text("S.No.", "क्रमाँक")</MudTh>
@@ -201,12 +201,12 @@
                     <MudStack Row="true" Spacing="1">
 
                         <MudTooltip Text="@Lang.Text("View", "देखें")">
-                            <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small"
+                            <MudIconButton Icon="@Icons.Material.Outlined.Visibility" Color="Color.Info" Size="Size.Small"
                                            OnClick="@(() => OpenNoticeDialog(context))" />
                         </MudTooltip>
 
                         <MudTooltip Text="@Lang.Text("Edit", "संपादित करें")">
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                            <MudIconButton Icon="@Icons.Material.Outlined.Edit" Color="Color.Primary" Size="Size.Small"
                                            OnClick="@(() => LoadForEdit(context))" />
                         </MudTooltip>
 

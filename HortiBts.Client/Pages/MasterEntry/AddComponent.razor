@@ -23,7 +23,7 @@
 <PageTitle>@Lang.Text("Add Component", "घटक जोड़ें")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Filled.BookmarkAdd"
+    <MudIcon Icon="@Icons.Material.Outlined.BookmarkAdd"
              Color="Color.Primary"
              Size="Size.Large" />
 
@@ -171,7 +171,7 @@
             <MudText Typo="Typo.h6">@Lang.Text("Components", "घटक")</MudText>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Outlined.Search"
                           Immediate="true" />
         </ToolBarContent>
         <HeaderContent>
@@ -200,14 +200,14 @@
                 <MudStack Row="true" Spacing="1">
 
                     @* <MudTooltip Text="@Lang.Text("View", "देखें")">
-                        <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                        <MudIconButton Icon="@Icons.Material.Outlined.Visibility"
                                        Color="Color.Info"
                                        Size="Size.Small"
                                        OnClick="@(() => OpenSchemeDialog(context))" />
                     </MudTooltip> *@
                    
                     <MudTooltip Text="@Lang.Text("Edit", "संपादित करें")">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit"
                                        Color="Color.Primary"
                                        Size="Size.Small"
                                        OnClick="@(() => LoadForEdit(context))" />

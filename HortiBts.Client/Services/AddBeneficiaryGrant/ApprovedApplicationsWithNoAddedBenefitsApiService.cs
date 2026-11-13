@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http.Json;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.AddBeneficiaryGrant;
 
@@ -31,4 +32,18 @@ public class ApprovedApplicationsWithNoAddedBenefitsApiService(HttpClient http)
             return Result<List<ApprovedApplicationsWithNoAddedBenefitsByApplicationIdDto>>.Failure($"Failed to fetch approved applications with no added benefits: {ex.Message}");
         }
     }
+
+    public async Task<Result<int>> SaveApplicationSchemeBenefitDataAsync(SaveApplicationSchemeBenefitDataDto dto)
+    {
+        try
+        {
+            var response = await http.PostAsJsonAsync("api/approved-applications/save-application-scheme-benefit-data", dto);
+            return await ApiResultHelper.ReadResultAsync<int>(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<int>.Failure($"Failed to save application scheme benefit data : {ex.Message}");
+        }
+    }
 }
+

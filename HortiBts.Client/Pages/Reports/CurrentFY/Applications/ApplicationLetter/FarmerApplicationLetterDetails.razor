@@ -19,7 +19,7 @@
 <PageTitle>@Lang.Text("Application Letter", "आवेदन पत्र")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Filled.Person" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Outlined.Person" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Application Letter", "आवेदन पत्र")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -367,12 +367,12 @@ else
 
             <MudStack Row="true" Spacing="2" Class="mt-3">
 
-                <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Print"
+                <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Print"
                            OnClick="PrintAsPdfAsync">
                     @Lang.Text("Print Pdf", "पीडीऍफ़ प्रिंट करें")
                 </MudButton>
 
-                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="CloseAsync">
+                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.ArrowBack" OnClick="CloseAsync">
                     @Lang.Text("Back", "वापस जाएं")
                 </MudButton>
 

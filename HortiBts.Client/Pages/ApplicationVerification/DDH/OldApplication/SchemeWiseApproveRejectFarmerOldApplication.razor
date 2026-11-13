@@ -21,7 +21,7 @@
 <PageTitle>@Lang.Text("Application Verification", "आवेदन सत्यापन")</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Filled.Person" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Outlined.Person" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Application Verification", "आवेदन सत्यापन")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -30,7 +30,7 @@
 
 <MudPaper Class="pa-8 d-flex flex-column align-center" Elevation="0"
           Style="border:1px dashed var(--mud-palette-lines-default); border-radius:12px;">
-    <MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" Class="mud-text-secondary mb-2" />
+    <MudIcon Icon="@Icons.Material.Outlined.PersonSearch" Size="Size.Large" Class="mud-text-secondary mb-2" />
     <MudText Typo="Typo.body1" Class="mud-text-secondary">
         @Lang.Text("Note: The farmer/entrepreneur details provided below must be verified by the official. The official may approve the application after verifying all the information. It may be rejected if the information is found to be incorrect. Providing the reason for approval or rejection in the remarks field is mandatory.", "नोट: नीचे दिये गए कृषक/उद्यमी विवरण का अधिकारी द्वारा सत्यापन किया जाना है। सभी जानकारी सत्यापित करने के पश्चात अधिकारी इस आवेदन को अप्रूव कर सकते है। जानकारी सही नही होने की स्थिति मे निरस्त किया जा सकता है। रिमार्क फील्ड मे अप्रूव या निरस्त करने का कारण बताना अनिवार्य है।")
     </MudText>
@@ -380,17 +380,17 @@ else
 
         <MudStack Row="true" Spacing="2" Class="mt-3">
 
-            <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Check"
+            <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Check"
                        OnClick="ConfirmApproveAsync">
                 @Lang.Text("Approve", "स्वीकृत करें")
             </MudButton>
 
-            <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Close"
+            <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Outlined.Close"
                        OnClick="ConfirmRejectAsync">
                 @Lang.Text("Reject", "अस्वीकृत करें")
             </MudButton>
 
-            <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="CloseAsync">
+            <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.ArrowBack" OnClick="CloseAsync">
                 @Lang.Text("Close", "बंद करें")
             </MudButton>
 

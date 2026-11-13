@@ -12,7 +12,7 @@
 <MudLayout Style="min-height:100vh; display:flex; flex-direction:column;">
 
     <MudScrollToTop>
-        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.KeyboardArrowUp" />
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Outlined.KeyboardArrowUp" />
     </MudScrollToTop>
 
     <MudAppBar Color="Color.Default" Elevation="0" Gutters="true">
@@ -36,7 +36,7 @@
         <MudSpacer />
 
         <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="mr-2"
-                   StartIcon="@(IsLoginPage ? Icons.Material.Filled.Home : Icons.Material.Filled.Login)"
+                   StartIcon="@(IsLoginPage ? Icons.Material.Outlined.Home : Icons.Material.Outlined.Login)"
                    Href="@(IsLoginPage ? "/" : "/login")">
             @Lang.Text(
                 IsLoginPage ? "Home" : "Login",
@@ -46,7 +46,7 @@
         <!-- Dark Mode -->
         <MudTooltip Text="@(_isDarkMode ? Lang.Text("Light Mode", "लाइट मोड") : Lang.Text("Dark Mode", "डार्क मोड"))">
             <MudToggleIconButton Toggled="@_isDarkMode" ToggledChanged="ToggleDarkMode" Color="Color.Primary"
-                                 Icon="@Icons.Material.Filled.DarkMode" ToggledIcon="@Icons.Material.Filled.LightMode" />
+                                 Icon="@Icons.Material.Outlined.DarkMode" ToggledIcon="@Icons.Material.Outlined.LightMode" />
         </MudTooltip>
 
         <!-- Language -->
@@ -83,7 +83,7 @@
 @code {
 
     private bool _isDarkMode = false;
-    private bool _isHindi = true;    
+    private bool _isHindi = true;
     protected override async Task OnInitializedAsync()
     {
         Lang.OnLanguageChanged += OnLanguageChanged;
@@ -105,7 +105,8 @@
 
     private readonly ShadcnTheme _theme = MudShadcnTheme.Create(new ShadcnThemeOptions
     {
-        Style = ShadcnStyle.Lyra,
+        Style = ShadcnStyle.Rhea,
+        Theme = ShadcnColor.Emerald,
         FontFamily = ["Geist", "Noto Sans Devanagari", .. MudShadcnTheme.DefaultFontFamily],
         IconLibrary = ShadcnIconLibrary.Lucide,
     });

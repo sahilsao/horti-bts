@@ -5,9 +5,11 @@
 @using HortiBts.Client.Services.Benefits
 @using HortiBts.Shared.Dtos.AddBeneficiaryGrant
 @using HortiBts.Shared.Dtos.Benefits
-@using MudBlazor.Extensions
 @inject ApprovedApplicationsWithNoAddedBenefitsApiService ApprovedApplicationsWithNoAddedBenefitsApiService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+
 @inject BenefitsApiService BenefitsApiService
 
 <PageTitle>@Lang.Text("Add beneficiary grant (2026-27)", "लाभार्थी अनुदान जोड़ें (2026-27)")
@@ -182,7 +184,8 @@
                 <MudItem xs="12" sm="4">
                     <MudNumericField T="decimal?" @bind-Value="_itemNumber" Immediate="true"
                                      Label="@Lang.Text("Item Number (if any)", "सामग्री संख्या (यदि कोई हो)")" Variant="Variant.Outlined"
-                                     Required="true" RequiredError="@Lang.Text("Item Number is required.", "सामग्री भरना अनिवार्य है|")" Min="0" />
+                                     Required="true" RequiredError="@Lang.Text("Item Number is required.", "सामग्री भरना अनिवार्य है|")"
+                                     Min="0" />
 
                 </MudItem>
 
@@ -330,41 +333,53 @@
 
     private async Task SaveBenefit()
     {
-        await Form!.ValidateAsync();
-        if (!Form.IsValid)
-            return;
-
+        await _form!.ValidateAsync();
+        if (!_form.IsValid) return;
+ 
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "", Lang.Text("Do you want to save?", "क्या सुरक्षित करना चाहते हैं। "),
+            yesText: Lang.Text("Yes", "हाँ"), noText: Lang.Text("No", "नहीं"));
+        if (confirmed != true) return;
+ 
+        var first = _reportData.First();
         _isLoading = true;
         try
         {
-            @* // call your actual save API here, e.g.:
-            var result = await BenefitsApiService.SaveBenefitAsync(new AddBenefitDto
+            var result = await ApprovedApplicationsWithNoAddedBenefitsApiService.SaveApplicationSchemeBenefitDataAsync(new
+SaveApplicationSchemeBenefitDataDto
             {
-                BenefitId = _selectedBenefitId,
-                BenefitTypeId = _selectedBenefitTypeId!.Value,
-                BenefitNameEn = _BenefitNameEn!,
-                BenefitNameHi = _BenefitNameHi!
+                ApplicationId = ApplicationId,
+                FinancialYear = FinancialYear,
+                SdId = first.SdId, // ADAPT property names on your row DTO
+                FdId = first.FdId,
+                HfId = first.HfId,
+                UfId = first.UfId,
+                Area = _area ?? 0,
+                ItemNo = (int)(_itemNumber ?? 0),
+                BenefitIds = _selectedBenefitIds.ToList(),
+                TotalCost = _totalCostAmount ?? 0, // add these fields + inputs to the form
+                Subsidy = _totalCostAmount ?? 0,
+                Remark = _remarks
             });
-
+ 
             if (result.IsSuccess)
             {
-                Snackbar.Add(Lang.Text("Benefit saved successfully.", "लाभ सफलतापूर्वक सुरक्षित किया गया।"), Severity.Success);
-                Reset();
-                await LoadReport();
+                Snackbar.Add(Lang.Text("Saved.", "सुरक्षित किया गया|"), Severity.Success);
+
+                Navigation.NavigateTo(
+                    $"/district/scheme-wise-new-application-beneficiary-list/{first.SchemeType}/{first.SchemeId}/{first.DistrictCode}/{FinancialYear}");
+                
             }
             else
             {
-                Snackbar.Add(result.Error ?? Lang.Text("Failed to save benefit.", "लाभ सुरक्षित करने में विफल।"), Severity.Error);
-            } *@
+                Snackbar.Add(Lang.Text("Problem adding grant.", "अनुदान जोड़ने में समस्या आ रही है।"), Severity.Error);
+            }
         }
         catch
         {
-            Snackbar.Add(Lang.Text("Failed to save benefit.", "लाभ सुरक्षित करने में विफल।"), Severity.Error);
+            Snackbar.Add(Lang.Text("Problem adding grant.", "अनुदान जोड़ने में समस्या आ रही है।"), Severity.Error);
         }
-        finally
-        {
-            _isLoading = false;
-        }
+        finally { _isLoading = false; }
     }
 
     private async Task Reset()

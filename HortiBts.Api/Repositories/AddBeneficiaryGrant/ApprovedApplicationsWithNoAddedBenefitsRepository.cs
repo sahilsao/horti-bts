@@ -2,6 +2,7 @@ using Dapper;
 using HortiBts.Api.Data;
 using HortiBts.Shared.Common;
 using HortiBts.Shared.Dtos.AddBeneficiaryGrant;
+using MySqlConnector;
 
 namespace HortiBts.Api.Repositories.AddBeneficiaryGrant;
 
@@ -9,6 +10,8 @@ public interface IApprovedApplicationsWithNoAddedBenefitsRepository
 {
     Task<Result<List<ApprovedApplicationsWithNoAddedBenefitsByDistrictCodeDto>>> GetApprovedApplicationsWithNoAddedBenefitsByDistrictCodeAsync(int districtCode, int financialYear);
     Task<Result<List<ApprovedApplicationsWithNoAddedBenefitsByApplicationIdDto>>> GetApprovedApplicationsWithNoAddedBenefitsByApplicationIDAsync(int applicationId, int financialYear);
+    Task<Result<int>> SaveApplicationSchemeBenefitDataAsync(SaveApplicationSchemeBenefitDataDto dto, string createdBy, string clientIp);
+
 }
 
 public class ApprovedApplicationsWithNoAddedBenefitsRepository(IDbConnectionFactory connectionFactory) : IApprovedApplicationsWithNoAddedBenefitsRepository
@@ -142,5 +145,81 @@ public class ApprovedApplicationsWithNoAddedBenefitsRepository(IDbConnectionFact
 
         var result = await connection.QueryAsync<ApprovedApplicationsWithNoAddedBenefitsByApplicationIdDto>(Sql, new { ApplicationId = applicationId, FinancialYear = financialYear });
         return Result<List<ApprovedApplicationsWithNoAddedBenefitsByApplicationIdDto>>.Success(result.ToList());
+    }
+
+    public async Task<Result<int>> SaveApplicationSchemeBenefitDataAsync(SaveApplicationSchemeBenefitDataDto dto, string createdBy, string clientIp)
+    {
+        using var connection = connectionFactory.CreateConnection(HortiDb.Bts);
+        connection.Open(); 
+        using var tran = connection.BeginTransaction();
+
+        try
+        {
+            // insert 1: temp_approved_benefit_details
+            const string sql1 = @"
+                    INSERT INTO temp_approved_benefit_details
+                        (application_id, sd_id, fd_id, hf_id, uf_id, financial_year,
+                         approved_area, quantity, benefit, total_cost, subsidy,
+                         remark, ip_address, created_by)
+                    VALUES
+                        (@ApplicationId, @SdId, @FdId, @HfId, @UfId, @FinancialYear,
+                         @Area, @ItemNo, @Benefit, @TotalCost, @Subsidy,
+                         @Remark, @IpAddress, @CreatedBy);
+                    SELECT LAST_INSERT_ID();";
+
+            var abId = await connection.ExecuteScalarAsync<int>(sql1, new
+            {
+                dto.ApplicationId,
+                dto.SdId,
+                dto.FdId,
+                dto.HfId,
+                dto.UfId,
+                dto.FinancialYear,
+                dto.Area,
+                dto.ItemNo,
+                Benefit = string.Join(",", dto.BenefitIds),
+                dto.TotalCost,
+                dto.Subsidy,
+                dto.Remark,
+                IpAddress = clientIp,
+                CreatedBy = createdBy
+            }, tran);
+
+            // insert 2: temp_scheme_benefit_details, one row per benefit
+            const string sql2 = @"
+                    INSERT INTO temp_scheme_benefit_details
+                        (ab_id, sd_id, hf_id, fd_id, uf_id, benefit_id, benefit_type,
+                         financial_year, ip_address, created_by)
+                    VALUES
+                        (@AbId, @SdId, @HfId, @FdId, @UfId, @BenefitId, 1,
+                         @FinancialYear, @IpAddress, @CreatedBy);";
+
+            var rows = dto.BenefitIds.Select(bid => new
+            {
+                AbId = abId,
+                dto.SdId,
+                dto.HfId,
+                dto.FdId,
+                dto.UfId,
+                BenefitId = bid,
+                dto.FinancialYear,
+                IpAddress = clientIp,
+                CreatedBy = createdBy
+            });
+            await connection.ExecuteAsync(sql2, rows, tran);
+
+            tran.Commit();
+            return Result<int>.Success(abId);
+        }
+        catch (MySqlException ex) when (ex.Number == 1062)
+        {
+            tran.Rollback();
+            return Result<int>.Failure("Grant already added for this application.");
+        }
+        catch (Exception ex)
+        {
+            tran.Rollback();
+            return Result<int>.Failure($"Unable to save benefit data: {ex.Message}");
+        }
     }
 }

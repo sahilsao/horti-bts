@@ -20,7 +20,7 @@
 </PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
-    <MudIcon Icon="@Icons.Material.Filled.DomainVerification" Color="Color.Primary" Size="Size.Large" />
+    <MudIcon Icon="@Icons.Material.Outlined.DomainVerification" Color="Color.Primary" Size="Size.Large" />
     @Lang.Text("Scheme Wise Old Application Verification List (2018-19 / 2024-25)", "योजनावार पूर्व आवेदन सूची (2018-19 / 2024-25)")
 </MudText>
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
@@ -101,7 +101,7 @@
             </MudStack>
             <MudSpacer />
             <MudTextField @bind-Value="_searchString" Placeholder="@Lang.Text("Search", "खोजें")"
-                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true" Class="mr-4" />
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Outlined.Search" Immediate="true" Class="mr-4" />
             <MudTooltip Text="@Lang.Text("Export to Excel", "एक्सेल में निर्यात करें")">
                 <MudIconButton Icon="@Icons.Custom.FileFormats.FileExcel" Color="Color.Success" OnClick="ExportToExcel" />
             </MudTooltip>
@@ -140,7 +140,7 @@
                 @if (context.ApplicationCount > 0)
                 {
                     <MudTooltip Text="@Lang.Text("View Applications", "आवेदन देखें")">
-                        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary" Size="Size.Small"
+                        <MudIconButton Icon="@Icons.Material.Outlined.Visibility" Color="Color.Primary" Size="Size.Small"
                                        Href="@($"/district/scheme-wise-old-application-beneficiary-list/{context.SchemeTypeId}/{context.SchemeId}/{_currentUser.UserId}/{_selectedFinancialYear}")" />
                     </MudTooltip>
                 }
