@@ -9,7 +9,8 @@
 @using HortiBts.Shared.Dtos.Officers
 @using HortiBts.Shared.Dtos.SubDistricts
 @using HortiBts.Shared.Dtos.Villages
-@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Components.Authorization
+@attribute [Authorize(Roles = "Admin, District")]
 
 @inject DistrictsApiService DistrictsApiService
 @inject SubDistrictsApiService SubDistrictsApiService
@@ -18,6 +19,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject ExcelExportService ExcelExport
+@inject IUserContextService UserContextService
 
 <style>
     .report-header-row th,
@@ -30,7 +32,8 @@
     }
 </style>
 
-<PageTitle>@Lang.Text("RHEO List and Village Mapped into RHEO", "आर.एच.ई.ओ. एवं RHEO में मैप किए गए गाँव की सूची")</PageTitle>
+<PageTitle>@Lang.Text("RHEO List and Village Mapped into RHEO", "आर.एच.ई.ओ. एवं RHEO में मैप किए गए गाँव की सूची")
+</PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
     <MudIcon Icon="material-symbols-outlined/patient_list" Color="Color.Primary" Size="Size.Large" />
@@ -41,14 +44,15 @@
 </MudText>
 
 <MudGrid Spacing="3" Class="mb-4" AlignItems="Center">
-    <MudItem xs="12" sm=6">
+    <MudItem xs="12" sm="6">
         <MudText Typo="Typo.body1" Class="mb-1">
             @Lang.Text("Filter by", "फ़िल्टर करें")
         </MudText>
         <MudToggleGroup T="string" Value="_filterMode" ValueChanged="SetFilterMode" Color="Color.Primary"
                         Delimiters="false" SelectionMode="SelectionMode.SingleSelection">
             <MudToggleItem Value="@("village")" Text="@Lang.Text("Village", "ग्राम")" />
-            <MudToggleItem Value="@("officer")" Text="@Lang.Text("Village Mapped into RHEO", "RHEO में मैप किए गए गाँव")" />
+            <MudToggleItem Value="@("officer")"
+                           Text="@Lang.Text("Village Mapped into RHEO", "RHEO में मैप किए गए गाँव")" />
         </MudToggleGroup>
     </MudItem>
 </MudGrid>
@@ -314,6 +318,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _currentUser = await UserContextService.GetCurrentUserAsync();
         await LoadDistrictsAsync();
         await LoadReport();
     }
@@ -324,7 +329,9 @@
         if (result.IsSuccess)
             _districts = result.Data!;
         else
-            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+            Snackbar.Add(
+                Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"),
+                Severity.Warning);
     }
 
     private async Task OnDistrictChanged(int? districtId)

@@ -7,6 +7,27 @@ namespace HortiBts.Api.Controllers.Officers
     [ApiController]
     public class OfficersController(IOfficersRepository officersRepository, ILogger<OfficersController> logger) : ControllerBase
     {
+        [HttpGet("get-all-dept-officers")]
+        [EndpointSummary("Get all department officers from state")]
+        [EndpointDescription("Retrieves the list of all department officers of the state available in the system.")]
+        public async Task<IActionResult> GetAllDepartmentOfficersList([FromQuery] int departmentCode)
+        {
+            try
+            {
+                var result = await officersRepository.GetDepartmentOfficersListByAsync(departmentCode);
+
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving dept officers");
+                return Problem(detail: "An unexpected error occurred while processing your request.", statusCode: 500);
+            }
+        }
+
         [HttpGet("get-all-rheo-officers")]
         [EndpointSummary("Get all rheo officers from state")]
         [EndpointDescription("Retrieves the list of all rheo officers of the state available in the system.")]

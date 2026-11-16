@@ -10,7 +10,7 @@
 @using HortiBts.Shared.Dtos.FinancialYear
 @using HortiBts.Shared.Dtos.Reports.PreviousFY.BacklogYearly
 @using HortiBts.Shared.Dtos.SubDistricts
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "Admin, District")]
 
 @inject DistrictsApiService DistrictsService
 @inject SubDistrictsApiService SubDistrictsApiService
@@ -20,6 +20,8 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @inject ExcelExportService ExcelExport
+
+@inject IUserContextService CurrentUserService
 
 <style>
     .report-header-row th,
@@ -403,6 +405,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _currentUser = await CurrentUserService.GetCurrentUserAsync();
         await LoadDistrictsAsync();
         await LoadFinancialYearsAsync();
 
@@ -434,9 +437,27 @@
     {
         var result = await DistrictsService.GetDistrictsAsync();
         if (result.IsSuccess)
-            _districts = result.Data!;
+        {
+            if (_currentUser.UserId != "100") // Admin user
+            {                
+                _districts = result.Data!
+                    .Where(x => x.DistrictCensus.ToString() == _currentUser.UserId)
+                    .ToList();
+
+                _selectedDistrictCensus = _districts.FirstOrDefault()?.DistrictCensus;
+                await OnDistrictChanged(_selectedDistrictCensus);   
+            }
+            else
+            {
+                _districts = result.Data!;
+            }
+        }
         else
-            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+        {
+            Snackbar.Add(
+                Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"),
+                Severity.Warning);
+        }
     }
 
     private async Task OnDistrictChanged(int? districtId)

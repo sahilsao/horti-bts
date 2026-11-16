@@ -8,6 +8,7 @@ namespace HortiBts.Api.Repositories.Officers
 {
     public interface IOfficersRepository
     {
+        Task<Result<List<DeptOfficersDto>>> GetDepartmentOfficersListByAsync(int departmentCode);
         Task<Result<List<RheoOfficersDto>>> GetAllOfficersListByAsync(int departmentCode);
         Task<Result<List<RheoOfficersDto>>> GetOfficersListByDistrictCodeAsync(int departmentCode, int districtCode);
         Task<Result<List<RheoOfficersDto>>> GetOfficersListBySubDistrictCodeAsync(int departmentCode, int subDistrictCode);
@@ -17,6 +18,28 @@ namespace HortiBts.Api.Repositories.Officers
 
     public class OfficersRepository(IDbConnectionFactory dbFactory) : IOfficersRepository
     {
+
+        public async Task<Result<List<DeptOfficersDto>>> GetDepartmentOfficersListByAsync(int departmentCode)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT 
+                    designation_code AS DesignationCode,
+                    designation_name AS DesignationName,
+                    department_code AS DepartmentCode
+                FROM mas_designation md
+                WHERE md.department_code= @DepartmentCode
+                """;
+                var result = await connection.QueryAsync<DeptOfficersDto>(sql, new { DepartmentCode = departmentCode });
+                return Result<List<DeptOfficersDto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<DeptOfficersDto>>.Failure($"Failed to fetch department officers: {ex.Message}");
+            }
+        }
         public async Task<Result<List<RheoOfficersDto>>> GetAllOfficersListByAsync(int departmentCode)
         {
             try

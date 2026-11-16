@@ -27,5 +27,26 @@ namespace HortiBts.Api.Controllers.Villages
                 return Problem(detail: "An unexpected error occurred while processing your request.", statusCode: 500);
             }
         }
+
+        [HttpGet("for-rheo")]
+        [EndpointSummary("Get all villages for rheo from selected sub-district")]
+        [EndpointDescription("Retrieves the list of all villages for rheo of the selected sub-district available in the system.")]
+        public async Task<IActionResult> GetVillagesForRheo([FromQuery] int DepartmentCode, [FromQuery] string SubDistrictCode)
+        {
+            try
+            {
+                var result = await villagesRepository.GetVillagesForRHEOAsync(DepartmentCode, SubDistrictCode);
+
+                if (!result.IsSuccess)
+                    return Problem(detail: result.Error, statusCode: 500);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while retrieving villages for rheo for sub-district code: {SubDistrictCode}", SubDistrictCode);
+                return Problem(detail: "An unexpected error occurred while processing your request.", statusCode: 500);
+            }
+        }
     }
 }

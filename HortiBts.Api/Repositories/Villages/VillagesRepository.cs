@@ -9,6 +9,7 @@ namespace HortiBts.Api.Repositories.Villages
     {
         /// <summary>Returns all villages from the specified sub-district</summary>
         Task<Result<List<VillagesDto>>> GetVillagesAsync(string SubDistrictCode);
+        Task<Result<List<VillagesForRHEODto>>> GetVillagesForRHEOAsync(int DepartmentCode, string SubDistrictCode);
     }
 
     public class VillagesRepository(IDbConnectionFactory dbFactory) : IVillagesRepository
@@ -35,6 +36,38 @@ namespace HortiBts.Api.Repositories.Villages
             catch (Exception ex)
             {
                 return Result<List<VillagesDto>>.Failure($"Failed to fetch villages: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<List<VillagesForRHEODto>>> GetVillagesForRHEOAsync(int DepartmentCode, string SubDistrictCode)
+        {
+            try
+            {
+                using var connection = dbFactory.CreateConnection(HortiDb.Bts);
+                const string sql = """
+                SELECT 
+                    v.village_code AS VillageCode,
+                    v.village_lgd_code AS VillageLgdCode,
+                    v.village_name AS VillageName,
+                    v.subdistrict_code AS SubdistrictCode,
+                    rb.BlockNameEng AS subdistrict_name
+                FROM view_all_villages v
+                LEFT
+                JOIN rev_block rb ON rb.subdistrict_code = v.subdistrict_code
+                WHERE v.village_code NOT IN (
+                SELECT 
+                    a.village_code
+                FROM officer_village_details a
+                WHERE a.department_code = @DepartmentCode)
+                AND v.subdistrict_code = @SubDistrictCode
+                ORDER BY v.village_name
+                """;
+                var result = await connection.QueryAsync<VillagesForRHEODto>(sql, new { DepartmentCode = DepartmentCode, SubDistrictCode = SubDistrictCode });
+                return Result<List<VillagesForRHEODto>>.Success(result.ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result<List<VillagesForRHEODto>>.Failure($"Failed to fetch villages for RHEO: {ex.Message}");
             }
         }
     }

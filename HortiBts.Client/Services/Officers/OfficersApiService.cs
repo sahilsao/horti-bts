@@ -7,6 +7,19 @@ namespace HortiBts.Client.Services.Officers
 {
     public class OfficersApiService(HttpClient http)
     {
+        public async Task<Result<List<DeptOfficersDto>>> GetAllDepartmentOfficersListAsync(int departmentCode)
+        {
+            try
+            {
+                var response = await http.GetAsync($"api/officers/get-all-dept-officers?departmentCode={departmentCode}");
+                return await ApiResultHelper.ReadResultAsync<List<DeptOfficersDto>>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<DeptOfficersDto>>.Failure($"Failed to fetch dept officers: {ex.Message}");
+            }
+        }
+
         public async Task<Result<List<RheoOfficersDto>>> GetAllRheoOfficersListAsync(int departmentCode)
         {
             try

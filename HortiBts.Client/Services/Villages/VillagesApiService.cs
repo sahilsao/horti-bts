@@ -19,5 +19,18 @@ namespace HortiBts.Client.Services.Villages
                 return Result<List<VillagesDto>>.Failure($"Failed to fetch villages: {ex.Message}");
             }
         }
+
+        public async Task<Result<List<VillagesForRHEODto>>> GetVillagesForRheoAsync(int departmentCode, int subdistrictCode)
+        {
+            try
+            {
+                var response = await http.GetAsync($"api/get-villages-from-sub-district/for-rheo?DepartmentCode={departmentCode}&SubdistrictCode={subdistrictCode}");
+                return await ApiResultHelper.ReadResultAsync<List<VillagesForRHEODto>>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<VillagesForRHEODto>>.Failure($"Failed to fetch villages for RHEO: {ex.Message}");
+            }
+        }
     }
 }

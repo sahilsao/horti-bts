@@ -1,7 +1,8 @@
 ﻿@page "/reports/applications/previous/farmerwise-farmer-applications-list"
 @page "/reports/applications/previous/farmerwise-farmer-applications-list/{DistrictCode:int}/{SubDistrictCode:int}/{VillageCode:int}/{OfficerCode:int}/{FinancialYear:int}"
+@using Microsoft.AspNetCore.Components.Authorization
 @using HortiBts.Client.Services.Auth
-@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.Districts   
 @using HortiBts.Client.Services.FinancialYears
 @using HortiBts.Client.Services.Officers
 @using HortiBts.Client.Services.Reports
@@ -12,7 +13,7 @@
 @using HortiBts.Shared.Dtos.Officers
 @using HortiBts.Shared.Dtos.Reports.PreviousFY.Applications
 @using HortiBts.Shared.Dtos.SubDistricts
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "Admin, District")]
 
 @inject DistrictsApiService DistrictsApiService
 @inject SubDistrictsApiService SubDistrictsApiService
@@ -22,6 +23,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject ExcelExportService ExcelExport
+@inject IUserContextService UserContextService
 
 <style>
     .report-header-row th,
@@ -52,10 +54,11 @@
                    Variant="Variant.Outlined"
                    ValueChanged="OnDistrictChanged">
 
-            <MudSelectItem T="int?" Value="0">
-                @Lang.Text("All", "सभी")
-            </MudSelectItem>
-
+            <AuthorizeView Roles="Admin">
+                <MudSelectItem T="int?" Value="0">
+                    @Lang.Text("All", "सभी")
+                </MudSelectItem>
+            </AuthorizeView>
 
             @foreach (var d in _districts)
             {
@@ -293,7 +296,8 @@
     private string _searchString = string.Empty;
 
     protected override async Task OnInitializedAsync()
-    {
+    {        
+        _currentUser = await UserContextService.GetCurrentUserAsync();
         await LoadDistrictsAsync();
         await LoadFinancialYearsAsync();
 
@@ -320,9 +324,27 @@
     {
         var result = await DistrictsApiService.GetDistrictsAsync();
         if (result.IsSuccess)
-            _districts = result.Data!;
+        {
+            if (_currentUser.UserId != "100") // Admin user
+            {                
+                _districts = result.Data!
+                    .Where(x => x.DistrictCensus.ToString() == _currentUser.UserId)
+                    .ToList();
+
+                _selectedDistrictCensus = _districts.FirstOrDefault()?.DistrictCensus;
+                await OnDistrictChanged(_selectedDistrictCensus);   
+            }
+            else
+            {
+                _districts = result.Data!;
+            }
+        }
         else
-            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+        {
+            Snackbar.Add(
+                Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"),
+                Severity.Warning);
+        }
     }
 
     private async Task OnDistrictChanged(int? districtId)
@@ -338,7 +360,7 @@
         _officers.Clear();
         _villages.Clear();
 
-        if (districtId is null) return;
+        if (districtId is null or 0) return;
 
         try
         {

@@ -7,7 +7,11 @@
 @inject LocalStorageService Storage
 @inject NavigationManager Navigation
 
-<MudShadcnProvider Theme="_theme" @bind-IsDarkMode="_isDarkMode" />
+<MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <MudLayout Style="min-height:100vh; display:flex; flex-direction:column;">
 
@@ -82,10 +86,13 @@
 
 @code {
 
+    private MudTheme _theme = new();
     private bool _isDarkMode = false;
     private bool _isHindi = true;
     protected override async Task OnInitializedAsync()
     {
+        CreateTheme();
+           
         Lang.OnLanguageChanged += OnLanguageChanged;
 
         try
@@ -103,14 +110,29 @@
         }
     }
 
-    private readonly ShadcnTheme _theme = MudShadcnTheme.Create(new ShadcnThemeOptions
+    private void CreateTheme()
     {
-        Style = ShadcnStyle.Rhea,
-        Theme = ShadcnColor.Emerald,
-        FontFamily = ["Geist", "Noto Sans Devanagari", .. MudShadcnTheme.DefaultFontFamily],
-        IconLibrary = ShadcnIconLibrary.Lucide,
-    });
-    
+        _theme = new MudTheme
+        {
+            PaletteLight = _lightPalette,
+            PaletteDark = _darkPalette,
+            LayoutProperties = new LayoutProperties(),
+            Typography = new Typography
+            {
+                Default = new DefaultTypography
+                {
+                    FontFamily =
+                    [
+                        "Geist",
+                        "Noto Sans Devanagari",
+                        "Arial",
+                        "sans-serif"
+                    ]
+                }
+            }
+        };
+    }
+
     private async Task ToggleDarkMode(bool value)
     {
         _isDarkMode = value;
@@ -138,5 +160,67 @@
     private bool IsLoginPage =>
         Navigation.ToBaseRelativePath(Navigation.Uri)
             .Equals("login", StringComparison.OrdinalIgnoreCase);
+
+            
+    // ---------------------------------------------------------
+    // Light Palette
+    // ---------------------------------------------------------
+
+    private readonly PaletteLight _lightPalette = new()
+    {
+        Primary = "#2D6A4F",
+        PrimaryDarken = "#1B4332",
+        Secondary = "#B5651D",
+        Tertiary = "#3A6EA5",
+        Success = "#40916C",
+        Info = "#5B8FB9",
+        Warning = "#D98E04",
+        Error = "#C1121F",
+        Black = "#1B4332",
+        AppbarText = "#1B4332",
+        AppbarBackground = "rgba(251,248,241,0.9)",
+        Background = "#FBF8F1",
+        Surface = "#FFFFFF",
+        DrawerBackground = "#FFFFFF",
+        GrayLight = "#EDE8DC",
+        GrayLighter = "#F7F4EC",
+        TextPrimary = "#1B2E22",
+        TextSecondary = "#4A5A4F",
+    };
+
+    // ---------------------------------------------------------
+    // Dark Palette
+    // ---------------------------------------------------------
+
+    private readonly PaletteDark _darkPalette = new()
+    {
+        Primary = "#52B788",
+        Secondary = "#C97C3D",
+        Tertiary = "#5B8FC7",
+        Surface = "#1a2420",
+        Background = "#131a16",
+        BackgroundGray = "#0f1512",
+        AppbarText = "#B7C9BE",
+        AppbarBackground = "rgba(19,26,22,0.85)",
+        DrawerBackground = "#1a2420",
+        ActionDefault = "#6B8577",
+        ActionDisabled = "#9999994d",
+        ActionDisabledBackground = "#605f6d4d",
+        TextPrimary = "#D4E0D8",
+        TextSecondary = "#9FB3A6",
+        TextDisabled = "#ffffff33",
+        DrawerIcon = "#9FB3A6",
+        DrawerText = "#9FB3A6",
+        GrayLight = "#22302a",
+        GrayLighter = "#1a2420",
+        Info = "#7BA7CC",
+        Success = "#52B788",
+        Warning = "#E9A93B",
+        Error = "#E5646F",
+        LinesDefault = "#2a382f",
+        TableLines = "#2a382f",
+        Divider = "#22302a",
+        OverlayLight = "#1a242080",
+    };
 
 }
