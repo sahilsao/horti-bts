@@ -192,14 +192,7 @@
                         </MudNavLink>
                     </MudNavGroup>
                 </ChildContent>
-            </MudNavGroup>
-            <MudNavGroup Title="@Lang.Text("RHEO Report", "आर.एच.ई.ओ. रिपोर्ट")" Ripple
-                         Icon="@Icons.Material.Filled.ListAlt">
-                <MudNavLink Href="/reports/rheo-list" Match="NavLinkMatch.Prefix" Ripple
-                            Icon="material-symbols-outlined/patient_list">
-                    @Lang.Text("RHEO List/Mapping", "आर.एच.ई.ओ. सूची/मैपिंग")
-                </MudNavLink>
-            </MudNavGroup>
+            </MudNavGroup>            
             <MudNavGroup Title="@Lang.Text("HPMIS Report", "HPMIS रिपोर्ट")" Ripple
                          Icon="@Icons.Material.Filled.AccountTree">
                 <MudNavLink Href="/reports/hpmis/farmers-list" Match="NavLinkMatch.Prefix" Ripple
@@ -217,9 +210,19 @@
                             Ripple Icon="@Icons.Material.Filled.LineStyle">
                     @Lang.Text("Component-Wise Farmer Registration Report", "घटकवार कृषक पंजीयन रिपोर्ट")
                 </MudNavLink>
+            </MudNavGroup>            
+            <MudNavGroup Title="@Lang.Text("User Report", "यूजर रिपोर्ट")" Ripple Icon="@Icons.Material.Filled.ListAlt">
+                <MudNavLink Href="/users/officer-charge-transfer" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/transfer_within_a_station">
+                    @Lang.Text("Transfer of Charge (Officer)", "(अधिकारी) प्रभार स्थानांतरण")
+                </MudNavLink>
+                <MudNavLink Href="/reports/rheo-list" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/patient_list">
+                    @Lang.Text("RHEO List/Mapping", "आर.एच.ई.ओ. सूची/मैपिंग")
+                </MudNavLink>
             </MudNavGroup>
-            <MudNavLink Href="/admin/reset-others-password" Match="NavLinkMatch.Prefix"
-                        Ripple Icon="@Icons.Material.Filled.LockReset">
+            <MudNavLink Href="/admin/reset-others-password" Match="NavLinkMatch.Prefix" Ripple
+                        Icon="@Icons.Material.Filled.LockReset">
                 @Lang.Text("Reset Password (District/RHEO)", "रिसेट पासवर्ड (जिला/आर.एच.ई.ओ.)")
             </MudNavLink>
         </Authorized>

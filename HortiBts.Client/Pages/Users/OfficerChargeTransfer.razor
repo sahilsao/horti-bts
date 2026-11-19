@@ -1,0 +1,730 @@
+﻿@page "/users/officer-charge-transfer"
+@using HortiBts.Client.Services.Auth
+@using HortiBts.Client.Services.Districts
+@using HortiBts.Client.Services.Officers
+@using HortiBts.Client.Services.SubDistricts
+@using HortiBts.Client.Services.Villages
+@using HortiBts.Shared.Dtos.Districts
+@using HortiBts.Shared.Dtos.Officers
+@using HortiBts.Shared.Dtos.SubDistricts
+@using HortiBts.Shared.Dtos.Villages
+@attribute [Authorize(Roles = "Admin,District")]
+
+@inject OfficersApiService OfficersApiService
+@inject DistrictsApiService DistrictsApiService
+@inject SubDistrictsApiService SubDistrictsApiService
+@inject VillagesApiService VillagesApiService
+@inject IUserContextService UserContextService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>
+    @Lang.Text("Transfer of Charge (Officer)", "(अधिकारी) प्रभार स्थानांतरण")
+</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
+    <MudIcon Icon="material-symbols-outlined/transfer_within_a_station" Color="Color.Primary" Size="Size.Large" />
+    @Lang.Text("Transfer of Charge (Officer)", "(अधिकारी) प्रभार स्थानांतरण")
+</MudText>
+
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+    @Lang.Text("Transfer of the official to a village", "अधिकारी का ग्राम स्थानांतरण")
+</MudText>
+
+@if (_isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-3" />
+}
+
+@* ===================== 1) SOURCE OFFICER ===================== *@
+<MudAlert Variant="Variant.Filled" NoIcon="true" Severity="Severity.Success" Dense="true" Class="mb-3">
+    @Lang.Text("Officer whose villages are to be relocated. *", "अधिकारी जिनका ग्राम स्थानांतरित करना है। *")
+</MudAlert>
+
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_sourceDesignationCode" Label="@Lang.Text("Designation", "पदनाम")"
+                   Variant="Variant.Outlined" ValueChanged="OnSourceDesignationChanged" Required="true">
+            @foreach (var d in _designations)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DesignationCode)">@d.DesignationName</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_sourceDistrictCode" Label="@Lang.Text("District", "जिला")"
+                   Variant="Variant.Outlined" ValueChanged="OnSourceDistrictChanged" Disabled="@(!IsAdmin)" Required="true">
+            @foreach (var d in _districts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                    @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_sourceOfficerCode" Label="@Lang.Text("Officer", "अधिकारी")"
+                   Variant="Variant.Outlined" ValueChanged="OnSourceOfficerChanged" Required="true">
+            @foreach (var o in _sourceOfficers)
+            {
+                <MudSelectItem T="int?" Value="@((int?)o.OfficerCode)">@o.OfficerName - @o.OfficerCode</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudPaper Outlined="true" Class="pa-4">
+            <MudText Typo="Typo.subtitle2" Color="Color.Primary" Class="mb-3">
+                @Lang.Text("Officer Details", "अधिकारी का विवरण")
+            </MudText>
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" />
+                        </MudAvatar>
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Lang.Text("Officer Name", "अधिकारी का नाम")</MudText>
+                            <MudText Typo="Typo.subtitle1">@SourceOfficerName</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudAvatar Color="Color.Success" Variant="Variant.Outlined" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Phone" />
+                        </MudAvatar>
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Lang.Text("Mobile Number", "मोबाइल नंबर")</MudText>
+                            <MudText Typo="Typo.subtitle1">@SourceOfficerMobileNo</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudAvatar Color="Color.Info" Variant="Variant.Outlined" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Email" />
+                        </MudAvatar>
+                        <MudStack Spacing="0" Style="min-width:0;">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Lang.Text("Email Id", "ईमेल आईडी")
+                            </MudText>
+                            <MudText Typo="Typo.subtitle1" Style="overflow-wrap:anywhere;">@SourceOfficerEmailId
+                            </MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+
+    @if (_sourceVillages.Any())
+    {
+        <MudItem xs="12">
+            <MudListSubheader>
+                @Lang.Text("Select the village(s) to be relocated. *", "जिस ग्राम का स्थानांतरण करना है उनका चयन करें। *")
+            </MudListSubheader>
+            <MudPaper Outlined="true">
+                <MudCheckBox T="bool?" TriState Value="AllSourceVillagesState" ValueChanged="OnSelectAllSourceVillages"
+                             Color="Color.Primary"
+                             Label="@Lang.Text("Click here to select all villages.", "सभी गांव का चयन करने के लिए यहां क्लिक करें।")" />
+                <MudChipSet T="int?" CheckMark SelectionMode="SelectionMode.MultiSelection" Variant="Variant.Text"
+                            Color="Color.Primary" @bind-SelectedValues="_selectedSourceVillageCodes">
+                    @foreach (var v in _sourceVillages)
+                    {
+                        <MudChip T="int?" Text="@v.VillageName" Value="@v.VillageCode" />
+                    }
+                </MudChipSet>
+            </MudPaper>
+        </MudItem>
+    }
+    else if (_sourceOfficerCode is not null)
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true">
+                @Lang.Text("No villages are available for charge transfer.", "प्रभार स्थानांतरण हेतु कोई ग्राम उपलब्ध नहीं है।")
+            </MudAlert>
+        </MudItem>
+    }
+</MudGrid>
+
+@* ===================== 2) TARGET OFFICER ===================== *@
+<MudAlert Variant="Variant.Filled" NoIcon="true" Severity="Severity.Success" Dense="true" Class="mb-3">
+    @Lang.Text("Officer to whom the villages are to be transferred. *", "अधिकारी जिन्हें ग्राम स्थानांतरित करना है। *")
+</MudAlert>
+
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_targetDesignationCode" Label="@Lang.Text("Designation", "पदनाम")"
+                   Variant="Variant.Outlined" ValueChanged="OnTargetDesignationChanged" Required="true">
+            @foreach (var d in _designations)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DesignationCode)">@d.DesignationName</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_targetDistrictCode" Label="@Lang.Text("District", "जिला")"
+                   Variant="Variant.Outlined" ValueChanged="OnTargetDistrictChanged" Disabled="@(!IsAdmin)" Required="true">
+            @foreach (var d in _districts)
+            {
+                <MudSelectItem T="int?" Value="@((int?)d.DistrictCensus)">
+                    @(Lang.IsHindi ? d.DistrictNameHindi : d.DistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_targetOfficerCode" Label="@Lang.Text("Officer", "अधिकारी")"
+                   Variant="Variant.Outlined" ValueChanged="OnTargetOfficerChanged" Required="true">
+            @foreach (var o in _targetOfficers.Where(x => x is not null))
+            {
+                <MudSelectItem T="int?" Value="@((int?)o.OfficerCode)">@TargetOfficerLabel(o)</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudPaper Outlined="true" Class="pa-4">
+            <MudText Typo="Typo.subtitle2" Color="Color.Primary" Class="mb-3">
+                @Lang.Text("Officer Details", "अधिकारी का विवरण")
+            </MudText>
+            <MudGrid Spacing="3">
+                <MudItem xs="12" sm="4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudAvatar Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" />
+                        </MudAvatar>
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Lang.Text("Officer Name", "अधिकारी का नाम")</MudText>
+                            <MudText Typo="Typo.subtitle1">@TargetOfficerName</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudAvatar Color="Color.Success" Variant="Variant.Outlined" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Phone" />
+                        </MudAvatar>
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Lang.Text("Mobile Number", "मोबाइल नंबर")</MudText>
+                            <MudText Typo="Typo.subtitle1">@TargetOfficerMobileNo</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                        <MudAvatar Color="Color.Info" Variant="Variant.Outlined" Size="Size.Medium">
+                            <MudIcon Icon="@Icons.Material.Filled.Email" />
+                        </MudAvatar>
+                        <MudStack Spacing="0" Style="min-width:0;">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@Lang.Text("Email Id", "ईमेल आईडी")
+                            </MudText>
+                            <MudText Typo="Typo.subtitle1" Style="overflow-wrap:anywhere;">@TargetOfficerEmailId
+                            </MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+
+    @if (_targetExistingVillages.Any())
+    {
+        <MudItem xs="12">
+            <MudListSubheader>
+                @Lang.Text("Villages already under the officer.", "अधिकारी के पास पूर्व में मौजूद ग्राम।")
+            </MudListSubheader>
+            <MudPaper Outlined="true">
+                <MudChipSet T="int?" Color="Color.Primary" ReadOnly="true" Variant="Variant.Text">
+                    @foreach (var v in _targetExistingVillages)
+                    {
+                        <MudChip T="int?" Text="@v.VillageName" Value="@v.VillageCode" />
+                    }
+                </MudChipSet>
+            </MudPaper>
+        </MudItem>
+    }
+    else if (_targetOfficerCode is not null)
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true">
+                @Lang.Text("No villages already under the officer.", "अधिकारी के पास पूर्व में मौजूद ग्राम नहीं।")
+            </MudAlert>
+        </MudItem>
+    }
+</MudGrid>
+
+@* ===================== 3) VACANT VILLAGES IN BLOCK (target district) ===================== *@
+<MudAlert Variant="Variant.Filled" NoIcon="true" Severity="Severity.Success" Dense="true" Class="mb-3">
+    @Lang.Text("Available village in block", "विकासखण्ड में मौजूद रिक्त ग्राम")
+</MudAlert>
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="4">
+        <MudSelect T="int?" Value="_blockCode" Label="@Lang.Text("Block", "विकासखण्ड")" Variant="Variant.Outlined"
+                   ValueChanged="OnBlockChanged">
+            @foreach (var s in _blocks)
+            {
+                <MudSelectItem T="int?" Value="@((int?)s.SubDistrictCode)">
+                    @(Lang.IsHindi ? s.SubDistrictNameHi : s.SubDistrictName)
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    @if (_vacantVillages.Any())
+    {
+        <MudItem xs="12">
+            <MudListSubheader>
+                @Lang.Text("Villages available for officer.", "अधिकारी के लिए उपलब्ध ग्राम।")
+            </MudListSubheader>
+            <MudPaper Outlined="true">
+                <MudCheckBox T="bool?" TriState Value="AllVacantVillagesState" ValueChanged="OnSelectAllVacantVillages"
+                             Color="Color.Primary"
+                             Label="@Lang.Text("Click here to select all villages.", "सभी गांव का चयन करने के लिए यहां क्लिक करें।")" />
+                <MudChipSet T="int?" CheckMark SelectionMode="SelectionMode.MultiSelection" Variant="Variant.Text"
+                            Color="Color.Primary" @bind-SelectedValues="_selectedVacantVillageCodes">
+                    @foreach (var v in _vacantVillages)
+                    {
+                        <MudChip T="int?" Text="@v.VillageName" Value="@v.VillageCode" />
+                    }
+                </MudChipSet>
+            </MudPaper>
+        </MudItem>
+    }
+    else if (_blockCode is not null)
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense="true">
+                @Lang.Text("No vacant villages are available in this block.", "इस विकासखण्ड में कोई रिक्त ग्राम उपलब्ध नहीं है।")
+            </MudAlert>
+        </MudItem>
+    }
+</MudGrid>
+
+<MudStack Row="true" Spacing="1">
+    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveOfficerChargeTransfer" Disabled="_isLoading">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            <span>@Lang.Text("Saving...", "सुरक्षित हो रहा है...")</span>
+        }
+        else
+        {
+            <span>@Lang.Text("Save", "सुरक्षित करें")</span>
+        }
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Reset" Disabled="_isLoading">
+        @Lang.Text("Reset", "रीसेट")
+    </MudButton>
+</MudStack>
+
+@code {
+
+    private const int DepartmentCode = 3;
+
+    private CurrentUserInfo _currentUser = new("", "", "", 0);
+    private bool _isLoading = false;
+
+    // same rule as the other pages: UserId "100" = Admin, otherwise UserId = the district code
+    private bool IsAdmin => _currentUser.UserId == "100";
+    private int OwnDistrictCode => int.TryParse(_currentUser.UserId, out var c) ? c : 0;
+
+    // shared lists
+    private List<DeptOfficersDto> _designations = [];
+    private List<DistrictsDto> _districts = [];
+
+    // source side
+    private int? _sourceDesignationCode;
+    private int? _sourceDistrictCode;
+    private int? _sourceOfficerCode;
+    private List<RheoOfficersDto> _sourceOfficers = [];
+    private List<RheoOfficersPreviousAvailableVillagesDto> _sourceVillages = [];
+    private IReadOnlyCollection<int?> _selectedSourceVillageCodes = [];
+
+    // target side
+    private int? _targetDesignationCode;
+    private int? _targetDistrictCode;
+    private int? _targetOfficerCode;
+    private List<RheoOfficersForChargeTransferDto> _targetOfficers = [];
+    private List<RheoOfficersPreviousAvailableVillagesDto> _targetExistingVillages = [];
+
+    // vacant villages in block (target district)
+    private int? _blockCode;
+    private List<SubDistrictsDto> _blocks = [];
+    private List<VillagesForRHEODto> _vacantVillages = [];
+    private IReadOnlyCollection<int?> _selectedVacantVillageCodes = [];
+
+    // ---------- display helpers ----------
+    private RheoOfficersDto? SourceOfficer => _sourceOfficers.FirstOrDefault(o => o.OfficerCode == _sourceOfficerCode);
+    private string SourceOfficerName => SourceOfficer?.OfficerName ?? "-";
+    private string SourceOfficerMobileNo => SourceOfficer?.MobileNo ?? "-";
+    private string SourceOfficerEmailId => SourceOfficer?.Email ?? "-";
+
+    private RheoOfficersForChargeTransferDto? TargetOfficer => _targetOfficers.FirstOrDefault(o => o?.OfficerCode ==
+_targetOfficerCode);
+    private string TargetOfficerName => TargetOfficer?.OfficerName ?? "-";
+    private string TargetOfficerMobileNo => TargetOfficer?.MobileNo ?? "-"; // DTO must have MobileNo
+    private string TargetOfficerEmailId => TargetOfficer?.Email ?? "-"; // DTO must have Email
+
+    private string TargetOfficerLabel(RheoOfficersForChargeTransferDto o) =>
+        $"{o.OfficerName} - {o.OfficerCode} " +
+        (o.IsVillageMapped == 1
+            ? Lang.Text("(Village Mapped)", "(ग्राम मैप किया गया)")
+            : Lang.Text("(Village Not Mapped)", "(ग्राम मैप नहीं है)"));
+
+    private bool? AllSourceVillagesState
+    {
+        get
+        {
+            var total = _sourceVillages?.Count ?? 0;
+            var selected = _selectedSourceVillageCodes?.Count ?? 0;
+            if (total == 0 || selected == 0) return false;
+            return selected == total ? true : null;
+        }
+    }
+
+    private bool? AllVacantVillagesState
+    {
+        get
+        {
+            var total = _vacantVillages?.Count ?? 0;
+            var selected = _selectedVacantVillageCodes?.Count ?? 0;
+            if (total == 0 || selected == 0) return false;
+            return selected == total ? true : null;
+        }
+    }
+    
+
+    // ---------- startup ----------
+    protected override async Task OnInitializedAsync()
+    {
+        _currentUser = await UserContextService.GetCurrentUserAsync();
+        await LoadDesignationsAsync();
+        await LoadDistrictsAsync();
+
+        // District users are locked to their own district on both sides
+        if (!IsAdmin && OwnDistrictCode > 0)
+        {
+            await OnSourceDistrictChanged(OwnDistrictCode);
+            await OnTargetDistrictChanged(OwnDistrictCode);
+        }
+    }
+
+    private async Task LoadDesignationsAsync()
+    {
+        var result = await OfficersApiService.GetAllDepartmentOfficersListAsync(DepartmentCode);
+        if (result.IsSuccess && result.Data is not null)
+            _designations = result.Data;
+        else
+            Snackbar.Add(Lang.Text("Failed to load designations.", "पदनाम लोड करने में विफल।"), Severity.Warning);
+    }
+
+    private async Task LoadDistrictsAsync()
+    {
+        var result = await DistrictsApiService.GetDistrictsAsync();
+        if (!result.IsSuccess || result.Data is null)
+        {
+            Snackbar.Add(Lang.Text("Failed to load districts.", "जिले लोड करने में विफल।"), Severity.Warning);
+            return;
+        }
+
+        _districts = IsAdmin
+            ? result.Data
+            : result.Data.Where(x => x.DistrictCensus == OwnDistrictCode).ToList();
+    }
+
+    // ---------- source side ----------
+    private async Task OnSourceDesignationChanged(int? code)
+    {
+        _sourceDesignationCode = code;
+        await LoadSourceOfficersAsync();
+    }
+
+    private async Task OnSourceDistrictChanged(int? districtCode)
+    {
+        _sourceDistrictCode = IsAdmin ? districtCode : OwnDistrictCode; // District users cannot change it
+        await LoadSourceOfficersAsync();
+        await LoadBlocksAsync();
+    }
+
+    private async Task LoadSourceOfficersAsync()
+    {
+        _sourceOfficerCode = null;
+        _sourceOfficers = [];
+        _sourceVillages = [];
+        _selectedSourceVillageCodes = [];
+
+        if (_sourceDistrictCode is null or 0) return;
+
+        _isLoading = true;
+        try
+        {
+            var result = await OfficersApiService.GetRheoOfficersListFromDistrictCodeAsync(DepartmentCode,
+_sourceDistrictCode.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _sourceOfficers = result.Data;
+            else
+                Snackbar.Add(Lang.Text("Failed to load officers list.", "अधिकारी सूची लोड करने में विफल।"), Severity.Warning);
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load officers list.", "अधिकारी सूची लोड करने में विफल।"), Severity.Error);
+        }
+        finally { _isLoading = false; }
+    }
+
+    private async Task OnSourceOfficerChanged(int? officerCode)
+    {
+        _sourceOfficerCode = officerCode;
+        _sourceVillages = [];
+        _selectedSourceVillageCodes = [];
+
+        if (officerCode is null) return;
+
+        _isLoading = true;
+        try
+        {
+            var result = await OfficersApiService.GetRheoOfficerPreviousAvailableVillagesListAsync(officerCode.Value, 1);
+            if (result.IsSuccess && result.Data is not null)
+                _sourceVillages = result.Data;
+            else
+                Snackbar.Add(Lang.Text("Failed to load mapped villages of officer.", "अधिकारी के मैप ग्राम लोड करने में विफल।"),
+Severity.Warning);
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load mapped villages of officer.", "अधिकारी के मैप ग्राम लोड करने में विफल।"),
+Severity.Error);
+        }
+        finally { _isLoading = false; }
+    }
+
+    private void OnSelectAllSourceVillages(bool? value)
+    {
+        _selectedSourceVillageCodes = AllSourceVillagesState == true
+            ? []
+            : _sourceVillages.Select(v => (int?)v.VillageCode).ToList();
+    }
+
+    private void OnSelectAllVacantVillages(bool? value)
+    {
+        _selectedVacantVillageCodes = AllVacantVillagesState == true
+            ? []
+            : _vacantVillages.Select(v => (int?)v.VillageCode).ToList();
+    }
+
+    // ---------- target side ----------
+    private async Task OnTargetDesignationChanged(int? code)
+    {
+        _targetDesignationCode = code;
+        await LoadTargetOfficersAsync();
+    }
+
+    private async Task OnTargetDistrictChanged(int? districtCode)
+    {
+        _targetDistrictCode = IsAdmin ? districtCode : OwnDistrictCode; // District users cannot change it
+        await LoadTargetOfficersAsync();
+    }
+
+    private async Task LoadTargetOfficersAsync()
+    {
+        _targetOfficerCode = null;
+        _targetOfficers = [];
+        _targetExistingVillages = [];
+
+        if (_targetDistrictCode is null or 0) return;
+
+        _isLoading = true;
+        try
+        {
+            var result = await OfficersApiService.GetRheoOfficersListForChargeTranserAsync(DepartmentCode,
+_targetDistrictCode.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _targetOfficers = result.Data;
+            else
+                Snackbar.Add(Lang.Text("Failed to load officers list for charge transfer.", "प्रभार स्थानांतरण हेतु अधिकारी सूची लोड करने में विफल।"), Severity.Warning);
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load officers list for charge transfer.", "प्रभार स्थानांतरण हेतु अधिकारी सूची लोड करने में विफल।"), Severity.Error);
+        }
+        finally { _isLoading = false; }
+    }
+
+    private async Task OnTargetOfficerChanged(int? officerCode)
+    {
+        _targetOfficerCode = officerCode;
+        _targetExistingVillages = [];
+
+        if (officerCode is null) return;
+
+        _isLoading = true;
+        try
+        {
+            var result = await OfficersApiService.GetRheoOfficerPreviousAvailableVillagesListAsync(officerCode.Value, 1);
+            if (result.IsSuccess && result.Data is not null)
+                _targetExistingVillages = result.Data;
+            else
+                Snackbar.Add(Lang.Text("Failed to load mapped villages of officer.", "अधिकारी के मैप ग्राम लोड करने में विफल।"),
+Severity.Warning);
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load mapped villages of officer.", "अधिकारी के मैप ग्राम लोड करने में विफल।"),
+Severity.Error);
+        }
+        finally { _isLoading = false; }
+    }
+
+    // ---------- vacant villages in block ----------
+    private async Task LoadBlocksAsync()
+    {
+        _blockCode = null;
+        _blocks = [];
+        _vacantVillages = [];
+        _selectedVacantVillageCodes = [];
+
+        if (_sourceDistrictCode is null or 0) return;
+
+        try
+        {
+            var result = await SubDistrictsApiService.GetSubDistrictsAsync(_sourceDistrictCode.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _blocks = result.Data;
+            else
+                Snackbar.Add(Lang.Text("Failed to load subdistricts.", "उपजिलों को लोड करने में विफल।"), Severity.Warning);
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load subdistricts.", "उपजिलों को लोड करने में विफल।"), Severity.Error);
+        }
+    }
+
+    private async Task OnBlockChanged(int? blockCode)
+    {
+        _blockCode = blockCode;
+        _vacantVillages = [];
+        _selectedVacantVillageCodes = [];
+
+        if (blockCode is null) return;
+
+        try
+        {
+            var result = await VillagesApiService.GetVillagesForRheoAsync(DepartmentCode, blockCode.Value);
+            if (result.IsSuccess && result.Data is not null)
+                _vacantVillages = result.Data;
+            else
+                Snackbar.Add(Lang.Text("Failed to load villages.", "ग्राम लोड करने में विफल।"), Severity.Warning);
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to load villages.", "ग्राम लोड करने में विफल।"), Severity.Error);
+        }
+    }
+
+    // ---------- save / reset ----------
+    private async Task SaveOfficerChargeTransfer()
+    {
+        var hasSource = _selectedSourceVillageCodes.Count > 0;
+        var hasVacant = _selectedVacantVillageCodes.Count > 0;
+
+        if (!hasSource && !hasVacant)
+        {
+            Snackbar.Add(Lang.Text("Select villages of the officer or vacant villages in the block.",
+                "अधिकारी का ग्राम अथवा विकासखण्ड में मौजूद रिक्त ग्राम का चयन करना अनिवार्य है।"), Severity.Warning);
+            return;
+        }
+        if (_targetOfficerCode is null || _targetDesignationCode is null)
+        {
+            Snackbar.Add(Lang.Text("Select the officer to whom the villages are to be transferred.",
+                "अधिकारी जिसे ग्राम स्थानांतरित करना है उनका चयन करना अनिवार्य है।"), Severity.Warning);
+            return;
+        }
+        if (hasSource && (_sourceOfficerCode is null || _sourceDesignationCode is null))
+        {
+            Snackbar.Add(Lang.Text("Select the officer whose villages are to be relocated.",
+                "अधिकारी जिनका ग्राम स्थानांतरित करना है उनका चयन करें।"), Severity.Warning);
+            return;
+        }
+        if (hasSource && _sourceOfficerCode == _targetOfficerCode)
+        {
+            Snackbar.Add(Lang.Text("The two officers must be different.", "दोनों अधिकारी अलग होने चाहिए।"), Severity.Warning);
+            return;
+        }
+        if (hasVacant && _sourceDistrictCode != _targetDistrictCode)
+        {
+            Snackbar.Add(Lang.Text("Vacant villages can only go to an officer of the same district.",
+                "रिक्त ग्राम केवल उसी जिले के अधिकारी को दिए जा सकते हैं।"), Severity.Warning);
+            return;
+        }
+
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "",
+            Lang.Text("Do you want to save?", "क्या सुरक्षित करना चाहते हैं। "),
+            yesText: Lang.Text("Yes", "हाँ"), noText: Lang.Text("No", "नहीं"));
+        if (confirmed != true) return;
+
+        _isLoading = true;
+        try
+        {
+            var result = await OfficersApiService.SaveOfficerChargeTransferAsync(new SaveOfficerChargeTransferDto
+            {
+                SourceRole = _sourceDesignationCode ?? 0,
+                TargetRole = _targetDesignationCode.Value,
+                SourceOfficerCode = hasSource ? _sourceOfficerCode!.Value : 0,
+                TargetOfficerCode = _targetOfficerCode.Value,
+                SourceVillageCodes = _selectedSourceVillageCodes.Where(c => c.HasValue).Select(c => c!.Value).ToList(),
+                VacantVillageCodes = _selectedVacantVillageCodes.Where(c => c.HasValue).Select(c => c!.Value).ToList()
+            });
+
+            if (result.IsSuccess
+                && (result.Data!.TransferredVillages > 0 || result.Data.AssignedVacantVillages > 0))
+            {
+                Snackbar.Add(Lang.Text("Villages transferred successfully.",
+                    "गाँव का स्थानांतरण सफलतापूर्वक कर दिया गया है।"), Severity.Success);
+                await Reset();
+            }
+            else
+            {
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to transfer villages, please try again.",
+                    "गाँव का स्थानांतरण करने में समस्या आ रही है, कृपया पुनः प्रयास करें।"), Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to transfer villages, please try again.",
+                "गाँव का स्थानांतरण करने में समस्या आ रही है, कृपया पुनः प्रयास करें।"), Severity.Error);
+        }
+        finally { _isLoading = false; }
+    }
+
+    private async Task Reset()
+    {
+        _sourceDesignationCode = null;
+        _sourceOfficerCode = null;
+        _sourceOfficers = [];
+        _sourceVillages = [];
+        _selectedSourceVillageCodes = [];
+
+        _targetDesignationCode = null;
+        _targetOfficerCode = null;
+        _targetOfficers = [];
+        _targetExistingVillages = [];
+
+        _blockCode = null;
+        _blocks = [];
+        _vacantVillages = [];
+        _selectedVacantVillageCodes = [];
+
+        if (IsAdmin)
+        {
+            _sourceDistrictCode = null;
+            _targetDistrictCode = null;
+        }
+        else if (OwnDistrictCode > 0)
+        {
+            // District users keep their own district and get its lists back
+            await OnSourceDistrictChanged(OwnDistrictCode);
+            await OnTargetDistrictChanged(OwnDistrictCode);
+        }
+    }
+}

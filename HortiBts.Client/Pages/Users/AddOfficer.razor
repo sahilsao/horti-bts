@@ -1,4 +1,5 @@
-﻿@page "/reports/add-officer"
+﻿@page "/users/add-officer"
+@using System.Text.RegularExpressions
 @using HortiBts.Client.Services.Auth
 @using HortiBts.Client.Services.Officers
 @using HortiBts.Client.Services.Reports
@@ -10,6 +11,7 @@
 @attribute [Authorize(Roles = "Admin, District")]
 
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 @inject SubDistrictsApiService SubDistrictsApiService
 @inject VillagesApiService VillagesApiService
 @inject OfficersApiService OfficersApiService
@@ -28,7 +30,8 @@
     }
 </style>
 
-<PageTitle>@Lang.Text("Add Officer", "अधिकारी जोड़ें")
+<PageTitle>
+    @Lang.Text("Add Officer", "अधिकारी जोड़ें")
 </PageTitle>
 
 <MudText Typo="Typo.h5" Class="mb-1 d-flex align-center gap-2">
@@ -38,41 +41,83 @@
 <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
     @Lang.Text("Details of the officer", "अधिकारी की जानकारी")
 </MudText>
-
-<MudGrid Spacing="3" Class="mb-4">
-    <MudItem xs="12" sm="4">
-        <MudSelect T="int?" Value="_selectedDeptOfficer" Label="@Lang.Text("Choose Officer", "अधिकारी चुने")"
-                   Variant="Variant.Outlined" ValueChanged="OnDeptChanged">
-            @foreach (var d in _deptOfficers)
-            {
-                <MudSelectItem T="int?" Value="@((int?)d.DesignationCode)">
-                    @d.DesignationName
-                </MudSelectItem>
-            }
-        </MudSelect>
-    </MudItem>
-    <MudItem xs="12" sm="4">
-        <MudSelect T="int?" Value="_selectedSubDistrictCode" Label="@Lang.Text("Block", "विकासखण्ड")"
-                   Variant="Variant.Outlined" ValueChanged="OnSubDistrictChanged">
-            @foreach (var s in _subdistricts)
-            {
-                <MudSelectItem T="int?" Value="@((int?)s.SubDistrictCode)">
-                    @(Lang.IsHindi ? s.SubDistrictNameHi : s.SubDistrictName)
-                </MudSelectItem>
-            }
-        </MudSelect>
-    </MudItem>
-    <MudItem xs="12" sm="4">
-        <MudSelect T="int" Label="@Lang.Text("Village", "ग्राम")" Variant="Variant.Outlined" MultiSelection="true"
-                   @bind-SelectedValues="_selectedVillageCodes" ToStringFunc="@GetVillageName"
-                   MultiSelectionTextFunc="@GetSelectedVillageText" Clearable="true">
-            @foreach (var v in _villages)
-            {
-                <MudSelectItem T="int?" Value="@v.VillageCode">@v.VillageName</MudSelectItem>
-            }
-        </MudSelect>
-    </MudItem>
-</MudGrid>
+<MudForm @ref="_form">
+    <MudGrid Spacing="3" Class="mb-4">
+        <MudItem xs="12" sm="4" md="3">
+            <MudSelect T="int?" Value="_selectedDeptOfficer" Label="@Lang.Text("Choose Officer", "अधिकारी चुने")"
+                       Variant="Variant.Outlined" ValueChanged="OnDeptChanged" Required="true"
+                       RequiredError="@Lang.Text("Officer is required.", "अधिकारी आवश्यक है।")">
+                @foreach (var d in _deptOfficers)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)d.DesignationCode)">
+                        @d.DesignationName
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudTextField @bind-Value="_officerNameEn"
+                          Label="@Lang.Text("Officer Name (English)", "अधिकारी का नाम (अंग्रेज़ी)")" Variant="Variant.Outlined"
+                          Required="true" Validation="@(new Func<string, string?>(ValidateEnglishOnly))" Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudTextField T="string" @bind-Value="_primaryMobile" Immediate="true"
+                          Label="@Lang.Text("Primary Mobile Number", "मोबाइल नंबर")" Variant="Variant.Outlined"
+                          InputType="InputType.Telephone" MaxLength="10" Required="true"
+                          RequiredError="@Lang.Text("Primary mobile number is required.", "मोबाइल नंबर आवश्यक है।")"
+                          Validation="@((Func<string?, string?>)ValidatePrimaryMobile)" />
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudTextField T="string" @bind-Value="_secondaryMobile" Immediate="true"
+                          Label="@Lang.Text("Alternate Mobile Number", "अन्य मोबाइल नंबर")" Variant="Variant.Outlined"
+                          InputType="InputType.Telephone" MaxLength="10"
+                          Validation="@((Func<string?, string?>)ValidateSecondaryMobile)" />
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudTextField T="string" @bind-Value="_email" Immediate="true" Label="@Lang.Text("Email", "ईमेल")"
+                          Variant="Variant.Outlined" InputType="InputType.Email" MaxLength="100"
+                          Validation="@((Func<string?, string?>)ValidateEmail)" />
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudSelect T="int?" Value="_selectedSubDistrictCode" Label="@Lang.Text("Block", "विकासखण्ड")"
+                       Variant="Variant.Outlined" ValueChanged="OnSubDistrictChanged"
+                       Required="true" RequiredError="@Lang.Text("Block is required.", "विकासखण्ड आवश्यक है।")">
+                @foreach (var s in _subdistricts)
+                {
+                    <MudSelectItem T="int?" Value="@((int?)s.SubDistrictCode)">
+                        @(Lang.IsHindi ? s.SubDistrictNameHi : s.SubDistrictName)
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudNumericField T="int?" @bind-Value="_villageCount"
+                             Label="@Lang.Text("Total Village (in counts)", "कुल ग्राम (संख्या में)")" Variant="Variant.Outlined"
+                             Min="1" Max="999" HideSpinButtons="true" Required="true"
+                             RequiredError="@Lang.Text("Total Village (in counts) is required.", "कुल ग्राम (संख्या में) आवश्यक है।")" />
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudSelect T="int?" Label="@Lang.Text("Village", "ग्राम")" Variant="Variant.Outlined" MultiSelection="true"
+                       @bind-SelectedValues="_selectedVillageCodes" ToStringFunc="@GetVillageName"
+                       MultiSelectionTextFunc="@GetSelectedVillageText" Clearable="true">
+                @foreach (var v in _villages)
+                {
+                    <MudSelectItem T="int?" Value="@v.VillageCode">@v.VillageName</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudTextField @bind-Value="_circleNameEn" Label="@Lang.Text("Circle Name", "सर्किल का नाम")"
+                          Variant="Variant.Outlined" Required="true"
+                          Validation="@(new Func<string, string?>(ValidateEnglishOnly))" Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudDatePicker @bind-Date="_prabharDate" Label="@Lang.Text("Date of Charge", "प्रभार दिनांक")" Editable="true"
+                           Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd/MM/yyyy"
+                           Variant="Variant.Outlined" />
+        </MudItem>
+    </MudGrid>
+</MudForm>
 <MudStack Row="true" Spacing="1">
     <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="SaveOfficer" Disabled="_isLoading">
         @if (_isLoading)
@@ -160,21 +205,31 @@
 @code {
     private CurrentUserInfo _currentUser = new("", "", "", 0);
     private bool _isLoading = false;
+    private MudForm? _form;
     private List<DeptOfficersDto> _deptOfficers = [];
     private List<SubDistrictsDto> _subdistricts = [];
     private List<VillagesForRHEODto> _villages = [];
     private List<RheoOfficersDto> _reportData = new();
     private int? _selectedDeptOfficer;
     private int? _selectedSubDistrictCode;
-    // replace: private int? _selectedVillageCode;
-    private IReadOnlyCollection<int> _selectedVillageCodes = [];
+    public string? _officerNameEn { get; set; }
+    public string? _primaryMobile { get; set; }
+    public string? _secondaryMobile { get; set; }
+    public string? _email { get; set; }
+    public int? _villageCount { get; set; }
+    public string? _circleNameEn { get; set; }
+    public DateTime? _prabharDate { get; set; }
 
-    private string GetVillageName(int code)
-        => _villages.FirstOrDefault(v => v.VillageCode == code)?.VillageName?.Trim() ?? code.ToString();
+    private IReadOnlyCollection<int?> _selectedVillageCodes = [];
+
+    private string GetVillageName(int? code)
+        => _villages.FirstOrDefault(v => v.VillageCode == code)?.VillageName?.Trim() ?? code?.ToString() ?? "";
 
     private string GetSelectedVillageText(IReadOnlyList<string> selectedTexts)
         => string.Join(", ", selectedTexts);
+
     private string _searchString = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         _currentUser = await UserContextService.GetCurrentUserAsync();
@@ -184,7 +239,68 @@
 
     private async Task SaveOfficer()
     {
-        
+        await _form!.ValidateAsync();
+        if (!_form.IsValid) return;
+ 
+        if (_selectedDeptOfficer is null || _selectedSubDistrictCode is null || _selectedVillageCodes.Count == 0 || _prabharDate
+    is null)
+        {
+            Snackbar.Add(Lang.Text("Please fill all required fields.", "कृपया सभी आवश्यक जानकारी भरें।"), Severity.Warning);
+            return;
+        }
+ 
+        if (!int.TryParse(_currentUser.UserId, out var districtCode))
+        {
+            Snackbar.Add(Lang.Text("Invalid user ID.", "अमान्य उपयोगकर्ता आईडी।"), Severity.Warning);
+            return;
+        }
+ 
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "", Lang.Text("Do you want to save?", "क्या सुरक्षित करना चाहते हैं। "),
+            yesText: Lang.Text("Yes", "हाँ"), noText: Lang.Text("No", "नहीं"));
+        if (confirmed != true) return;
+ 
+        _isLoading = true;
+        try
+        {
+            var result = await OfficersApiService.SaveOfficerAsync(new SaveOfficerDto
+            {
+                Role = _selectedDeptOfficer.Value,
+                Name = _officerNameEn!.Trim(),
+                CircleName = _circleNameEn!.Trim(),
+                MobileNo = _primaryMobile!,
+                AlternateMobileNo = string.IsNullOrWhiteSpace(_secondaryMobile) ? null : _secondaryMobile,
+                Email = string.IsNullOrWhiteSpace(_email) ? null : _email.Trim(),
+                VillageCount = _villageCount ?? 0,
+                SubDistrictCode = _selectedSubDistrictCode.Value,
+                DistrictCode = districtCode,
+                ChargeDate = _prabharDate,
+                VillageCodes = _selectedVillageCodes.Where(c => c.HasValue).Select(c => c!.Value).ToList()
+            });
+ 
+            if (result.IsSuccess)
+            {
+                // Same message as the Angular app: new user id and default password.
+                await DialogService.ShowMessageBoxAsync(
+                    Lang.Text("Officer saved", "सुरक्षित किया गया"),
+                    Lang.Text(
+                        $"User ID: {result.Data}, Password: 'nic'. Please note it down.",
+                        $"आपका यूजर आई.डी.: {result.Data}, और पासवर्ड: 'nic' हैं। कृपया नोट कर लेवे।"));
+ 
+                await Reset();
+                await LoadReport();
+            }
+            else
+            {
+                Snackbar.Add(result.Error ?? Lang.Text("Failed to save officer.", "अधिकारी सुरक्षित करने में विफल।"), Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add(Lang.Text("Failed to save officer.", "अधिकारी सुरक्षित करने में विफल।"), Severity.Error);
+        }
+        finally { _isLoading = false; }
+
     }
 
     private async Task LoadDeptOfficers()
@@ -199,7 +315,7 @@
 
         // reset dependents
         _selectedSubDistrictCode = null;
-        _selectedVillageCodes = null;
+        _selectedVillageCodes = [];
         _subdistricts.Clear();
         _villages.Clear();
 
@@ -227,7 +343,7 @@
     {
         _selectedSubDistrictCode = subDistrictCode;
 
-        _selectedVillageCodes = null;
+        _selectedVillageCodes = [];
         _villages.Clear();
 
         if (subDistrictCode is null) return;
@@ -297,8 +413,19 @@
 
     private async Task Reset()
     {
-        _reportData.Clear();
-        _searchString = string.Empty;
+        _selectedDeptOfficer = null;
+        _selectedSubDistrictCode = null;
+        _selectedVillageCodes = [];
+        _officerNameEn = null;
+        _primaryMobile = null;
+        _secondaryMobile = null;
+        _email = null;
+        _circleNameEn = null;
+        _villageCount = null;
+        _prabharDate = null;
+        _subdistricts.Clear();
+        _villages.Clear();
+        await _form!.ResetAsync();
     }
    
     private List<ExcelColumn<RheoOfficersDto>> GetColumns() => new()
@@ -336,4 +463,46 @@
              $"RHEOList.xlsx");
     }
     
+    // validations
+    private string? ValidateEnglishOnly(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Lang.Text("English name is required.", "अंग्रेज़ी नाम आवश्यक है।");
+
+        return Regex.IsMatch(value, @"^[a-zA-Z\s\-'\d]+$")
+            ? null
+            : Lang.Text("Only English letters are allowed.", "केवल अंग्रेज़ी अक्षर मान्य हैं।");
+    }
+    
+    private string? ValidatePrimaryMobile(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return Lang.Text("Primary mobile number is required.", "मोबाइल नंबर आवश्यक है।");
+
+        return Regex.IsMatch(value, @"^\d{10}$")
+            ? null
+            : Lang.Text("Enter a valid 10 digit mobile number.", "10 अंकों का मान्य मोबाइल नंबर दर्ज करें।");
+    }
+
+    private string? ValidateSecondaryMobile(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null; // optional
+
+        if (!Regex.IsMatch(value, @"^\d{10}$"))
+            return Lang.Text("Enter a valid 10 digit mobile number.", "10 अंकों का मान्य मोबाइल नंबर दर्ज करें।");
+
+        if (value == _primaryMobile)
+            return Lang.Text("Alternate number must differ from primary.", "अन्य नंबर मुख्य नंबर से अलग होना चाहिए।");
+
+        return null;
+    }
+
+    private string? ValidateEmail(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null; // optional
+
+        return Regex.IsMatch(value.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+            ? null
+            : Lang.Text("Enter a valid email address.", "मान्य ईमेल पता दर्ज करें।");
+    }
 }

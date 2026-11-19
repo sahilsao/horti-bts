@@ -165,9 +165,13 @@
                 </MudNavLink>
             </MudNavGroup>
             <MudNavGroup Title="@Lang.Text("User Report", "यूजर रिपोर्ट")" Ripple Icon="@Icons.Material.Filled.ListAlt">
-                <MudNavLink Href="/reports/add-officer" Match="NavLinkMatch.Prefix" Ripple
+                <MudNavLink Href="/users/add-officer" Match="NavLinkMatch.Prefix" Ripple
                             Icon="material-symbols-outlined/person_add">
                     @Lang.Text("Add New Officer", "नया अधिकारी जोड़ें")
+                </MudNavLink>
+                <MudNavLink Href="/users/officer-charge-transfer" Match="NavLinkMatch.Prefix" Ripple
+                            Icon="material-symbols-outlined/transfer_within_a_station">
+                    @Lang.Text("Transfer of Charge (Officer)", "(अधिकारी) प्रभार स्थानांतरण")
                 </MudNavLink>
                 <MudNavLink Href="/reports/rheo-list" Match="NavLinkMatch.Prefix" Ripple
                             Icon="material-symbols-outlined/patient_list">

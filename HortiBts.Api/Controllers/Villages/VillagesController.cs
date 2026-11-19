@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HortiBts.Api.Controllers.Villages
 {
-    [Route("api/get-villages-from-sub-district")]
+    [Route("api/[controller]")]
     [ApiController]
     public class VillagesController(IVillagesRepository villagesRepository, ILogger<VillagesController> logger) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("get-villages-from-sub-district")]
         [EndpointSummary("Get all villages from selected sub-district")]
         [EndpointDescription("Retrieves the list of all villages of the selected sub-district available in the system.")]
         public async Task<IActionResult> GetVillages([FromQuery] string SubDistrictCode)
@@ -28,7 +28,7 @@ namespace HortiBts.Api.Controllers.Villages
             }
         }
 
-        [HttpGet("for-rheo")]
+        [HttpGet("get-villages-for-rheo")]
         [EndpointSummary("Get all villages for rheo from selected sub-district")]
         [EndpointDescription("Retrieves the list of all villages for rheo of the selected sub-district available in the system.")]
         public async Task<IActionResult> GetVillagesForRheo([FromQuery] int DepartmentCode, [FromQuery] string SubDistrictCode)

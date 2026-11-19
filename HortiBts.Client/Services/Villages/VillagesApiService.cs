@@ -11,7 +11,7 @@ namespace HortiBts.Client.Services.Villages
         {
             try
             {
-                var response = await http.GetAsync($"api/get-villages-from-sub-district?subdistrictCode={subdistrictCode}");
+                var response = await http.GetAsync($"api/villages/get-villages-from-sub-district?subdistrictCode={subdistrictCode}");
                 return await ApiResultHelper.ReadResultAsync<List<VillagesDto>>(response);
             }
             catch (Exception ex)
@@ -24,7 +24,7 @@ namespace HortiBts.Client.Services.Villages
         {
             try
             {
-                var response = await http.GetAsync($"api/get-villages-from-sub-district/for-rheo?DepartmentCode={departmentCode}&SubdistrictCode={subdistrictCode}");
+                var response = await http.GetAsync($"api/villages/get-villages-for-rheo?DepartmentCode={departmentCode}&SubdistrictCode={subdistrictCode}");
                 return await ApiResultHelper.ReadResultAsync<List<VillagesForRHEODto>>(response);
             }
             catch (Exception ex)

@@ -71,6 +71,19 @@ namespace HortiBts.Client.Services.Officers
             }
         }
 
+        public async Task<Result<List<RheoOfficersPreviousAvailableVillagesDto>>> GetRheoOfficerPreviousAvailableVillagesListAsync(int officerCode, int flag)
+        {
+            try
+            {
+                var response = await http.GetAsync($"api/officers/get-rheo-officer-previously-available-villages?officerCode={officerCode}&flag={flag}");
+                return await ApiResultHelper.ReadResultAsync<List<RheoOfficersPreviousAvailableVillagesDto>>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<RheoOfficersPreviousAvailableVillagesDto>>.Failure($"Failed to fetch previously available village of rheo officer: {ex.Message}");
+            }
+        }
+
         public async Task<Result<List<RheoOfficerMappedVillagesDto>>> GetRheoOfficerMappedVillagesListAsync(int departmentCode, int officerCode)
         {
             try
@@ -80,7 +93,46 @@ namespace HortiBts.Client.Services.Officers
             }
             catch (Exception ex)
             {
-                return Result<List<RheoOfficerMappedVillagesDto>>.Failure($"Failed to fetch mapped district of rheo officer: {ex.Message}");
+                return Result<List<RheoOfficerMappedVillagesDto>>.Failure($"Failed to fetch mapped villages of rheo officer: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<List<RheoOfficersForChargeTransferDto>>> GetRheoOfficersListForChargeTranserAsync(int departmentCode, int districtCode)
+        {
+            try
+            {
+                var response = await http.GetAsync($"api/officers/get-rheo-officer-list-for-charge-transfer?departmentCode={departmentCode}&districtCode={districtCode}");
+                return await ApiResultHelper.ReadResultAsync<List<RheoOfficersForChargeTransferDto>>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<RheoOfficersForChargeTransferDto>>.Failure($"Failed to fetch rheo officer available for charge transfer: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<int>> SaveOfficerAsync(SaveOfficerDto dto)
+        {
+            try
+            {
+                var response = await http.PostAsJsonAsync("api/officers/save-officer", dto);
+                return await ApiResultHelper.ReadResultAsync<int>(response);   // new officer id
+            }
+            catch (Exception ex)
+            {
+                return Result<int>.Failure($"Failed to save officer: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<ChargeTransferResultDto>> SaveOfficerChargeTransferAsync(SaveOfficerChargeTransferDto dto)
+        {
+            try
+            {
+                var response = await http.PostAsJsonAsync("api/officers/transfer-charge", dto);
+                return await ApiResultHelper.ReadResultAsync<ChargeTransferResultDto>(response);
+            }
+            catch (Exception ex)
+            {
+                return Result<ChargeTransferResultDto>.Failure($"Failed to transfer charge: {ex.Message}");
             }
         }
     }
